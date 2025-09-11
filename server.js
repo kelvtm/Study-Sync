@@ -5,6 +5,14 @@ const mongoose = require("mongoose");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Serve static files from Vue build
+app.use(express.static(path.join(__dirname, "vue-project", "dist")));
+
+// Fallback: serve index.html for SPA routes (except API and special routes)
+app.get(/^\/(?!api|login|test|login-page).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "vue-project", "dist", "index.html"));
+});
+
 console.log("Loaded MONGO_URI:", process.env.MONGO_URI); // Debugging line
 
 // Connect to MongoDB

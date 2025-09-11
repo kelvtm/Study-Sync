@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cd vue-project && npm run build",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
