@@ -5,12 +5,14 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
+// Load environment variables from .env file
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 const VUE_DEV_ORIGIN = "http://localhost:5173";
 
+// --- Middleware ---
 app.use(express.json());
 app.use(
   cors({
