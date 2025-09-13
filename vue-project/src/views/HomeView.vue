@@ -12,10 +12,12 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from "vue-router"
 
 const email = ref('')
 const password = ref('')
 const message = ref('')
+const router = useRouter()
 
 const login = async () => {
   try {
@@ -29,6 +31,10 @@ const login = async () => {
     })
     const data = await res.json()
     message.value = data.message || 'Login attempt complete'
+     if (res.ok) {
+      // ✅ redirect to /about after successful login
+      router.push("/studysync")
+    }
   } catch (err) {
     message.value = 'Error: ' + err.message
   }
