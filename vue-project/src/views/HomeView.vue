@@ -7,6 +7,9 @@
       <button type="submit">Login</button>
     </form>
     <div v-if="message">{{ message }}</div>
+
+    <!-- ✅ Button to redirect -->
+    <button @click="goToSignup">Create Account</button>
   </div>
 </template>
 
@@ -38,6 +41,10 @@ const login = async () => {
   } catch (err) {
     message.value = 'Error: ' + err.message
   }
+}
+
+const goToSignup = () => {
+  router.push("/signup")
 }
 </script>
 
