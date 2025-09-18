@@ -17,7 +17,7 @@ import HelloWorld from "./components/HelloWorld.vue";
       <HelloWorld msg="You did it!" />
 
       <nav>
-        <RouterLink to="/">Sign In</RouterLink>
+        <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
       </nav>
     </div>
@@ -26,22 +26,20 @@ import HelloWorld from "./components/HelloWorld.vue";
   <RouterView />
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
+<style>
 nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+  /* z-index: 10; */
+  /* position: fixed; */
+  /* font-family: "Oswald", sans-serif; */
+  /* font-size: 24px; */
+  /* white-space: nowrap; */
+  letter-spacing: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 25px;
+  /* width: 100vw; */
+  /* background: rgb(255 255 255 / 50%); */
 }
 
 nav a.router-link-exact-active {
@@ -66,26 +64,6 @@ nav a:first-of-type {
   header {
     display: flex;
     place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
   }
 }
 </style>
