@@ -5,20 +5,20 @@ import HelloWorld from "./components/HelloWorld.vue";
 
 <template>
   <header>
-    <img
-      alt="Vue logo"
-      class="logo"
-      src="@/assets/logo.svg"
-      width="125"
-      height="125"
-    />
-
     <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+      <h1 class="heading">
+        <span style="color: var(--secondary-color)">Study</span>
+        Sync
+      </h1>
+      <HelloWorld
+        msg="Helping students solve procastition by studying with peers"
+      />
 
       <nav>
         <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+        <RouterLink to="/about">Task Deasline</RouterLink>
+        <RouterLink to="/about">Peer Charts</RouterLink>
+        <RouterLink to="/about">Task Completion</RouterLink>
       </nav>
     </div>
   </header>
