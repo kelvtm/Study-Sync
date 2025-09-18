@@ -1,19 +1,29 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
-import HelloWorld from "./components/HelloWorld.vue";
+// import HelloWorld from "./components/HelloWorld.vue";
 </script>
 
 <template>
   <header>
     <div class="wrapper">
-      <h1 class="heading">
-        <span style="color: var(--secondary-color)">Study</span>
-        Sync
-      </h1>
-      <HelloWorld
-        msg="Helping students solve procastition by studying with peers"
-      />
+      <div class="heading">
+        <h1><span style="color: var(--secondary-color)">Study</span>Sync</h1>
+      </div>
+      <div class="user-icons">
+        <button class="text-gray-600 text-xl">
+          <i class="fas fa-bell"></i>
+        </button>
+        <button class="text-gray-600 text-xl">
+          <i class="fas fa-user-circle"></i>
+        </button>
+      </div>
+      <!-- <h2>Helping students solve procastition by studying with peers</h2> -->
 
+      <!-- <HelloWorld
+        msg="Helping students solve procastition by studying with peers"
+      /> -->
+    </div>
+    <div class="nav-wrapper">
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">Task Deasline</RouterLink>
@@ -60,10 +70,20 @@ nav a:first-of-type {
   border: 0;
 }
 
+.wrapper {
+  display: flex;
+  justify-content: space-between; /* horizontal */
+}
+
+.user-icons {
+  display: flex;
+  gap: 15px;
+}
+
 @media (min-width: 1024px) {
-  header {
+  /* header {
     display: flex;
     place-items: center;
-  }
+  } */
 }
 </style>
