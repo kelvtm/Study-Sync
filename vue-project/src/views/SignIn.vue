@@ -3,7 +3,12 @@
     <h2>Login</h2>
     <form @submit.prevent="login">
       <input type="email" v-model="email" placeholder="Email" required /><br />
-      <input type="password" v-model="password" placeholder="Password" required /><br />
+      <input
+        type="password"
+        v-model="password"
+        placeholder="Password"
+        required
+      /><br />
       <button type="submit">Login</button>
     </form>
     <div v-if="message">{{ message }}</div>
@@ -14,38 +19,38 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from "vue-router"
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
-const email = ref('')
-const password = ref('')
-const message = ref('')
-const router = useRouter()
+const email = ref("");
+const password = ref("");
+const message = ref("");
+const router = useRouter();
 
 const login = async () => {
   try {
-    const res = await fetch('http://localhost:3000/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("http://localhost:3000/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: email.value,
         password: password.value,
       }),
-    })
-    const data = await res.json()
-    message.value = data.message || 'Login attempt complete'
-     if (res.ok) {
+    });
+    const data = await res.json();
+    message.value = data.message || "Login attempt complete";
+    if (res.ok) {
       // ✅ redirect to /about after successful login
-      router.push("/studysync")
+      router.push("/home");
     }
   } catch (err) {
-    message.value = 'Error: ' + err.message
+    message.value = "Error: " + err.message;
   }
-}
+};
 
 const goToSignup = () => {
-  router.push("/signup")
-}
+  router.push("/signup");
+};
 </script>
 
 <style scoped>
