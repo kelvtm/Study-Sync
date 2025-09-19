@@ -17,7 +17,6 @@ import { RouterLink, RouterView } from "vue-router";
           <i class="fas fa-user-circle"></i>
         </button>
       </div>
-      <!-- <h2>Helping students solve procastition by studying with peers</h2> -->
 
       <!-- <HelloWorld
         msg="Helping students solve procastition by studying with peers"
