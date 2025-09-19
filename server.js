@@ -4,13 +4,13 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-// import { createServer } from "http"; // (if needed for Socket.IO)
-// import { Server } from "socket.io"; // (if needed for Socket.IO)
+import { createServer } from "http"; // (if needed for Socket.IO)
+import { Server } from "socket.io"; // (if needed for Socket.IO)
 
 // Load environment variables from .env file
 dotenv.config();
 const app = express();
-// const httpServer = createServer(app); // wrap express with http
+const httpServer = createServer(app); // wrap express with http
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 const VUE_DEV_ORIGIN = "http://localhost:5173";
@@ -106,7 +106,29 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || "Internal server error" });
 });
 
+// --- Socket.IO setup ---
+const io = new Server(httpServer, {
+  cors: {
+    origin: VUE_DEV_ORIGIN, // allow frontend dev server
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(`🔌 User connected: ${socket.id}`);
+
+  // listen for test messages
+  socket.on("chat message", (msg) => {
+    console.log("💬 Message received:", msg);
+    io.emit("chat message", msg); // broadcast to everyone
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`❌ User disconnected: ${socket.id}`);
+  });
+});
+
 // --- Start server ---
-app.listen(PORT, () =>
-  console.log(`🚀 Server listening on http://localhost:${PORT}`)
+httpServer.listen(PORT, () =>
+  console.log(`🚀  Server + Socket.IO  listening on http://localhost:${PORT}`)
 );
