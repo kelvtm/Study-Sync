@@ -4,10 +4,13 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+// import { createServer } from "http"; // (if needed for Socket.IO)
+// import { Server } from "socket.io"; // (if needed for Socket.IO)
 
 // Load environment variables from .env file
 dotenv.config();
 const app = express();
+// const httpServer = createServer(app); // wrap express with http
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 const VUE_DEV_ORIGIN = "http://localhost:5173";
@@ -38,14 +41,6 @@ async function connectDB() {
 }
 connectDB();
 
-// --- Models ---
-const noteSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  body: String,
-  createdAt: { type: Date, default: Date.now },
-});
-const Note = mongoose.model("Note", noteSchema);
-
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true },
@@ -57,34 +52,6 @@ const User = mongoose.model("User", userSchema);
 
 // --- Routes ---
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
-
-app.get("/api/notes", async (req, res) => {
-  try {
-    const notes = await Note.find().sort({ createdAt: -1 });
-    res.json(notes);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post("/api/notes", async (req, res) => {
-  try {
-    const note = new Note(req.body);
-    await note.save();
-    res.status(201).json(note);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-app.delete("/api/notes/:id", async (req, res) => {
-  try {
-    await Note.findByIdAndDelete(req.params.id);
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // Login route
 app.post("/login", async (req, res) => {
