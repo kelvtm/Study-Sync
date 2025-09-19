@@ -6,8 +6,18 @@
       alt="Students studying"
     />
     <h2>Helping students solve procrastination by studying with peers</h2>
+    <button @click="goToSync" class="btn-el">start pair session</button>
   </div>
 </template>
+
+<script setup>
+import { useRouter } from "vue-router";
+const router = useRouter();
+
+const goToSync = () => {
+  router.push("/sync");
+};
+</script>
 
 <style scoped>
 .home-wrapper {
@@ -28,5 +38,17 @@
 h2 {
   font-size: 1.5rem;
   color: #333;
+}
+
+.btn-el {
+  background-color: var(--secondary-color); /* green */
+  /* border: none; */
+  font-family: "Nunito", serif;
+  font-weight: 400;
+  color: var(--primary-color);
+  font-style: normal;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 </style>
