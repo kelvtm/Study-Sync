@@ -41,14 +41,7 @@ async function connectDB() {
 }
 connectDB();
 
-const userSchema = new mongoose.Schema(
-  {
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-  },
-  { collection: "users" }
-);
-const User = mongoose.model("User", userSchema);
+import User from "./db-models/user.js";
 
 // --- Routes ---
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
