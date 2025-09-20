@@ -58,7 +58,13 @@ app.post("/login", async (req, res) => {
     if (!user) return res.status(401).json({ message: "User not found" });
     if (user.password !== password)
       return res.status(401).json({ message: "Incorrect password" });
-    res.json({ message: "Login successful!" });
+    res.json({
+      message: "Login successful!",
+      user: {
+        id: user._id,
+        email: user.email,
+      },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -77,7 +83,13 @@ app.post("/signup", async (req, res) => {
     const newUser = new User({ email, password });
     await newUser.save();
 
-    res.status(201).json({ message: "Account created successfully" });
+    res.status(201).json({
+      message: "Account created successfully",
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+      },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

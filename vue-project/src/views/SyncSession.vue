@@ -59,7 +59,7 @@ const sessionTime = ref("25"); // default
 const statusMessage = ref("");
 
 // temporary: replace with logged-in user from your auth
-const userId = "66e41ffbe39d9b3123e8c111";
+const userId = localStorage.getItem("userId");
 
 const findPartner = async () => {
   try {
@@ -68,9 +68,9 @@ const findPartner = async () => {
     });
 
     if (res.data.session.status === "waiting") {
-      statusMessage.value = "Waiting for a partner...";
+      statusMessage.value = `Waiting for a partner...${userId}`;
     } else if (res.data.session.status === "active") {
-      statusMessage.value = "Paired successfully! Session started 🎉";
+      statusMessage.value = `Paired successfully! Session started ${userId}🎉`;
       // later: redirect to chat modal
     }
   } catch (err) {

@@ -20,6 +20,7 @@
 
 <script setup>
 import { ref } from "vue";
+import axios from "axios";
 import { useRouter } from "vue-router";
 
 const email = ref("");
@@ -37,11 +38,16 @@ const login = async () => {
         password: password.value,
       }),
     });
-    const data = await res.json();
+    const data = await res.json(); // parse JSON
+
     message.value = data.message || "Login attempt complete";
-    if (res.ok) {
-      // ✅ redirect to /about after successful login
+
+    if (res.ok && data.user) {
+      // ✅ redirect to home after successful login
       router.push("/home");
+      // ✅ Store user ID dynamically
+      localStorage.setItem("userId", data.user.id);
+      console.log("Logged in user ID:", data.user.id);
     }
   } catch (err) {
     message.value = "Error: " + err.message;
