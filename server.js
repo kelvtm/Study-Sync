@@ -41,7 +41,11 @@ async function connectDB() {
 }
 connectDB();
 
+// Session routes
+import sessionRoutes from "./routes/sessionRoutes.js";
+//import User model for auth routes
 import User from "./db-models/user.js";
+app.use("/api/sessions", sessionRoutes);
 
 // --- Routes ---
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
