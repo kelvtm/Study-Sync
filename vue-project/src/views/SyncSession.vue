@@ -21,7 +21,17 @@
     <!-- Chat Interface -->
     <div v-if="activeSession" class="chat-section">
       <div class="chat-header">
-        <h3>Study Session with {{ partnerEmail }}</h3>
+        <div class="session-info">
+          <h3>Study Session with {{ partnerUsername }}</h3>
+          <div class="timer-container">
+            <div class="timer-display" :style="{ color: getTimerColor() }">
+              {{ formattedTime }}
+            </div>
+            <div v-if="timerWarning" class="timer-warning">
+              {{ timerWarning }}
+            </div>
+          </div>
+        </div>
         <button @click="endSession" class="btn-end">End Session</button>
       </div>
 
@@ -33,15 +43,17 @@
         >
           <div class="message-info">
             <span class="sender">{{
-              message.userId === userId ? "You" : partnerEmail
+              message.userId === userId ? "You" : partnerUsername
             }}</span>
-            <span class="timestamp">{{ formatTime(message.timestamp) }}</span>
+            <span class="timestamp">{{
+              formatMessageTime(message.timestamp)
+            }}</span>
           </div>
           <div class="message-content">{{ message.message }}</div>
         </div>
 
         <div v-if="partnerTyping" class="typing-indicator">
-          {{ partnerEmail }} is typing...
+          {{ partnerUsername }} is typing...
         </div>
       </div>
 
@@ -62,6 +74,24 @@
         </button>
       </div>
     </div>
+
+    <!-- End Session Confirmation Modal -->
+    <div v-if="showEndConfirmation" class="modal-overlay">
+      <div class="confirmation-modal">
+        <h3>⚠️ End Study Session?</h3>
+        <p>Are you sure you want to end this session early?</p>
+        <p class="warning-text">
+          This will count as a quit session and will be added to your profile
+          statistics. Your study partner will also be notified.
+        </p>
+        <div class="modal-buttons">
+          <button @click="cancelEndSession" class="btn-cancel">Cancel</button>
+          <button @click="confirmEndSession" class="btn-confirm">
+            End Session
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -76,14 +106,22 @@ const statusMessage = ref("");
 const isSearching = ref(false);
 const activeSession = ref(null);
 const partnerEmail = ref("");
+const partnerUsername = ref("");
 const messages = ref([]);
 const newMessage = ref("");
 const partnerTyping = ref(false);
 const messagesContainer = ref(null);
 
+// Timer data
+const remainingTime = ref(0);
+const formattedTime = ref("25:00");
+const showEndConfirmation = ref(false);
+const timerWarning = ref("");
+
 // Socket and user info
 let socket = null;
 const userId = localStorage.getItem("userId");
+const username = localStorage.getItem("username");
 let typingTimer = null;
 
 // Initialize socket connection
@@ -103,6 +141,26 @@ const initSocket = () => {
         startChatSession(data.sessionId);
       }, 1000);
     }
+  });
+
+  // Listen for timer updates
+  socket.on("timer_update", (data) => {
+    remainingTime.value = data.remainingTime;
+    formattedTime.value = data.formattedTime;
+  });
+
+  // Listen for timer warnings
+  socket.on("timer_warning", (data) => {
+    timerWarning.value = data.message;
+    setTimeout(() => {
+      timerWarning.value = "";
+    }, 5000);
+  });
+
+  // Listen for session completed naturally
+  socket.on("session_completed", (data) => {
+    alert("🎉 " + data.message);
+    resetSession();
   });
 
   // Listen for successful session join
@@ -130,7 +188,13 @@ const initSocket = () => {
 
   // Listen for session ended
   socket.on("session_ended", (data) => {
-    alert("Study session has ended");
+    if (data.reason === "user_quit") {
+      alert(
+        `Session ended. Your study partner left the session. You studied for ${data.actualDuration} minutes.`
+      );
+    } else {
+      alert(`Session ended. You studied for ${data.actualDuration} minutes.`);
+    }
     resetSession();
   });
 
@@ -159,6 +223,7 @@ const findPartner = async () => {
   try {
     const res = await axios.post("http://localhost:3000/api/sessions/pair", {
       userId,
+      sessionTimeMinutes: parseInt(sessionTime.value),
     });
 
     if (res.data.session.status === "waiting") {
@@ -185,14 +250,21 @@ const startChatSession = async (sessionId, partnerId) => {
     );
     const session = sessionRes.data.session;
 
-    // Find partner's email
+    // Find partner's details
     const partner = session.participants.find((p) => p._id !== userId);
     partnerEmail.value = partner ? partner.email : "Unknown";
+    partnerUsername.value = partner ? partner.username : "Unknown";
 
     activeSession.value = {
       id: sessionId,
+      plannedDuration: session.plannedDurationMinutes,
       ...session,
     };
+
+    // Initialize timer
+    remainingTime.value =
+      session.remainingTimeSeconds || session.plannedDurationMinutes * 60;
+    formattedTime.value = formatTime(remainingTime.value);
 
     isSearching.value = false;
     statusMessage.value = "";
@@ -256,8 +328,12 @@ const handleTyping = () => {
   }, 1000);
 };
 
-// End session
-const endSession = async () => {
+// End session with confirmation
+const endSession = () => {
+  showEndConfirmation.value = true;
+};
+
+const confirmEndSession = async () => {
   if (!activeSession.value) return;
 
   try {
@@ -267,21 +343,32 @@ const endSession = async () => {
         userId,
       }
     );
-    resetSession();
+    showEndConfirmation.value = false;
+    // resetSession will be called when we receive the socket event
   } catch (error) {
     console.error("Error ending session:", error);
+    showEndConfirmation.value = false;
   }
+};
+
+const cancelEndSession = () => {
+  showEndConfirmation.value = false;
 };
 
 // Reset session state
 const resetSession = () => {
   activeSession.value = null;
   partnerEmail.value = "";
+  partnerUsername.value = "";
   messages.value = [];
   newMessage.value = "";
   partnerTyping.value = false;
   isSearching.value = false;
   statusMessage.value = "";
+  remainingTime.value = 0;
+  formattedTime.value = "00:00";
+  timerWarning.value = "";
+  showEndConfirmation.value = false;
 };
 
 // Scroll to bottom of messages
@@ -293,8 +380,24 @@ const scrollToBottom = () => {
   });
 };
 
-// Format timestamp
-const formatTime = (timestamp) => {
+// Format time for display
+const formatTime = (seconds) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs
+    .toString()
+    .padStart(2, "0")}`;
+};
+
+// Get timer color based on remaining time
+const getTimerColor = () => {
+  if (remainingTime.value > 600) return "#28a745"; // Green > 10 minutes
+  if (remainingTime.value > 300) return "#ffc107"; // Yellow > 5 minutes
+  return "#dc3545"; // Red <= 5 minutes
+};
+
+// Format timestamp for messages
+const formatMessageTime = (timestamp) => {
   return new Date(timestamp).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
@@ -371,9 +474,38 @@ onUnmounted(() => {
   border-bottom: 1px solid #ddd;
 }
 
-.chat-header h3 {
+.session-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.session-info h3 {
   margin: 0;
   color: #333;
+}
+
+.timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.timer-display {
+  font-size: 1.5em;
+  font-weight: bold;
+  font-family: "Courier New", monospace;
+  transition: color 0.3s ease;
+}
+
+.timer-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  border: 1px solid #ffeaa7;
 }
 
 .btn-end {
@@ -461,5 +593,82 @@ onUnmounted(() => {
 .btn-send:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirmation-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.confirmation-modal h3 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.confirmation-modal p {
+  margin-bottom: 15px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.warning-text {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 12px;
+  color: #856404;
+  font-size: 0.9em;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.btn-cancel {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-confirm {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-cancel:hover {
+  background-color: #5a6268;
+}
+
+.btn-confirm:hover {
+  background-color: #c82333;
 }
 </style>

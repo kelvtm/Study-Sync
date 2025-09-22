@@ -64,6 +64,7 @@ app.post("/login", async (req, res) => {
       user: {
         id: user._id,
         email: user.email,
+        username: user.username,
       },
     });
   } catch (err) {
@@ -73,14 +74,31 @@ app.post("/login", async (req, res) => {
 
 // POST /signup route
 app.post("/signup", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, username } = req.body;
   try {
-    const existing = await User.findOne({ email });
-    if (existing) {
-      return res.status(400).json({ message: "User already exists" });
+    // Validate input
+    if (!username || username.trim().length < 3) {
+      return res
+        .status(400)
+        .json({ message: "Username must be at least 3 characters" });
     }
 
-    const newUser = new User({ email, password });
+    // Check if user already exists
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    const existingUsername = await User.findOne({ username: username.trim() });
+    if (existingUsername) {
+      return res.status(400).json({ message: "Username already taken" });
+    }
+
+    const newUser = new User({
+      email,
+      password,
+      username: username.trim(),
+    });
     await newUser.save();
 
     res.status(201).json({
@@ -88,7 +106,85 @@ app.post("/signup", async (req, res) => {
       user: {
         id: newUser._id,
         email: newUser.email,
+        username: newUser.username,
       },
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get user stats route
+app.get("/api/users/:userId/stats", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      stats: {
+        totalStudyMinutes: user.totalStudyMinutes,
+        completedSessions: user.completedSessions,
+        quitSessions: user.quitSessions,
+        disconnectedSessions: user.disconnectedSessions,
+        longestSession: user.longestSession,
+        currentStreak: user.currentStreak,
+        lastStudyDate: user.lastStudyDate,
+        weeklyStudyMinutes: user.weeklyStudyMinutes,
+        weeklyCompletedSessions: user.weeklyCompletedSessions,
+      },
+      user: {
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get leaderboard route
+app.get("/api/leaderboard", async (req, res) => {
+  try {
+    // Reset weekly stats if needed (check if a week has passed)
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    // Update users whose last reset was more than a week ago
+    await User.updateMany(
+      { lastWeekReset: { $lt: oneWeekAgo } },
+      {
+        $set: {
+          weeklyStudyMinutes: 0,
+          weeklyCompletedSessions: 0,
+          lastWeekReset: new Date(),
+        },
+      }
+    );
+
+    // Get top users by weekly study time
+    const topUsers = await User.find({
+      weeklyCompletedSessions: { $gte: 1 }, // At least 1 session
+    })
+      .select(
+        "username weeklyStudyMinutes weeklyCompletedSessions totalStudyMinutes"
+      )
+      .sort({ weeklyStudyMinutes: -1 })
+      .limit(50); // Top 50 users
+
+    res.json({
+      leaderboard: topUsers.map((user, index) => ({
+        rank: index + 1,
+        username: user.username,
+        weeklyStudyMinutes: user.weeklyStudyMinutes,
+        weeklyCompletedSessions: user.weeklyCompletedSessions,
+        totalStudyMinutes: user.totalStudyMinutes,
+        badge: index < 3 ? ["Gold", "Silver", "Bronze"][index] : null,
+      })),
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
