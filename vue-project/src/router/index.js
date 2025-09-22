@@ -3,6 +3,8 @@ import SignIn from "../views/SignIn.vue";
 import SignupView from "../views/SignupView.vue";
 import HomeView from "../views/HomeView.vue";
 import SyncSession from "../views/SyncSession.vue";
+import UserProfile from "@/views/UserProfile.vue";
+import PeerLeaderboard from "@/views/PeerLeaderboard.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,6 +21,8 @@ const router = createRouter({
       component: HomeView,
     },
     { path: "/sync", name: "sync", component: SyncSession },
+    { path: "/profile", name: "profile", component: UserProfile },
+    { path: "/leaderboard", name: "leaderboard", component: PeerLeaderboard },
   ],
 });
 
