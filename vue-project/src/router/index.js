@@ -5,6 +5,7 @@ import HomeView from "../views/HomeView.vue";
 import SyncSession from "../views/SyncSession.vue";
 import UserProfile from "@/views/UserProfile.vue";
 import PeerLeaderboard from "@/views/PeerLeaderboard.vue";
+import TaskBreakdown from "@/views/TaskBreakdown.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +24,7 @@ const router = createRouter({
     { path: "/sync", name: "sync", component: SyncSession },
     { path: "/profile", name: "profile", component: UserProfile },
     { path: "/leaderboard", name: "leaderboard", component: PeerLeaderboard },
+    { path: "/task", name: "task", component: TaskBreakdown },
   ],
 });
 

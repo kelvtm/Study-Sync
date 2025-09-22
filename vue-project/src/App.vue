@@ -24,10 +24,10 @@ import { RouterLink, RouterView } from "vue-router";
     </div>
     <div class="nav-wrapper">
       <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">Task Deasline</RouterLink>
-        <RouterLink to="/about">Peer Charts</RouterLink>
-        <RouterLink to="/about">Task Completion</RouterLink>
+        <RouterLink to="/home">Home</RouterLink>
+        <RouterLink to="/leaderboard">Leaderboard</RouterLink>
+        <RouterLink to="/sync">Sync session</RouterLink>
+        <RouterLink to="/task">Task Breakdown</RouterLink>
       </nav>
     </div>
   </header>
