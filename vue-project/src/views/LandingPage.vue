@@ -2,11 +2,12 @@
   <div class="home-wrapper">
     <img
       class="image-1"
-      src="https://media.istockphoto.com/id/1347747136/vector/group-of-students-studying.jpg?s=612x612&w=0&k=20&c=t8UwXDXTCu2O-2mOLE8_aQ7KTXxjuUk_WgiR0cS6pSk="
+      src="https://media.istockphoto.com/id/2225813956/photo/group-of-students-collaborating-during-study-session-in-library-setting.jpg?s=612x612&w=0&k=20&c=Ueo8vMnxvbvPFy6Oefc4HBaAv1G1haGnZ-EGmLIqCuo="
       alt="Students studying"
     />
     <h2>Helping students solve procrastination by studying with peers</h2>
-    <button @click="goToSync" class="btn-el">start pair session</button>
+    <button @click="goToIn" class="/signin">Login</button>
+    <button @click="goToUp" class="/signup">sign up</button>
   </div>
 </template>
 
@@ -14,8 +15,11 @@
 import { useRouter } from "vue-router";
 const router = useRouter();
 
-const goToSync = () => {
-  router.push("/sync");
+const goToIn = () => {
+  router.push("/signin");
+};
+const goToUp = () => {
+  router.push("/signup");
 };
 </script>
 

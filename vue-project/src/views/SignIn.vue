@@ -44,7 +44,7 @@ const login = async () => {
 
     if (res.ok && data.user) {
       // ✅ redirect to home after successful login
-      router.push("/home");
+      router.push("/sync");
       // ✅ Store user ID dynamically
       localStorage.setItem("userId", data.user.id);
       console.log("Logged in user ID:", data.user.id);

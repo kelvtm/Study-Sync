@@ -2,6 +2,11 @@
   <div class="sync-wrapper">
     <!-- Pairing Interface -->
     <div v-if="!activeSession" class="pairing-section">
+      <img
+        class="image-1"
+        src="https://media.istockphoto.com/id/1347747136/vector/group-of-students-studying.jpg?s=612x612&w=0&k=20&c=t8UwXDXTCu2O-2mOLE8_aQ7KTXxjuUk_WgiR0cS6pSk="
+        alt="Students studying"
+      />
       <h2>Start a Pair Study Session</h2>
 
       <label for="time">Select session length:</label>

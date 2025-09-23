@@ -13,9 +13,6 @@ import { RouterLink, RouterView } from "vue-router";
         <button class="text-gray-600 text-xl">
           <i class="fas fa-bell"></i>
         </button>
-        <button class="text-gray-600 text-xl">
-          <i class="fas fa-user-circle"></i>
-        </button>
       </div>
 
       <!-- <HelloWorld
@@ -24,9 +21,10 @@ import { RouterLink, RouterView } from "vue-router";
     </div>
     <div class="nav-wrapper">
       <nav>
-        <RouterLink to="/home">Home</RouterLink>
+        <i class="fas fa-user-circle"></i>
+        <RouterLink to="/profile">Profile</RouterLink>
+        <RouterLink to="/sync">Home</RouterLink>
         <RouterLink to="/leaderboard">Leaderboard</RouterLink>
-        <RouterLink to="/sync">Sync session</RouterLink>
         <RouterLink to="/task">Task Breakdown</RouterLink>
       </nav>
     </div>
