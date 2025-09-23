@@ -1,137 +1,158 @@
 <template>
   <div class="profile-container">
-    <div class="profile-header">
-      <div class="profile-info">
-        <div class="avatar">
-          {{ userStats?.user?.username?.charAt(0).toUpperCase() || "U" }}
+    <!-- Loading State -->
+    <div class="loading" v-if="loading">
+      <div class="spinner"></div>
+      <p>Loading your profile...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error" v-if="error && !loading">
+      <div class="error-icon">⚠️</div>
+      <h3>Failed to load profile</h3>
+      <p>{{ error }}</p>
+      <button @click="fetchUserStats" class="retry-btn">Try Again</button>
+    </div>
+
+    <!-- Profile Content -->
+    <div v-if="!loading && !error && userStats">
+      <div class="profile-header">
+        <div class="profile-info">
+          <div class="avatar">
+            {{ userStats.user?.username?.charAt(0).toUpperCase() || "U" }}
+          </div>
+          <div class="user-details">
+            <h1>{{ userStats.user?.username || "Unknown User" }}</h1>
+            <p class="email">{{ userStats.user?.email || "" }}</p>
+            <p class="member-since">
+              Member since {{ formatDate(userStats.user?.createdAt) }}
+            </p>
+          </div>
         </div>
-        <div class="user-details">
-          <h1>{{ userStats?.user?.username || "Loading..." }}</h1>
-          <p class="email">{{ userStats?.user?.email }}</p>
-          <p class="member-since">
-            Member since {{ formatDate(userStats?.user?.createdAt) }}
+      </div>
+
+      <div class="stats-grid">
+        <!-- Total Study Time -->
+        <div class="stat-card primary">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-content">
+            <h3>{{ formatHours(userStats.stats?.totalStudyMinutes || 0) }}</h3>
+            <p>Total Study Time</p>
+          </div>
+        </div>
+
+        <!-- Completed Sessions -->
+        <div class="stat-card success">
+          <div class="stat-icon">✅</div>
+          <div class="stat-content">
+            <h3>{{ userStats.stats?.completedSessions || 0 }}</h3>
+            <p>Completed Sessions</p>
+          </div>
+        </div>
+
+        <!-- Current Streak -->
+        <div class="stat-card warning">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-content">
+            <h3>{{ userStats.stats?.currentStreak || 0 }}</h3>
+            <p>Day Streak</p>
+          </div>
+        </div>
+
+        <!-- Longest Session -->
+        <div class="stat-card info">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-content">
+            <h3>{{ formatMinutes(userStats.stats?.longestSession || 0) }}</h3>
+            <p>Longest Session</p>
+          </div>
+        </div>
+
+        <!-- Weekly Stats -->
+        <div class="stat-card secondary">
+          <div class="stat-icon">📅</div>
+          <div class="stat-content">
+            <h3>{{ formatHours(userStats.stats?.weeklyStudyMinutes || 0) }}</h3>
+            <p>This Week</p>
+          </div>
+        </div>
+
+        <!-- Quit Sessions (if any) -->
+        <div
+          class="stat-card danger"
+          v-if="(userStats.stats?.quitSessions || 0) > 0"
+        >
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-content">
+            <h3>{{ userStats.stats?.quitSessions || 0 }}</h3>
+            <p>Early Quits</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Study Progress -->
+      <div class="progress-section">
+        <h2>Study Progress</h2>
+
+        <div class="progress-card">
+          <div class="progress-header">
+            <h3>Completion Rate</h3>
+            <span class="percentage">{{ completionRate }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              :style="{ width: completionRate + '%' }"
+            ></div>
+          </div>
+          <p class="progress-description">
+            {{ userStats.stats?.completedSessions || 0 }} completed out of
+            {{ totalSessions }} total sessions
+          </p>
+        </div>
+
+        <div class="progress-card">
+          <div class="progress-header">
+            <h3>Weekly Goal Progress</h3>
+            <span class="percentage">{{ weeklyProgress }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill weekly"
+              :style="{ width: Math.min(weeklyProgress, 100) + '%' }"
+            ></div>
+          </div>
+          <p class="progress-description">
+            {{ formatHours(userStats.stats?.weeklyStudyMinutes || 0) }} of 10
+            hours weekly goal
           </p>
         </div>
       </div>
-    </div>
 
-    <div class="stats-grid" v-if="userStats">
-      <!-- Total Study Time -->
-      <div class="stat-card primary">
-        <div class="stat-icon">⏱️</div>
-        <div class="stat-content">
-          <h3>{{ formatHours(userStats.stats.totalStudyMinutes) }}</h3>
-          <p>Total Study Time</p>
-        </div>
-      </div>
-
-      <!-- Completed Sessions -->
-      <div class="stat-card success">
-        <div class="stat-icon">✅</div>
-        <div class="stat-content">
-          <h3>{{ userStats.stats.completedSessions }}</h3>
-          <p>Completed Sessions</p>
-        </div>
-      </div>
-
-      <!-- Current Streak -->
-      <div class="stat-card warning">
-        <div class="stat-icon">🔥</div>
-        <div class="stat-content">
-          <h3>{{ userStats.stats.currentStreak }}</h3>
-          <p>Day Streak</p>
-        </div>
-      </div>
-
-      <!-- Longest Session -->
-      <div class="stat-card info">
-        <div class="stat-icon">🏆</div>
-        <div class="stat-content">
-          <h3>{{ formatMinutes(userStats.stats.longestSession) }}</h3>
-          <p>Longest Session</p>
-        </div>
-      </div>
-
-      <!-- Weekly Stats -->
-      <div class="stat-card secondary">
-        <div class="stat-icon">📅</div>
-        <div class="stat-content">
-          <h3>{{ formatHours(userStats.stats.weeklyStudyMinutes) }}</h3>
-          <p>This Week</p>
-        </div>
-      </div>
-
-      <!-- Quit Sessions (if any) -->
-      <div class="stat-card danger" v-if="userStats.stats.quitSessions > 0">
-        <div class="stat-icon">⚠️</div>
-        <div class="stat-content">
-          <h3>{{ userStats.stats.quitSessions }}</h3>
-          <p>Early Quits</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Study Progress -->
-    <div class="progress-section" v-if="userStats">
-      <h2>Study Progress</h2>
-
-      <div class="progress-card">
-        <div class="progress-header">
-          <h3>Completion Rate</h3>
-          <span class="percentage">{{ completionRate }}%</span>
-        </div>
-        <div class="progress-bar">
+      <!-- Achievements -->
+      <div class="achievements-section">
+        <h2>Achievements</h2>
+        <div class="achievements-grid">
           <div
-            class="progress-fill"
-            :style="{ width: completionRate + '%' }"
-          ></div>
-        </div>
-        <p class="progress-description">
-          {{ userStats.stats.completedSessions }} completed out of
-          {{ totalSessions }} total sessions
-        </p>
-      </div>
-
-      <div class="progress-card">
-        <div class="progress-header">
-          <h3>Weekly Goal Progress</h3>
-          <span class="percentage">{{ weeklyProgress }}%</span>
-        </div>
-        <div class="progress-bar">
-          <div
-            class="progress-fill weekly"
-            :style="{ width: Math.min(weeklyProgress, 100) + '%' }"
-          ></div>
-        </div>
-        <p class="progress-description">
-          {{ formatHours(userStats.stats.weeklyStudyMinutes) }} of 10 hours
-          weekly goal
-        </p>
-      </div>
-    </div>
-
-    <!-- Achievements -->
-    <div class="achievements-section" v-if="userStats">
-      <h2>Achievements</h2>
-      <div class="achievements-grid">
-        <div
-          v-for="achievement in achievements"
-          :key="achievement.id"
-          :class="['achievement', { unlocked: achievement.unlocked }]"
-        >
-          <div class="achievement-icon">{{ achievement.icon }}</div>
-          <div class="achievement-content">
-            <h4>{{ achievement.title }}</h4>
-            <p>{{ achievement.description }}</p>
+            v-for="achievement in achievements"
+            :key="achievement.id"
+            :class="['achievement', { unlocked: achievement.unlocked }]"
+          >
+            <div class="achievement-icon">{{ achievement.icon }}</div>
+            <div class="achievement-content">
+              <h4>{{ achievement.title }}</h4>
+              <p>{{ achievement.description }}</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="loading" v-if="loading">Loading your stats...</div>
-
-    <div class="error" v-if="error">
-      {{ error }}
+    <!-- Empty State for No Data -->
+    <div v-if="!loading && !error && !userStats" class="empty-state">
+      <div class="empty-icon">👤</div>
+      <h3>Profile not found</h3>
+      <p>Unable to load your profile data.</p>
     </div>
   </div>
 </template>
@@ -150,30 +171,30 @@ const userId = localStorage.getItem("userId");
 
 // Computed properties
 const completionRate = computed(() => {
-  if (!userStats.value) return 0;
+  if (!userStats.value?.stats) return 0;
   const total = totalSessions.value;
   if (total === 0) return 100;
   return Math.round((userStats.value.stats.completedSessions / total) * 100);
 });
 
 const totalSessions = computed(() => {
-  if (!userStats.value) return 0;
+  if (!userStats.value?.stats) return 0;
   return (
-    userStats.value.stats.completedSessions +
-    userStats.value.stats.quitSessions +
-    userStats.value.stats.disconnectedSessions
+    (userStats.value.stats.completedSessions || 0) +
+    (userStats.value.stats.quitSessions || 0) +
+    (userStats.value.stats.disconnectedSessions || 0)
   );
 });
 
 const weeklyProgress = computed(() => {
-  if (!userStats.value) return 0;
-  const weeklyMinutes = userStats.value.stats.weeklyStudyMinutes;
+  if (!userStats.value?.stats) return 0;
+  const weeklyMinutes = userStats.value.stats.weeklyStudyMinutes || 0;
   const weeklyGoal = 600; // 10 hours = 600 minutes
   return Math.round((weeklyMinutes / weeklyGoal) * 100);
 });
 
 const achievements = computed(() => {
-  if (!userStats.value) return [];
+  if (!userStats.value?.stats) return [];
 
   const stats = userStats.value.stats;
 
@@ -183,42 +204,42 @@ const achievements = computed(() => {
       title: "First Steps",
       description: "Complete your first study session",
       icon: "🌟",
-      unlocked: stats.completedSessions >= 1,
+      unlocked: (stats.completedSessions || 0) >= 1,
     },
     {
       id: "study_warrior",
       title: "Study Warrior",
       description: "Complete 10 study sessions",
       icon: "⚔️",
-      unlocked: stats.completedSessions >= 10,
+      unlocked: (stats.completedSessions || 0) >= 10,
     },
     {
       id: "time_master",
       title: "Time Master",
       description: "Study for 10+ hours total",
       icon: "⏰",
-      unlocked: stats.totalStudyMinutes >= 600,
+      unlocked: (stats.totalStudyMinutes || 0) >= 600,
     },
     {
       id: "streak_master",
       title: "Streak Master",
       description: "Maintain a 7-day study streak",
       icon: "🔥",
-      unlocked: stats.currentStreak >= 7,
+      unlocked: (stats.currentStreak || 0) >= 7,
     },
     {
       id: "marathon_runner",
       title: "Marathon Runner",
       description: "Complete a 90+ minute session",
       icon: "🏃‍♂️",
-      unlocked: stats.longestSession >= 90,
+      unlocked: (stats.longestSession || 0) >= 90,
     },
     {
       id: "consistency_king",
       title: "Consistency King",
       description: "Study 20+ hours total",
       icon: "👑",
-      unlocked: stats.totalStudyMinutes >= 1200,
+      unlocked: (stats.totalStudyMinutes || 0) >= 1200,
     },
   ];
 });
@@ -231,20 +252,34 @@ const fetchUserStats = async () => {
     return;
   }
 
+  loading.value = true;
+  error.value = "";
+
   try {
+    console.log("Fetching stats for user:", userId);
     const response = await axios.get(
       `http://localhost:3000/api/users/${userId}/stats`
     );
+    console.log("Received user stats:", response.data);
     userStats.value = response.data;
   } catch (err) {
     console.error("Error fetching user stats:", err);
-    error.value = "Failed to load your stats. Please try again.";
+    if (err.response?.status === 404) {
+      error.value = "User not found. Please log in again.";
+    } else if (err.response?.status === 401) {
+      error.value = "Unauthorized. Please log in again.";
+    } else {
+      error.value =
+        err.response?.data?.message ||
+        "Failed to load your stats. Please try again.";
+    }
   } finally {
     loading.value = false;
   }
 };
 
 const formatHours = (minutes) => {
+  if (!minutes || minutes === 0) return "0m";
   if (minutes < 60) return `${minutes}m`;
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
@@ -252,20 +287,25 @@ const formatHours = (minutes) => {
 };
 
 const formatMinutes = (minutes) => {
-  return `${minutes} min`;
+  return `${minutes || 0} min`;
 };
 
 const formatDate = (dateString) => {
-  if (!dateString) return "";
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  if (!dateString) return "Unknown";
+  try {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch (e) {
+    return "Unknown";
+  }
 };
 
 // Lifecycle
 onMounted(() => {
+  console.log("UserProfile component mounted, userId:", userId);
   fetchUserStats();
 });
 </script>
@@ -494,16 +534,56 @@ onMounted(() => {
   font-size: 0.9rem;
 }
 
-/* Loading and Error */
+/* Loading, Error, and Empty States */
 .loading,
-.error {
+.error,
+.empty-state {
   text-align: center;
-  padding: 40px;
+  padding: 60px 20px;
   color: #666;
 }
 
 .error {
   color: #dc3545;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.error-icon,
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.retry-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.retry-btn:hover {
+  background: #5a6fd8;
 }
 
 /* Responsive */
