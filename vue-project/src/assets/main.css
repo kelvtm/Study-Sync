@@ -7,17 +7,87 @@
   font-weight: normal;
 } */
 
-a,
+/* a,
 .green {
   text-decoration: none;
   color: hsla(160, 100%, 37%, 1);
   transition: 0.4s;
   padding: 3px;
+} */
+
+/* Utility classes for consistent styling */
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.btn-primary:hover {
+  filter: brightness(0.9);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-hover);
+  transform: translateY(-1px);
+}
+
+.card {
+  background: white;
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow-light);
+  padding: 24px;
+  transition: var(--transition-normal);
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: var(--background-secondary);
+    color: var(--color-text);
+  }
+}
+
+.input-field {
+  padding: 12px 16px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: var(--transition-fast);
+  background: var(--background-secondary);
+  color: var(--color-text);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(52, 220, 59, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .input-field:focus {
+    box-shadow: 0 0 0 3px rgba(52, 220, 59, 0.2);
+  }
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    background-color: var(--color-hover);
   }
 }
 

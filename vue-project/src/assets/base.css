@@ -1,38 +1,85 @@
 /* semantic color variables for this project */
-
 :root {
-  --primary-color: #094446;
+  /* Primary brand colors */
+  --primary-color: #b0e25a;
   --primary-variant: #7aacc5;
-  --secondary-color: #34dc3b;
 
-  --on-primary: #c62c3c;
+  /* Secondary colors (buttons, actions) */
+  --secondary-color: #c62c3c;
+  --secondary-variant: #a4aa51;
+  --secondary-hover: #a32530;
+
+  /* Text colors */
   --color-text: #000;
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
-  --color-heading: var(--vt-c-text-light-1);
+  --color-text-secondary: #666;
+  --color-heading: #333;
 
-  --on-background: #d9d9d9;
-  --on-background-alt: rgba(237, 234, 224, 0.7);
-  --background: #edeae0;
+  /* UI colors */
+  --on-primary: #91a585;
+  --color-border: #a2a1c8;
+  --color-border-hover: #8a89b5;
+  --color-hover: #bcced4;
+
+  /* Background colors */
+  --background: #eee5c7;
+  --background-secondary: #f5f2e8;
+  --on-background: #7f7f8b;
+  --on-background-alt: #edeae0;
+
+  /* Status colors */
+  --color-success: #28a745;
+  --color-error: #dc3545;
+  --color-warning: #ffc107;
+  --color-info: #17a2b8;
+
+  /* Effects */
   --box-shadow: 0 5px 20px 1px rgba(0, 0, 0, 0.5);
+  --box-shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+  --border-radius-large: 16px;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Primary brand colors for dark mode */
     --primary-color: #094446;
     --primary-variant: #7aacc5;
+
+    /* Secondary colors (buttons, actions) - keeping vibrant for dark mode */
     --secondary-color: #34dc3b;
+    --secondary-variant: #a4aa51;
+    --secondary-hover: #2bc932;
 
-    --on-primary: #000;
-    --color-text: #000;
-    --color-border: var(--vt-c-divider-light-2);
-    --color-border-hover: var(--vt-c-divider-light-1);
-    --color-heading: var(--vt-c-text-light-1);
+    /* Text colors for dark mode */
+    --color-text: #f8f9fa;
+    --color-text-secondary: #adb5bd;
+    --color-heading: #ffffff;
 
+    /* UI colors for dark mode */
+    --on-primary: #ffffff;
+    --color-border: #495057;
+    --color-border-hover: #6c757d;
+    --color-hover: #495057;
+
+    /* Background colors for dark mode */
+    --background: #0d1f1c;
+    --background-secondary: #1a2e2a;
     --on-background: #3344a2;
-    --on-background-alt: rgba(237, 234, 224, 0.7);
-    --background: #1607f4;
-    --box-shadow: 0 5px 20px 1px rgba(0, 0, 0, 0.5);
+    --on-background-alt: rgba(237, 234, 224, 0.1);
+
+    /* Status colors for dark mode */
+    --color-success: #28a745;
+    --color-error: #dc3545;
+    --color-warning: #ffc107;
+    --color-info: #17a2b8;
+
+    /* Effects for dark mode */
+    --box-shadow: 0 5px 20px 1px rgba(0, 0, 0, 0.7);
+    --box-shadow-light: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
 }
 
