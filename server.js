@@ -6,6 +6,13 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
+// Import course routes
+import courseRoutes from "./routes/courseRoutes.js";
+
+// Import the new models (add these imports)
+import Course from "./db-models/course.js";
+import Stage from "./db-models/stage.js";
+import Subtask from "./db-models/subtask.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -47,6 +54,8 @@ import User from "./db-models/user.js";
 import Session from "./db-models/sessions.js";
 
 app.use("/api/sessions", sessionRoutes);
+// Add course routes (add this line after your session routes)
+app.use("/api/courses", courseRoutes);
 
 // --- Routes ---
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
