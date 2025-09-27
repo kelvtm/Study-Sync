@@ -8,6 +8,8 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 // Import course routes
 import courseRoutes from "./routes/courseRoutes.js";
+// Import subtask routes
+import subtaskRoutes from "./routes/subtaskRoutes.js";
 
 // Import the new models (add these imports)
 import Course from "./db-models/course.js";
@@ -56,6 +58,7 @@ import Session from "./db-models/sessions.js";
 app.use("/api/sessions", sessionRoutes);
 // Add course routes (add this line after your session routes)
 app.use("/api/courses", courseRoutes);
+app.use("/api/subtasks", subtaskRoutes);
 
 // --- Routes ---
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));

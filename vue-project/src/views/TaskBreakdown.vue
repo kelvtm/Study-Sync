@@ -431,32 +431,80 @@ const addSubtask = async (stage) => {
   if (!title) return;
 
   try {
-    // For now, just add to local state (we'll implement API later)
-    const newSubtask = {
-      _id: Date.now().toString(), // Temporary ID
-      title,
-      isCompleted: false,
-      stageId: stage._id,
-    };
+    console.log("Creating subtask:", title);
 
-    stage.subtasks.push(newSubtask);
+    const response = await axios.post("http://localhost:3000/api/subtasks", {
+      stageId: stage._id,
+      title,
+      userId,
+    });
+
+    // Add the new subtask to local state
+    stage.subtasks.push(response.data.subtask);
     stage.newSubtaskTitle = "";
     stage.showAddInput = false;
 
-    console.log("Subtask added locally:", newSubtask);
+    console.log("Subtask created successfully:", response.data.subtask);
   } catch (err) {
-    console.error("Error adding subtask:", err);
+    console.error("Error creating subtask:", err);
+
+    // Show error feedback to user
+    if (err.response?.status === 400) {
+      alert(err.response.data.error);
+    } else {
+      alert("Failed to create subtask. Please try again.");
+    }
   }
 };
 
-const cancelAddSubtask = (stage) => {
-  stage.showAddInput = false;
-  stage.newSubtaskTitle = "";
+const deleteSubtask = async (subtaskId, subtaskTitle, stage) => {
+  if (!confirm(`Are you sure you want to delete "${subtaskTitle}"?`)) {
+    return;
+  }
+
+  try {
+    console.log("Deleting subtask:", subtaskId);
+
+    await axios.delete(
+      `http://localhost:3000/api/subtasks/${subtaskId}?userId=${userId}`
+    );
+
+    // Remove from local state
+    const subtaskIndex = stage.subtasks.findIndex((s) => s._id === subtaskId);
+    if (subtaskIndex > -1) {
+      stage.subtasks.splice(subtaskIndex, 1);
+    }
+
+    console.log("Subtask deleted successfully");
+  } catch (err) {
+    console.error("Error deleting subtask:", err);
+
+    if (err.response?.status === 404) {
+      alert("Subtask not found. It may have been already deleted.");
+      // Remove from local state anyway
+      const subtaskIndex = stage.subtasks.findIndex((s) => s._id === subtaskId);
+      if (subtaskIndex > -1) {
+        stage.subtasks.splice(subtaskIndex, 1);
+      }
+    } else {
+      alert("Failed to delete subtask. Please try again.");
+    }
+  }
 };
 
 const toggleSubtask = async (subtaskId, isCompleted) => {
   try {
-    // For now, just update local state (we'll implement API later)
+    console.log("Toggling subtask:", subtaskId, isCompleted);
+
+    const response = await axios.put(
+      `http://localhost:3000/api/subtasks/${subtaskId}`,
+      {
+        userId,
+        isCompleted,
+      }
+    );
+
+    // Update local state
     courses.value.forEach((course) => {
       course.stages.forEach((stage) => {
         const subtask = stage.subtasks.find((s) => s._id === subtaskId);
@@ -467,9 +515,21 @@ const toggleSubtask = async (subtaskId, isCompleted) => {
       });
     });
 
-    console.log("Subtask toggled locally:", subtaskId, isCompleted);
+    console.log("Subtask toggled successfully:", response.data.subtask);
   } catch (err) {
     console.error("Error toggling subtask:", err);
+
+    // Revert the change on error and show feedback
+    courses.value.forEach((course) => {
+      course.stages.forEach((stage) => {
+        const subtask = stage.subtasks.find((s) => s._id === subtaskId);
+        if (subtask) {
+          subtask.isCompleted = !isCompleted; // Revert
+        }
+      });
+    });
+
+    alert("Failed to update subtask. Please try again.");
   }
 };
 
@@ -742,6 +802,25 @@ onMounted(() => {
 .subtask-item {
   display: flex;
   align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  transition: var(--transition-fast);
+}
+
+.subtask-item:hover {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.subtask-item:hover .delete-subtask-btn {
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .subtask-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
 }
 
 .subtask-checkbox {
@@ -789,6 +868,25 @@ onMounted(() => {
 .subtask-text.completed {
   text-decoration: line-through;
   color: var(--color-text-secondary);
+}
+
+.delete-subtask-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.delete-subtask-btn:hover {
+  background: var(--color-error);
+  color: white;
+  opacity: 1 !important;
 }
 
 .add-subtask {
