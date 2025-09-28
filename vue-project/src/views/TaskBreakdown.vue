@@ -457,40 +457,40 @@ const addSubtask = async (stage) => {
   }
 };
 
-const deleteSubtask = async (subtaskId, subtaskTitle, stage) => {
-  if (!confirm(`Are you sure you want to delete "${subtaskTitle}"?`)) {
-    return;
-  }
+// const deleteSubtask = async (subtaskId, subtaskTitle, stage) => {
+//   if (!confirm(`Are you sure you want to delete "${subtaskTitle}"?`)) {
+//     return;
+//   }
 
-  try {
-    console.log("Deleting subtask:", subtaskId);
+//   try {
+//     console.log("Deleting subtask:", subtaskId);
 
-    await axios.delete(
-      `http://localhost:3000/api/subtasks/${subtaskId}?userId=${userId}`
-    );
+//     await axios.delete(
+//       `http://localhost:3000/api/subtasks/${subtaskId}?userId=${userId}`
+//     );
 
-    // Remove from local state
-    const subtaskIndex = stage.subtasks.findIndex((s) => s._id === subtaskId);
-    if (subtaskIndex > -1) {
-      stage.subtasks.splice(subtaskIndex, 1);
-    }
+//     // Remove from local state
+//     const subtaskIndex = stage.subtasks.findIndex((s) => s._id === subtaskId);
+//     if (subtaskIndex > -1) {
+//       stage.subtasks.splice(subtaskIndex, 1);
+//     }
 
-    console.log("Subtask deleted successfully");
-  } catch (err) {
-    console.error("Error deleting subtask:", err);
+//     console.log("Subtask deleted successfully");
+//   } catch (err) {
+//     console.error("Error deleting subtask:", err);
 
-    if (err.response?.status === 404) {
-      alert("Subtask not found. It may have been already deleted.");
-      // Remove from local state anyway
-      const subtaskIndex = stage.subtasks.findIndex((s) => s._id === subtaskId);
-      if (subtaskIndex > -1) {
-        stage.subtasks.splice(subtaskIndex, 1);
-      }
-    } else {
-      alert("Failed to delete subtask. Please try again.");
-    }
-  }
-};
+//     if (err.response?.status === 404) {
+//       alert("Subtask not found. It may have been already deleted.");
+//       // Remove from local state anyway
+//       const subtaskIndex = stage.subtasks.findIndex((s) => s._id === subtaskId);
+//       if (subtaskIndex > -1) {
+//         stage.subtasks.splice(subtaskIndex, 1);
+//       }
+//     } else {
+//       alert("Failed to delete subtask. Please try again.");
+//     }
+//   }
+// };
 
 const toggleSubtask = async (subtaskId, isCompleted) => {
   try {
@@ -869,7 +869,7 @@ onMounted(() => {
   text-decoration: line-through;
   color: var(--color-text-secondary);
 }
-
+/* 
 .delete-subtask-btn {
   background: none;
   border: none;
@@ -887,7 +887,7 @@ onMounted(() => {
   background: var(--color-error);
   color: white;
   opacity: 1 !important;
-}
+} */
 
 .add-subtask {
   margin-top: 10px;
