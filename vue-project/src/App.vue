@@ -29,12 +29,12 @@
     <!-- Slide-out Navigation -->
     <nav class="slide-nav" :class="{ open: navOpen }">
       <div class="nav-content">
-        <!-- User Icon and Home grouped together -->
-        <div class="user-home-section">
+        <!-- User Icon and profile grouped together -->
+        <div class="user-profile-section">
           <i class="fas fa-user-circle user-icon"></i>
-          <RouterLink to="/sync" @click="closeNav">
-            <i class="fas fa-home"></i>
-            Home
+          <RouterLink to="/profile" @click="closeNav">
+            <i class="fas fa-user"></i>
+            Profile
           </RouterLink>
         </div>
 
@@ -42,9 +42,9 @@
 
         <!-- Other Navigation Links -->
         <div class="nav-links">
-          <RouterLink to="/profile" @click="closeNav">
-            <i class="fas fa-user"></i>
-            Profile
+          <RouterLink to="/sync" @click="closeNav">
+            <i class="fas fa-home"></i>
+            Home
           </RouterLink>
           <RouterLink to="/leaderboard" @click="closeNav">
             <i class="fas fa-trophy"></i>
@@ -208,7 +208,7 @@ const closeNav = () => {
 }
 
 /* User and Home Section */
-.user-home-section {
+.user-profile-section {
   padding: 0 1.5rem 1rem 1.5rem;
   display: flex;
   align-items: center;
@@ -222,7 +222,7 @@ const closeNav = () => {
   color: var(--primary-variant);
 }
 
-.user-home-section a {
+.user-profile-section a {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -236,7 +236,7 @@ const closeNav = () => {
   flex: 1;
 }
 
-.user-home-section a:hover {
+.user-profile-section a:hover {
   background-color: var(--color-hover);
 }
 
