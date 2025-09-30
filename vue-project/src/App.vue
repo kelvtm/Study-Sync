@@ -20,11 +20,61 @@
         </div>
 
         <!-- Notification Icon (bigger) -->
-        <button class="notification-btn">
+        <button class="notification-btn" @click="toggleNotifications">
           <i class="fas fa-bell"></i>
+          <span v-if="unreadCount > 0" class="notification-badge">{{
+            unreadCount
+          }}</span>
         </button>
       </div>
     </header>
+
+    <!-- Notification Dropdown -->
+    <div v-if="notificationsOpen" class="notifications-dropdown">
+      <div class="notifications-header">
+        <h3>Notifications</h3>
+        <button @click="markAllAsRead" class="mark-read-btn">
+          Mark all read
+        </button>
+      </div>
+
+      <div class="notifications-list">
+        <div v-if="notifications.length === 0" class="empty-notifications">
+          <i class="fas fa-bell-slash"></i>
+          <p>No notifications yet</p>
+        </div>
+
+        <div
+          v-for="notification in notifications"
+          :key="notification._id"
+          :class="['notification-item', { unread: !notification.isRead }]"
+          @click="handleNotificationClick(notification)"
+        >
+          <div class="notification-icon">
+            <i :class="getNotificationIcon(notification.type)"></i>
+          </div>
+          <div class="notification-content">
+            <p class="notification-message">{{ notification.message }}</p>
+            <span class="notification-time">{{
+              formatNotificationTime(notification.createdAt)
+            }}</span>
+          </div>
+          <button
+            @click.stop="deleteNotification(notification._id)"
+            class="delete-notification-btn"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay for notifications -->
+    <div
+      v-if="notificationsOpen"
+      class="notifications-overlay"
+      @click="closeNotifications"
+    ></div>
 
     <!-- Slide-out Navigation -->
     <nav class="slide-nav" :class="{ open: navOpen }">
@@ -73,17 +123,95 @@
 </template>
 
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
-import { ref } from "vue";
+import { RouterLink, RouterView, useRouter } from "vue-router";
+import { ref, computed } from "vue";
 
+const router = useRouter();
 const navOpen = ref(false);
+const notificationsOpen = ref(false);
+
+// Mock notifications data (will be replaced with real data later)
+const notifications = ref([
+  {
+    _id: "1",
+    type: "deadline",
+    message:
+      "Research stage for Course Name is due. Check out the remaining stages for your Assessment",
+    isRead: false,
+    createdAt: new Date().toISOString(),
+  },
+]);
+
+// Computed property for unread notification count
+const unreadCount = computed(() => {
+  return notifications.value.filter((n) => !n.isRead).length;
+});
 
 const toggleNav = () => {
   navOpen.value = !navOpen.value;
+  if (navOpen.value) {
+    notificationsOpen.value = false;
+  }
 };
 
 const closeNav = () => {
   navOpen.value = false;
+};
+
+const toggleNotifications = () => {
+  notificationsOpen.value = !notificationsOpen.value;
+  if (notificationsOpen.value) {
+    navOpen.value = false;
+  }
+};
+
+const closeNotifications = () => {
+  notificationsOpen.value = false;
+};
+
+const handleNotificationClick = (notification) => {
+  // Mark as read
+  notification.isRead = true;
+
+  // Navigate to task breakdown page
+  router.push("/task");
+  closeNotifications();
+};
+
+const markAllAsRead = () => {
+  notifications.value.forEach((n) => (n.isRead = true));
+};
+
+const deleteNotification = (notificationId) => {
+  const index = notifications.value.findIndex((n) => n._id === notificationId);
+  if (index > -1) {
+    notifications.value.splice(index, 1);
+  }
+};
+
+const getNotificationIcon = (type) => {
+  const icons = {
+    deadline: "fas fa-clock",
+    success: "fas fa-check-circle",
+    warning: "fas fa-exclamation-triangle",
+    info: "fas fa-info-circle",
+  };
+  return icons[type] || "fas fa-bell";
+};
+
+const formatNotificationTime = (timestamp) => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
 };
 </script>
 
@@ -104,7 +232,7 @@ const closeNav = () => {
   top: 0;
   left: 0;
   right: 0;
-  height: 80px; /* Bigger header */
+  height: 80px;
 }
 
 .header-content {
@@ -155,13 +283,13 @@ const closeNav = () => {
 
 /* App Title */
 .app-title h1 {
-  font-size: 2rem; /* Bigger title */
+  font-size: 2rem;
   font-weight: 700;
   color: var(--color-heading);
   letter-spacing: 1px;
 }
 
-/* Notification Button (bigger) */
+/* Notification Button */
 .notification-btn {
   background: none;
   border: 2px solid var(--color-border);
@@ -169,19 +297,189 @@ const closeNav = () => {
   color: var(--color-text);
   cursor: pointer;
   padding: 12px;
-  font-size: 1.5rem; /* Bigger notification icon */
+  font-size: 1.5rem;
   transition: var(--transition-fast);
   min-width: 50px;
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .notification-btn:hover {
   background-color: var(--color-hover);
   border-color: var(--color-border-hover);
   transform: translateY(-1px);
+}
+
+.notification-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: var(--color-error);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Notifications Dropdown */
+.notifications-dropdown {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  width: 400px;
+  max-height: 500px;
+  background: var(--background-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow);
+  z-index: 1100;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--background);
+}
+
+.notifications-header h3 {
+  margin: 0;
+  color: var(--color-heading);
+  font-size: 1.1rem;
+}
+
+.mark-read-btn {
+  background: none;
+  border: none;
+  color: var(--secondary-color);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: var(--transition-fast);
+}
+
+.mark-read-btn:hover {
+  background: rgba(52, 220, 59, 0.1);
+}
+
+.notifications-list {
+  overflow-y: auto;
+  max-height: 420px;
+}
+
+.empty-notifications {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-text-secondary);
+}
+
+.empty-notifications i {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.notification-item:hover {
+  background: var(--color-hover);
+}
+
+.notification-item.unread {
+  background: rgba(52, 220, 59, 0.05);
+}
+
+.notification-item.unread::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--secondary-color);
+}
+
+.notification-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(52, 220, 59, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary-color);
+  font-size: 1rem;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-message {
+  margin: 0 0 5px 0;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.delete-notification-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: var(--transition-fast);
+}
+
+.notification-item:hover .delete-notification-btn {
+  opacity: 1;
+}
+
+.delete-notification-btn:hover {
+  background: var(--color-error);
+  color: white;
+}
+
+.notifications-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  z-index: 1050;
 }
 
 /* Slide-out Navigation */
@@ -204,7 +502,7 @@ const closeNav = () => {
 }
 
 .nav-content {
-  padding: 100px 0 2rem 0; /* Account for header height */
+  padding: 100px 0 2rem 0;
 }
 
 /* User and Home Section */
@@ -304,7 +602,7 @@ const closeNav = () => {
 /* Main Content */
 .main-content {
   flex: 1;
-  margin-top: 80px; /* Account for fixed header */
+  margin-top: 80px;
   padding: 2rem 1.5rem;
   max-width: 1200px;
   margin-left: auto;
@@ -329,6 +627,12 @@ const closeNav = () => {
 
   .main-content {
     padding: 1.5rem 1rem;
+  }
+
+  .notifications-dropdown {
+    right: 10px;
+    width: calc(100vw - 20px);
+    max-width: 400px;
   }
 }
 
