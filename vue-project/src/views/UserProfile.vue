@@ -7,150 +7,240 @@
     </div>
 
     <!-- Error State -->
-    <div class="error" v-if="error && !loading">
-      <div class="error-icon">⚠️</div>
+    <div class="error-state" v-if="error && !loading">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
       <h3>Failed to load profile</h3>
       <p>{{ error }}</p>
-      <button @click="fetchUserStats" class="retry-btn">Try Again</button>
+      <button @click="fetchUserStats" class="retry-btn">
+        <i class="fas fa-redo"></i>
+        Try Again
+      </button>
     </div>
 
     <!-- Profile Content -->
-    <div v-if="!loading && !error && userStats">
+    <div v-if="!loading && !error && userStats" class="profile-content">
+      <!-- Profile Header -->
       <div class="profile-header">
+        <div class="profile-banner">
+          <div class="banner-decoration"></div>
+        </div>
         <div class="profile-info">
-          <div class="avatar">
-            {{ userStats.user?.username?.charAt(0).toUpperCase() || "U" }}
+          <div class="avatar-container">
+            <div class="avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="avatar-badge">
+              <i class="fas fa-check"></i>
+            </div>
           </div>
           <div class="user-details">
-            <h1>{{ userStats.user?.username || "Unknown User" }}</h1>
-            <p class="email">{{ userStats.user?.email || "" }}</p>
+            <h1 class="username">
+              {{ userStats.user?.username || "Unknown User" }}
+            </h1>
+            <p class="email">
+              <i class="fas fa-envelope"></i>
+              {{ userStats.user?.email || "" }}
+            </p>
             <p class="member-since">
+              <i class="fas fa-calendar"></i>
               Member since {{ formatDate(userStats.user?.createdAt) }}
             </p>
           </div>
         </div>
       </div>
 
-      <div class="stats-grid">
-        <!-- Total Study Time -->
-        <div class="stat-card primary">
-          <div class="stat-icon">⏱️</div>
-          <div class="stat-content">
+      <!-- Quick Stats Overview -->
+      <div class="stats-overview">
+        <div class="overview-card">
+          <div class="overview-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="overview-content">
             <h3>{{ formatHours(userStats.stats?.totalStudyMinutes || 0) }}</h3>
             <p>Total Study Time</p>
           </div>
         </div>
-
-        <!-- Completed Sessions -->
-        <div class="stat-card success">
-          <div class="stat-icon">✅</div>
-          <div class="stat-content">
+        <div class="overview-card">
+          <div class="overview-icon success">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="overview-content">
             <h3>{{ userStats.stats?.completedSessions || 0 }}</h3>
             <p>Completed Sessions</p>
           </div>
         </div>
-
-        <!-- Current Streak -->
-        <div class="stat-card warning">
-          <div class="stat-icon">🔥</div>
-          <div class="stat-content">
+        <div class="overview-card">
+          <div class="overview-icon fire">
+            <i class="fas fa-fire"></i>
+          </div>
+          <div class="overview-content">
             <h3>{{ userStats.stats?.currentStreak || 0 }}</h3>
             <p>Day Streak</p>
           </div>
         </div>
+      </div>
 
-        <!-- Longest Session -->
-        <div class="stat-card info">
-          <div class="stat-icon">🏆</div>
-          <div class="stat-content">
-            <h3>{{ formatMinutes(userStats.stats?.longestSession || 0) }}</h3>
-            <p>Longest Session</p>
+      <!-- Detailed Stats Grid -->
+      <div class="section">
+        <h2 class="section-title">
+          <i class="fas fa-chart-bar"></i>
+          Detailed Statistics
+        </h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon primary">
+                <i class="fas fa-stopwatch"></i>
+              </div>
+              <span class="stat-badge">Record</span>
+            </div>
+            <div class="stat-content">
+              <h3>{{ formatMinutes(userStats.stats?.longestSession || 0) }}</h3>
+              <p>Longest Session</p>
+            </div>
           </div>
-        </div>
 
-        <!-- Weekly Stats -->
-        <div class="stat-card secondary">
-          <div class="stat-icon">📅</div>
-          <div class="stat-content">
-            <h3>{{ formatHours(userStats.stats?.weeklyStudyMinutes || 0) }}</h3>
-            <p>This Week</p>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon secondary">
+                <i class="fas fa-calendar-week"></i>
+              </div>
+              <span class="stat-badge">This Week</span>
+            </div>
+            <div class="stat-content">
+              <h3>
+                {{ formatHours(userStats.stats?.weeklyStudyMinutes || 0) }}
+              </h3>
+              <p>Weekly Study Time</p>
+            </div>
           </div>
-        </div>
 
-        <!-- Quit Sessions (if any) -->
-        <div
-          class="stat-card danger"
-          v-if="(userStats.stats?.quitSessions || 0) > 0"
-        >
-          <div class="stat-icon">⚠️</div>
-          <div class="stat-content">
-            <h3>{{ userStats.stats?.quitSessions || 0 }}</h3>
-            <p>Early Quits</p>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon success">
+                <i class="fas fa-percentage"></i>
+              </div>
+              <span class="stat-badge">Rate</span>
+            </div>
+            <div class="stat-content">
+              <h3>{{ completionRate }}%</h3>
+              <p>Completion Rate</p>
+            </div>
+          </div>
+
+          <div
+            class="stat-card"
+            v-if="(userStats.stats?.quitSessions || 0) > 0"
+          >
+            <div class="stat-header">
+              <div class="stat-icon warning">
+                <i class="fas fa-exclamation-circle"></i>
+              </div>
+              <span class="stat-badge">Needs Work</span>
+            </div>
+            <div class="stat-content">
+              <h3>{{ userStats.stats?.quitSessions || 0 }}</h3>
+              <p>Early Quits</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Study Progress -->
-      <div class="progress-section">
-        <h2>Study Progress</h2>
+      <!-- Progress Section -->
+      <div class="section">
+        <h2 class="section-title">
+          <i class="fas fa-tasks"></i>
+          Study Progress
+        </h2>
 
-        <div class="progress-card">
-          <div class="progress-header">
-            <h3>Completion Rate</h3>
-            <span class="percentage">{{ completionRate }}%</span>
+        <div class="progress-cards">
+          <div class="progress-card">
+            <div class="progress-header">
+              <div class="progress-info">
+                <h3>Completion Rate</h3>
+                <p>
+                  {{ userStats.stats?.completedSessions || 0 }} completed out of
+                  {{ totalSessions }} sessions
+                </p>
+              </div>
+              <div
+                class="progress-percentage"
+                :class="getProgressClass(completionRate)"
+              >
+                {{ completionRate }}%
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                :style="{ width: completionRate + '%' }"
+              ></div>
+            </div>
           </div>
-          <div class="progress-bar">
-            <div
-              class="progress-fill"
-              :style="{ width: completionRate + '%' }"
-            ></div>
-          </div>
-          <p class="progress-description">
-            {{ userStats.stats?.completedSessions || 0 }} completed out of
-            {{ totalSessions }} total sessions
-          </p>
-        </div>
 
-        <div class="progress-card">
-          <div class="progress-header">
-            <h3>Weekly Goal Progress</h3>
-            <span class="percentage">{{ weeklyProgress }}%</span>
+          <div class="progress-card">
+            <div class="progress-header">
+              <div class="progress-info">
+                <h3>Weekly Goal Progress</h3>
+                <p>
+                  {{ formatHours(userStats.stats?.weeklyStudyMinutes || 0) }} of
+                  10 hours goal
+                </p>
+              </div>
+              <div
+                class="progress-percentage weekly"
+                :class="getProgressClass(weeklyProgress)"
+              >
+                {{ weeklyProgress }}%
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill weekly"
+                :style="{ width: Math.min(weeklyProgress, 100) + '%' }"
+              ></div>
+            </div>
           </div>
-          <div class="progress-bar">
-            <div
-              class="progress-fill weekly"
-              :style="{ width: Math.min(weeklyProgress, 100) + '%' }"
-            ></div>
-          </div>
-          <p class="progress-description">
-            {{ formatHours(userStats.stats?.weeklyStudyMinutes || 0) }} of 10
-            hours weekly goal
-          </p>
         </div>
       </div>
 
-      <!-- Achievements -->
-      <div class="achievements-section">
-        <h2>Achievements</h2>
+      <!-- Achievements Section -->
+      <div class="section">
+        <h2 class="section-title">
+          <i class="fas fa-trophy"></i>
+          Achievements
+        </h2>
         <div class="achievements-grid">
           <div
             v-for="achievement in achievements"
             :key="achievement.id"
-            :class="['achievement', { unlocked: achievement.unlocked }]"
+            :class="['achievement-card', { unlocked: achievement.unlocked }]"
           >
             <div class="achievement-icon">{{ achievement.icon }}</div>
             <div class="achievement-content">
               <h4>{{ achievement.title }}</h4>
               <p>{{ achievement.description }}</p>
+              <div v-if="achievement.unlocked" class="unlocked-badge">
+                <i class="fas fa-check"></i>
+                Unlocked
+              </div>
+              <div v-else class="locked-badge">
+                <i class="fas fa-lock"></i>
+                Locked
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Empty State for No Data -->
+    <!-- Empty State -->
     <div v-if="!loading && !error && !userStats" class="empty-state">
-      <div class="empty-icon">👤</div>
+      <div class="empty-icon">
+        <i class="fas fa-user-slash"></i>
+      </div>
       <h3>Profile not found</h3>
       <p>Unable to load your profile data.</p>
     </div>
@@ -231,7 +321,7 @@ const achievements = computed(() => {
       id: "marathon_runner",
       title: "Marathon Runner",
       description: "Complete a 90+ minute session",
-      icon: "🏃‍♂️",
+      icon: "🏃",
       unlocked: (stats.longestSession || 0) >= 90,
     },
     {
@@ -303,6 +393,13 @@ const formatDate = (dateString) => {
   }
 };
 
+const getProgressClass = (percentage) => {
+  if (percentage >= 80) return "excellent";
+  if (percentage >= 60) return "good";
+  if (percentage >= 40) return "average";
+  return "needs-work";
+};
+
 // Lifecycle
 onMounted(() => {
   console.log("UserProfile component mounted, userId:", userId);
@@ -314,247 +411,28 @@ onMounted(() => {
 .profile-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 1.5rem;
+  min-height: calc(100vh - 80px);
 }
 
-.profile-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 20px;
-  padding: 40px;
-  color: white;
-  margin-bottom: 30px;
-}
-
-.profile-info {
+/* Loading State */
+.loading {
   display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.avatar {
-  width: 80px;
-  height: 80px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  font-weight: bold;
-  backdrop-filter: blur(10px);
-}
-
-.user-details h1 {
-  margin: 0 0 5px 0;
-  font-size: 2rem;
-}
-
-.email {
-  opacity: 0.9;
-  margin: 5px 0;
-  font-size: 1.1rem;
-}
-
-.member-since {
-  opacity: 0.8;
-  margin: 5px 0 0 0;
-  font-size: 0.9rem;
-}
-
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 40px;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid;
-  transition: transform 0.2s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-}
-
-.stat-card.primary {
-  border-left-color: #007bff;
-}
-.stat-card.success {
-  border-left-color: #28a745;
-}
-.stat-card.warning {
-  border-left-color: #ffc107;
-}
-.stat-card.info {
-  border-left-color: #17a2b8;
-}
-.stat-card.secondary {
-  border-left-color: #6c757d;
-}
-.stat-card.danger {
-  border-left-color: #dc3545;
-}
-
-.stat-icon {
-  font-size: 2.5rem;
-}
-
-.stat-content h3 {
-  margin: 0 0 5px 0;
-  font-size: 2rem;
-  color: #333;
-}
-
-.stat-content p {
-  margin: 0;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-/* Progress Section */
-.progress-section {
-  margin-bottom: 40px;
-}
-
-.progress-section h2 {
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.progress-card {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.progress-header h3 {
-  margin: 0;
-  color: #333;
-}
-
-.percentage {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #007bff;
-}
-
-.progress-bar {
-  height: 12px;
-  background-color: #e9ecef;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #007bff, #0056b3);
-  border-radius: 6px;
-  transition: width 0.3s ease;
-}
-
-.progress-fill.weekly {
-  background: linear-gradient(90deg, #28a745, #1e7e34);
-}
-
-.progress-description {
-  color: #666;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-/* Achievements */
-.achievements-section {
-  margin-bottom: 40px;
-}
-
-.achievements-section h2 {
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.achievements-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.achievement {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  opacity: 0.5;
-  transition: all 0.3s ease;
-}
-
-.achievement.unlocked {
-  opacity: 1;
-  border-left: 4px solid #28a745;
-}
-
-.achievement-icon {
-  font-size: 2rem;
-  filter: grayscale(100%);
-}
-
-.achievement.unlocked .achievement-icon {
-  filter: none;
-}
-
-.achievement-content h4 {
-  margin: 0 0 5px 0;
-  color: #333;
-}
-
-.achievement-content p {
-  margin: 0;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-/* Loading, Error, and Empty States */
-.loading,
-.error,
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #666;
-}
-
-.error {
-  color: #dc3545;
+  padding: 4rem 2rem;
+  color: var(--color-text);
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--color-border);
+  border-top: 4px solid var(--secondary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
+  margin-bottom: 1rem;
 }
 
 @keyframes spin {
@@ -566,31 +444,560 @@ onMounted(() => {
   }
 }
 
-.error-icon,
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 20px;
+/* Error State */
+.error-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow-light);
+}
+
+.error-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(220, 53, 69, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: var(--color-error);
+  font-size: 2rem;
+}
+
+.error-state h3 {
+  color: var(--color-heading);
+  margin-bottom: 1rem;
+}
+
+.error-state p {
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
 }
 
 .retry-btn {
-  background: #667eea;
+  background: var(--secondary-color);
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
   cursor: pointer;
-  margin-top: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: var(--transition-fast);
 }
 
 .retry-btn:hover {
-  background: #5a6fd8;
+  background: var(--secondary-hover);
+  transform: translateY(-1px);
 }
 
-/* Responsive */
+/* Profile Header */
+.profile-header {
+  background: white;
+  border-radius: var(--border-radius-large);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  box-shadow: var(--box-shadow-light);
+}
+
+.profile-banner {
+  height: 120px;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-variant)
+  );
+  position: relative;
+}
+
+.banner-decoration {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: white;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0 2rem 2rem 2rem;
+  margin-top: -40px;
+  position: relative;
+}
+
+.avatar-container {
+  position: relative;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(
+    135deg,
+    var(--secondary-color),
+    var(--secondary-variant)
+  );
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 4px solid white;
+}
+
+.avatar-badge {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 28px;
+  height: 28px;
+  background: var(--color-success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.8rem;
+  border: 3px solid white;
+}
+
+.user-details {
+  flex: 1;
+}
+
+.username {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+
+.email,
+.member-since {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.email i,
+.member-since i {
+  color: var(--primary-variant);
+}
+
+/* Stats Overview */
+.stats-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.overview-card {
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-large);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 2px solid var(--color-border);
+  transition: var(--transition-fast);
+}
+
+.overview-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-variant);
+  box-shadow: var(--box-shadow-light);
+}
+
+.overview-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-variant)
+  );
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-primary);
+  font-size: 1.5rem;
+}
+
+.overview-icon.success {
+  background: linear-gradient(135deg, var(--color-success), #1e7e34);
+}
+
+.overview-icon.fire {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+}
+
+.overview-content h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+
+.overview-content p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Section */
+.section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 1.5rem;
+}
+
+.section-title i {
+  color: var(--primary-variant);
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: var(--border-radius-large);
+  padding: 1.5rem;
+  box-shadow: var(--box-shadow-light);
+  transition: var(--transition-fast);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stat-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.stat-icon.primary {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-variant)
+  );
+}
+
+.stat-icon.secondary {
+  background: linear-gradient(
+    135deg,
+    var(--secondary-color),
+    var(--secondary-variant)
+  );
+}
+
+.stat-icon.success {
+  background: linear-gradient(135deg, var(--color-success), #1e7e34);
+}
+
+.stat-icon.warning {
+  background: linear-gradient(135deg, var(--color-warning), #e0a800);
+}
+
+.stat-badge {
+  background: var(--background-secondary);
+  color: var(--color-text);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.stat-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+
+.stat-content p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Progress Cards */
+.progress-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.progress-card {
+  background: white;
+  border-radius: var(--border-radius-large);
+  padding: 2rem;
+  box-shadow: var(--box-shadow-light);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.progress-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.progress-info p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.progress-percentage {
+  font-size: 1.8rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  white-space: nowrap;
+}
+
+.progress-percentage.excellent {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--color-success);
+}
+
+.progress-percentage.good {
+  background: rgba(52, 220, 59, 0.1);
+  color: var(--secondary-color);
+}
+
+.progress-percentage.average {
+  background: rgba(255, 193, 7, 0.1);
+  color: var(--color-warning);
+}
+
+.progress-percentage.needs-work {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--color-error);
+}
+
+.progress-bar {
+  height: 12px;
+  background: var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--primary-color),
+    var(--primary-variant)
+  );
+  border-radius: 6px;
+  transition: width 0.8s ease;
+}
+
+.progress-fill.weekly {
+  background: linear-gradient(
+    90deg,
+    var(--secondary-color),
+    var(--secondary-variant)
+  );
+}
+
+/* Achievements */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.achievement-card {
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-large);
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  border: 2px solid var(--color-border);
+  transition: var(--transition-fast);
+  opacity: 0.6;
+}
+
+.achievement-card.unlocked {
+  opacity: 1;
+  background: white;
+  border-color: var(--secondary-color);
+  box-shadow: var(--box-shadow-light);
+}
+
+.achievement-card:hover {
+  transform: translateY(-2px);
+}
+
+.achievement-icon {
+  font-size: 2.5rem;
+  filter: grayscale(100%);
+  flex-shrink: 0;
+}
+
+.achievement-card.unlocked .achievement-icon {
+  filter: none;
+}
+
+.achievement-content {
+  flex: 1;
+}
+
+.achievement-content h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-heading);
+  font-size: 1.1rem;
+}
+
+.achievement-content p {
+  margin: 0 0 0.75rem 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.unlocked-badge,
+.locked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.unlocked-badge {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--color-success);
+}
+
+.locked-badge {
+  background: var(--background);
+  color: var(--color-text-secondary);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow-light);
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: var(--color-text-secondary);
+  font-size: 2rem;
+}
+
+.empty-state h3 {
+  color: var(--color-heading);
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  color: var(--color-text-secondary);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .profile-header,
+  .stat-card,
+  .progress-card {
+    background: var(--background);
+  }
+
+  .achievement-card.unlocked {
+    background: var(--background);
+  }
+
+  .banner-decoration {
+    background: var(--background);
+  }
+
+  .avatar {
+    border-color: var(--background);
+  }
+
+  .avatar-badge {
+    border-color: var(--background);
+  }
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
+  .profile-container {
+    padding: 1rem;
+  }
+
   .profile-info {
     flex-direction: column;
     text-align: center;
+    padding: 0 1.5rem 1.5rem;
+  }
+
+  .stats-overview {
+    grid-template-columns: 1fr;
   }
 
   .stats-grid {
@@ -599,6 +1006,15 @@ onMounted(() => {
 
   .achievements-grid {
     grid-template-columns: 1fr;
+  }
+
+  .progress-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .progress-percentage {
+    align-self: flex-end;
   }
 }
 </style>
