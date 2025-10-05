@@ -4,7 +4,7 @@
     <div class="leaderboard-header">
       <div class="header-content">
         <div class="header-icon">
-          <i class="fas fa-trophy"></i>
+          <i class="fa-regular fa-font-awesome"></i>
         </div>
         <div class="header-text">
           <h1>Weekly Leaderboard</h1>
