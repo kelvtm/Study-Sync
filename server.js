@@ -10,6 +10,8 @@ import { Server } from "socket.io";
 import courseRoutes from "./routes/courseRoutes.js";
 // Import subtask routes
 import subtaskRoutes from "./routes/subtaskRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+import Notification from "./db-models/notification.js";
 
 // Import the new models (add these imports)
 import Course from "./db-models/course.js";
@@ -59,6 +61,7 @@ app.use("/api/sessions", sessionRoutes);
 // Add course routes (add this line after your session routes)
 app.use("/api/courses", courseRoutes);
 app.use("/api/subtasks", subtaskRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // --- Routes ---
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));

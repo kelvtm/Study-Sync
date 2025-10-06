@@ -124,28 +124,59 @@
 
 <script setup>
 import { RouterLink, RouterView, useRouter } from "vue-router";
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 
 const router = useRouter();
 const navOpen = ref(false);
 const notificationsOpen = ref(false);
 
-// Mock notifications data (will be replaced with real data later)
-const notifications = ref([
-  {
-    _id: "1",
-    type: "deadline",
-    message:
-      "Research stage for Course Name is due. Check out the remaining stages for your Assessment",
-    isRead: false,
-    createdAt: new Date().toISOString(),
-  },
-]);
+// Real notifications from API
+const notifications = ref([]);
+const userId = localStorage.getItem("userId");
 
 // Computed property for unread notification count
 const unreadCount = computed(() => {
   return notifications.value.filter((n) => !n.isRead).length;
 });
+
+// Fetch notifications from API
+const fetchNotifications = async () => {
+  if (!userId) return;
+
+  try {
+    const response = await axios.get(
+      `http://localhost:3000/api/notifications?userId=${userId}`
+    );
+    notifications.value = response.data.notifications;
+    console.log("Notifications fetched:", notifications.value.length);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+  }
+};
+
+// Mark notification as read
+const markAsRead = async (notificationId) => {
+  try {
+    await axios.put(
+      `http://localhost:3000/api/notifications/${notificationId}/read`,
+      {
+        userId,
+      }
+    );
+
+    // Update local state
+    const notification = notifications.value.find(
+      (n) => n._id === notificationId
+    );
+    if (notification) {
+      notification.isRead = true;
+      notification.readAt = new Date().toISOString();
+    }
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+  }
+};
 
 const toggleNav = () => {
   navOpen.value = !navOpen.value;
@@ -162,6 +193,8 @@ const toggleNotifications = () => {
   notificationsOpen.value = !notificationsOpen.value;
   if (notificationsOpen.value) {
     navOpen.value = false;
+    // Refresh notifications when opening
+    fetchNotifications();
   }
 };
 
@@ -169,23 +202,46 @@ const closeNotifications = () => {
   notificationsOpen.value = false;
 };
 
-const handleNotificationClick = (notification) => {
+const handleNotificationClick = async (notification) => {
   // Mark as read
-  notification.isRead = true;
+  await markAsRead(notification._id);
 
   // Navigate to task breakdown page
   router.push("/task");
   closeNotifications();
 };
 
-const markAllAsRead = () => {
-  notifications.value.forEach((n) => (n.isRead = true));
+const markAllAsRead = async () => {
+  try {
+    await axios.put("http://localhost:3000/api/notifications/read-all", {
+      userId,
+    });
+
+    // Update local state
+    notifications.value.forEach((n) => {
+      n.isRead = true;
+      n.readAt = new Date().toISOString();
+    });
+  } catch (error) {
+    console.error("Error marking all as read:", error);
+  }
 };
 
-const deleteNotification = (notificationId) => {
-  const index = notifications.value.findIndex((n) => n._id === notificationId);
-  if (index > -1) {
-    notifications.value.splice(index, 1);
+const deleteNotification = async (notificationId) => {
+  try {
+    await axios.delete(
+      `http://localhost:3000/api/notifications/${notificationId}?userId=${userId}`
+    );
+
+    // Remove from local state
+    const index = notifications.value.findIndex(
+      (n) => n._id === notificationId
+    );
+    if (index > -1) {
+      notifications.value.splice(index, 1);
+    }
+  } catch (error) {
+    console.error("Error deleting notification:", error);
   }
 };
 
@@ -213,6 +269,16 @@ const formatNotificationTime = (timestamp) => {
   if (diffDays < 7) return `${diffDays}d ago`;
   return date.toLocaleDateString();
 };
+
+// Fetch notifications on mount and set up auto-refresh
+onMounted(() => {
+  fetchNotifications();
+
+  // Refresh notifications every 30 seconds
+  setInterval(() => {
+    fetchNotifications();
+  }, 30000);
+});
 </script>
 
 <style scoped>
