@@ -97,11 +97,11 @@
             Home
           </RouterLink>
           <RouterLink to="/leaderboard" @click="closeNav">
-            <i class="fas fa-trophy"></i>
+            <i class="fa-solid fa-paper-plane"></i>
             Leaderboard
           </RouterLink>
           <RouterLink to="/task" @click="closeNav">
-            <i class="fas fa-tasks"></i>
+            <i class="fa-solid fa-square-check"></i>
             Task Breakdown
           </RouterLink>
         </div>
