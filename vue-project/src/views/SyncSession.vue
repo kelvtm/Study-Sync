@@ -2,42 +2,98 @@
   <div class="sync-wrapper">
     <!-- Pairing Interface -->
     <div v-if="!activeSession" class="pairing-section">
-      <img
-        class="image-1"
-        src="https://media.istockphoto.com/id/1347747136/vector/group-of-students-studying.jpg?s=612x612&w=0&k=20&c=t8UwXDXTCu2O-2mOLE8_aQ7KTXxjuUk_WgiR0cS6pSk="
-        alt="Students studying"
-      />
-      <h2>Start a Pair Study Session</h2>
+      <div class="pairing-header">
+        <div class="header-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h2>Start Your Study Session</h2>
+        <p class="subtitle">
+          Connect with a study partner and boost your productivity together
+        </p>
+      </div>
 
-      <label for="time">Select session length:</label>
-      <select v-model="sessionTime" id="time">
-        <option value="25">25 mins</option>
-        <option value="50">50 mins</option>
-        <option value="90">90 mins</option>
-      </select>
+      <div class="pairing-card">
+        <div class="image-container">
+          <img
+            class="study-image"
+            src="https://media.istockphoto.com/id/1347747136/vector/group-of-students-studying.jpg?s=612x612&w=0&k=20&c=t8UwXDXTCu2O-2mOLE8_aQ7KTXxjuUk_WgiR0cS6pSk="
+            alt="Students studying"
+          />
+        </div>
 
-      <button @click="findPartner" :disabled="isSearching" class="btn-el">
-        {{ isSearching ? "Searching..." : "Find Partner" }}
-      </button>
+        <div class="session-setup">
+          <label for="time" class="setup-label">
+            <i class="fas fa-clock"></i>
+            Select Session Length
+          </label>
+          <div class="select-wrapper">
+            <select v-model="sessionTime" id="time" class="time-select">
+              <option value="25">🍅 25 minutes - Quick Focus</option>
+              <option value="50">📚 50 minutes - Deep Study</option>
+              <option value="90">🎯 90 minutes - Marathon Session</option>
+            </select>
+            <i class="fas fa-chevron-down select-arrow"></i>
+          </div>
 
-      <p v-if="statusMessage" class="status-message">{{ statusMessage }}</p>
+          <button @click="findPartner" :disabled="isSearching" class="find-btn">
+            <i v-if="isSearching" class="fas fa-spinner fa-spin"></i>
+            <i v-else class="fas fa-search"></i>
+            {{
+              isSearching ? "Searching for Partner..." : "Find Study Partner"
+            }}
+          </button>
+
+          <div v-if="statusMessage" class="status-message">
+            <i v-if="isSearching" class="fas fa-circle-notch fa-spin"></i>
+            <i v-else class="fas fa-info-circle"></i>
+            {{ statusMessage }}
+          </div>
+        </div>
+      </div>
+
+      <div class="info-tip">
+        <i class="fas fa-lightbulb"></i>
+        <p>
+          <strong>Pro Tip:</strong> Stay on this page during your session for
+          the best experience!
+        </p>
+      </div>
     </div>
 
     <!-- Chat Interface -->
     <div v-if="activeSession" class="chat-section">
       <div class="chat-header">
         <div class="session-info">
-          <h3>Study Session with {{ partnerUsername }}</h3>
+          <div class="partner-info">
+            <div class="partner-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="partner-details">
+              <h3>{{ partnerUsername }}</h3>
+              <span class="session-label">
+                <i class="fas fa-book-open"></i>
+                Study Session
+              </span>
+            </div>
+          </div>
           <div class="timer-container">
-            <div class="timer-display" :style="{ color: getTimerColor() }">
+            <div
+              class="timer-display"
+              :class="{ warning: remainingTime <= 300 }"
+            >
+              <i class="fas fa-clock"></i>
               {{ formattedTime }}
             </div>
             <div v-if="timerWarning" class="timer-warning">
+              <i class="fas fa-exclamation-triangle"></i>
               {{ timerWarning }}
             </div>
           </div>
         </div>
-        <button @click="endSession" class="btn-end">End Session</button>
+        <button @click="endSession" class="btn-end">
+          <i class="fas fa-stop"></i>
+          End Session
+        </button>
       </div>
 
       <div class="chat-messages" ref="messagesContainer">
@@ -46,52 +102,83 @@
           :key="message.timestamp"
           :class="['message', { 'own-message': message.userId === userId }]"
         >
-          <div class="message-info">
-            <span class="sender">{{
-              message.userId === userId ? "You" : partnerUsername
-            }}</span>
-            <span class="timestamp">{{
-              formatMessageTime(message.timestamp)
-            }}</span>
+          <div class="message-avatar">
+            <i class="fas fa-user"></i>
           </div>
-          <div class="message-content">{{ message.message }}</div>
+          <div class="message-bubble">
+            <div class="message-info">
+              <span class="sender">{{
+                message.userId === userId ? "You" : partnerUsername
+              }}</span>
+              <span class="timestamp">{{
+                formatMessageTime(message.timestamp)
+              }}</span>
+            </div>
+            <div class="message-content">{{ message.message }}</div>
+          </div>
         </div>
 
         <div v-if="partnerTyping" class="typing-indicator">
-          {{ partnerUsername }} is typing...
+          <div class="typing-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="typing-bubble">
+            <div class="typing-animation">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span class="typing-text">{{ partnerUsername }} is typing...</span>
+          </div>
         </div>
       </div>
 
       <div class="chat-input">
-        <input
-          v-model="newMessage"
-          @keyup.enter="sendMessage"
-          @input="handleTyping"
-          placeholder="Type your message..."
-          class="message-input"
-        />
-        <button
-          @click="sendMessage"
-          :disabled="!newMessage.trim()"
-          class="btn-send"
-        >
-          Send
-        </button>
+        <div class="input-wrapper">
+          <input
+            v-model="newMessage"
+            @keyup.enter="sendMessage"
+            @input="handleTyping"
+            placeholder="Type your message..."
+            class="message-input"
+          />
+          <button
+            @click="sendMessage"
+            :disabled="!newMessage.trim()"
+            class="btn-send"
+          >
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- End Session Confirmation Modal -->
     <div v-if="showEndConfirmation" class="modal-overlay">
       <div class="confirmation-modal">
-        <h3>⚠️ End Study Session?</h3>
+        <div class="modal-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>End Study Session?</h3>
         <p>Are you sure you want to end this session early?</p>
-        <p class="warning-text">
-          This will count as a quit session and will be added to your profile
-          statistics. Your study partner will also be notified.
-        </p>
+        <div class="warning-box">
+          <i class="fas fa-info-circle"></i>
+          <div class="warning-content">
+            <p><strong>This will:</strong></p>
+            <ul>
+              <li>Count as an incomplete session</li>
+              <li>Notify your study partner</li>
+              <li>Affect your completion rate</li>
+            </ul>
+          </div>
+        </div>
         <div class="modal-buttons">
-          <button @click="cancelEndSession" class="btn-cancel">Cancel</button>
+          <button @click="cancelEndSession" class="btn-cancel">
+            <i class="fas fa-arrow-left"></i>
+            Continue Session
+          </button>
           <button @click="confirmEndSession" class="btn-confirm">
+            <i class="fas fa-stop"></i>
             End Session
           </button>
         </div>
@@ -138,7 +225,6 @@ const initSocket = () => {
     socket.emit("join_user", userId);
   });
 
-  // Listen for partner found
   socket.on("partner_found", (data) => {
     if (data.targetUserId === userId) {
       statusMessage.value = "Partner found! Starting session...";
@@ -148,13 +234,11 @@ const initSocket = () => {
     }
   });
 
-  // Listen for timer updates
   socket.on("timer_update", (data) => {
     remainingTime.value = data.remainingTime;
     formattedTime.value = data.formattedTime;
   });
 
-  // Listen for timer warnings
   socket.on("timer_warning", (data) => {
     timerWarning.value = data.message;
     setTimeout(() => {
@@ -162,24 +246,20 @@ const initSocket = () => {
     }, 5000);
   });
 
-  // Listen for session completed naturally
   socket.on("session_completed", (data) => {
     alert("🎉 " + data.message);
     resetSession();
   });
 
-  // Listen for successful session join
   socket.on("joined_session", (data) => {
     console.log("Successfully joined session:", data);
   });
 
-  // Listen for new messages
   socket.on("receive_message", (messageData) => {
     messages.value.push(messageData);
     scrollToBottom();
   });
 
-  // Listen for typing indicators
   socket.on("user_typing", (data) => {
     if (data.userId !== userId) {
       partnerTyping.value = data.isTyping;
@@ -191,7 +271,6 @@ const initSocket = () => {
     }
   });
 
-  // Listen for session ended
   socket.on("session_ended", (data) => {
     if (data.reason === "user_quit") {
       alert(
@@ -203,12 +282,10 @@ const initSocket = () => {
     resetSession();
   });
 
-  // Listen for user joined
   socket.on("user_joined", (data) => {
     statusMessage.value = data.message;
   });
 
-  // Listen for errors
   socket.on("error", (error) => {
     console.error("Socket error:", error);
     statusMessage.value = `Error: ${error}`;
@@ -223,7 +300,7 @@ const findPartner = async () => {
   }
 
   isSearching.value = true;
-  statusMessage.value = "Looking for a study partner...";
+  statusMessage.value = "Looking for a motivated study partner...";
 
   try {
     const res = await axios.post("http://localhost:3000/api/sessions/pair", {
@@ -249,13 +326,11 @@ const findPartner = async () => {
 // Start chat session
 const startChatSession = async (sessionId, partnerId) => {
   try {
-    // Get session details
     const sessionRes = await axios.get(
       `http://localhost:3000/api/sessions/${sessionId}`
     );
     const session = sessionRes.data.session;
 
-    // Find partner's details
     const partner = session.participants.find((p) => p._id !== userId);
     partnerEmail.value = partner ? partner.email : "Unknown";
     partnerUsername.value = partner ? partner.username : "Unknown";
@@ -266,7 +341,6 @@ const startChatSession = async (sessionId, partnerId) => {
       ...session,
     };
 
-    // Initialize timer
     remainingTime.value =
       session.remainingTimeSeconds || session.plannedDurationMinutes * 60;
     formattedTime.value = formatTime(remainingTime.value);
@@ -274,11 +348,7 @@ const startChatSession = async (sessionId, partnerId) => {
     isSearching.value = false;
     statusMessage.value = "";
 
-    // Join the session room via socket
-    socket.emit("join_session", {
-      sessionId,
-      userId,
-    });
+    socket.emit("join_session", { sessionId, userId });
   } catch (error) {
     console.error("Error starting chat session:", error);
     statusMessage.value = "Error starting chat session";
@@ -300,7 +370,6 @@ const sendMessage = () => {
   socket.emit("send_message", messageData);
   newMessage.value = "";
 
-  // Stop typing indicator
   socket.emit("typing", {
     sessionId: activeSession.value.id,
     userId,
@@ -318,12 +387,10 @@ const handleTyping = () => {
     isTyping: true,
   });
 
-  // Clear existing timer
   if (typingTimer) {
     clearTimeout(typingTimer);
   }
 
-  // Set new timer to stop typing indicator
   typingTimer = setTimeout(() => {
     socket.emit("typing", {
       sessionId: activeSession.value.id,
@@ -349,7 +416,6 @@ const confirmEndSession = async () => {
       }
     );
     showEndConfirmation.value = false;
-    // resetSession will be called when we receive the socket event
   } catch (error) {
     console.error("Error ending session:", error);
     showEndConfirmation.value = false;
@@ -394,13 +460,6 @@ const formatTime = (seconds) => {
     .padStart(2, "0")}`;
 };
 
-// Get timer color based on remaining time
-const getTimerColor = () => {
-  if (remainingTime.value > 600) return "#28a745"; // Green > 10 minutes
-  if (remainingTime.value > 300) return "#ffc107"; // Yellow > 5 minutes
-  return "#dc3545"; // Red <= 5 minutes
-};
-
 // Format timestamp for messages
 const formatMessageTime = (timestamp) => {
   return new Date(timestamp).toLocaleTimeString([], {
@@ -426,47 +485,207 @@ onUnmounted(() => {
 
 <style scoped>
 .sync-wrapper {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 1.5rem;
+  min-height: calc(100vh - 80px);
 }
 
+/* Pairing Section */
 .pairing-section {
   display: flex;
   flex-direction: column;
+  gap: 2rem;
+}
+
+.pairing-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.header-icon {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(
+    135deg,
+    var(--secondary-color),
+    var(--secondary-variant)
+  );
+  border-radius: 50%;
+  display: flex;
   align-items: center;
-  gap: 15px;
-  margin-top: 50px;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: white;
+  font-size: 2rem;
+  box-shadow: var(--box-shadow-light);
 }
 
-.btn-el {
-  background-color: var(--secondary-color);
-  font-family: "Nunito", serif;
+.pairing-header h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: var(--color-text-secondary);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.pairing-card {
+  background: var(--background-secondary);
+  border-radius: var(--border-radius-large);
+  padding: 2rem;
+  box-shadow: var(--box-shadow-light);
+}
+
+.image-container {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.study-image {
+  max-width: 400px;
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow-light);
+}
+
+.session-setup {
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.setup-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-weight: 600;
-  color: var(--primary-color);
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  border: none;
+  color: var(--color-text);
+  font-size: 1.1rem;
 }
 
-.btn-el:disabled {
-  opacity: 0.6;
+.setup-label i {
+  color: var(--primary-variant);
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.time-select {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius);
+  background: white;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 500;
+  appearance: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.time-select:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(52, 220, 59, 0.1);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+.find-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: linear-gradient(
+    135deg,
+    var(--secondary-color),
+    var(--secondary-variant)
+  );
+  color: white;
+  border: none;
+  padding: 1.2rem 2rem;
+  border-radius: var(--border-radius-large);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  box-shadow: var(--box-shadow-light);
+}
+
+.find-btn:hover:not(:disabled) {
+  background: var(--secondary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow);
+}
+
+.find-btn:disabled {
+  opacity: 0.7;
   cursor: not-allowed;
+  transform: none;
 }
 
 .status-message {
-  color: #666;
-  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--background);
+  border-radius: var(--border-radius);
+  color: var(--color-text);
+  font-weight: 500;
+  border: 1px solid var(--color-border);
 }
 
-/* Chat Styles */
+.info-tip {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--box-shadow-light);
+}
+
+.info-tip i {
+  color: var(--secondary-color);
+  font-size: 1.5rem;
+}
+
+.info-tip p {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+/* Chat Section */
 .chat-section {
   display: flex;
   flex-direction: column;
-  height: 600px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  height: 75vh;
+  background: white;
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow);
   overflow: hidden;
 }
 
@@ -474,206 +693,502 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #ddd;
+  padding: 1.5rem;
+  background: var(--background-secondary);
+  border-bottom: 2px solid var(--color-border);
 }
 
 .session-info {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
 }
 
-.session-info h3 {
-  margin: 0;
-  color: #333;
+.partner-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.partner-avatar {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-variant)
+  );
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-primary);
+  font-size: 1.2rem;
+}
+
+.partner-details h3 {
+  margin: 0 0 0.25rem 0;
+  color: var(--color-heading);
+  font-size: 1.2rem;
+}
+
+.session-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
 }
 
 .timer-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 5px;
+  gap: 0.5rem;
 }
 
 .timer-display {
-  font-size: 1.5em;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--color-success);
   font-family: "Courier New", monospace;
-  transition: color 0.3s ease;
+}
+
+.timer-display.warning {
+  color: var(--color-error);
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0.5;
+  }
 }
 
 .timer-warning {
-  background-color: #fff3cd;
-  color: #856404;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 0.9em;
-  border: 1px solid #ffeaa7;
+  background: rgba(255, 193, 7, 0.1);
+  color: var(--color-warning);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(255, 193, 7, 0.3);
 }
 
 .btn-end {
-  background-color: #ff4757;
+  background: var(--color-error);
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
   cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: var(--transition-fast);
 }
 
+.btn-end:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+/* Chat Messages */
 .chat-messages {
   flex: 1;
-  padding: 15px;
+  padding: 1.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 1rem;
+  background: var(--background);
 }
 
 .message {
-  max-width: 70%;
-  align-self: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  max-width: 75%;
 }
 
 .own-message {
   align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 35px;
+  height: 35px;
+  background: var(--primary-variant);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.own-message .message-avatar {
+  background: var(--secondary-color);
+}
+
+.message-bubble {
+  background: white;
+  border-radius: var(--border-radius-large);
+  padding: 1rem;
+  box-shadow: var(--box-shadow-light);
+  max-width: 100%;
+}
+
+.own-message .message-bubble {
+  background: var(--secondary-color);
+  color: white;
 }
 
 .message-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5px;
-  font-size: 0.8em;
-  color: #666;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.sender {
+  font-weight: 600;
+}
+
+.timestamp {
+  opacity: 0.7;
 }
 
 .message-content {
-  background-color: #e9ecef;
-  padding: 10px 15px;
-  border-radius: 18px;
   word-wrap: break-word;
+  line-height: 1.4;
 }
 
-.own-message .message-content {
-  background-color: var(--secondary-color, #007bff);
-  color: white;
-}
-
+/* Typing Indicator */
 .typing-indicator {
-  font-style: italic;
-  color: #666;
-  padding: 5px 15px;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  max-width: 200px;
 }
 
-.chat-input {
+.typing-avatar {
+  width: 35px;
+  height: 35px;
+  background: var(--primary-variant);
+  border-radius: 50%;
   display: flex;
-  padding: 15px;
-  border-top: 1px solid #ddd;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.typing-bubble {
+  background: white;
+  border-radius: var(--border-radius-large);
+  padding: 1rem;
+  box-shadow: var(--box-shadow-light);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.typing-animation {
+  display: flex;
+  gap: 2px;
+}
+
+.typing-animation span {
+  width: 4px;
+  height: 4px;
+  background: var(--color-text-secondary);
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-animation span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-animation span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  30% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.typing-text {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Chat Input */
+.chat-input {
+  padding: 1.5rem;
+  background: var(--background-secondary);
+  border-top: 1px solid var(--color-border);
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 0.75rem;
 }
 
 .message-input {
   flex: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 20px;
+  padding: 1rem 1.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-large);
   outline: none;
+  font-size: 1rem;
+  background: white;
+  color: var(--color-text);
+  transition: var(--transition-fast);
 }
 
 .message-input:focus {
-  border-color: var(--secondary-color, #007bff);
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(52, 220, 59, 0.1);
 }
 
 .btn-send {
-  background-color: var(--secondary-color, #007bff);
+  background: var(--secondary-color);
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius-large);
   cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-send:hover:not(:disabled) {
+  background: var(--secondary-hover);
+  transform: translateY(-1px);
 }
 
 .btn-send:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Modal Styles */
+/* Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
 .confirmation-modal {
   background: white;
-  padding: 30px;
-  border-radius: 12px;
-  max-width: 400px;
+  border-radius: var(--border-radius-large);
+  padding: 2rem;
+  max-width: 450px;
   width: 90%;
+  box-shadow: var(--box-shadow);
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(220, 53, 69, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: var(--color-error);
+  font-size: 1.5rem;
 }
 
 .confirmation-modal h3 {
-  margin-bottom: 15px;
-  color: #333;
+  color: var(--color-heading);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
 }
 
 .confirmation-modal p {
-  margin-bottom: 15px;
-  color: #666;
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
   line-height: 1.5;
 }
 
-.warning-text {
-  background-color: #fff3cd;
-  border: 1px solid #ffeaa7;
-  border-radius: 6px;
-  padding: 12px;
-  color: #856404;
-  font-size: 0.9em;
+.warning-box {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin: 1.5rem 0;
+  display: flex;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.warning-box i {
+  color: var(--color-warning);
+  margin-top: 0.25rem;
+}
+
+.warning-content p {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.warning-content ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.warning-content li {
+  margin-bottom: 0.25rem;
 }
 
 .modal-buttons {
   display: flex;
-  gap: 15px;
+  gap: 1rem;
   justify-content: center;
-  margin-top: 20px;
+}
+
+.btn-cancel,
+.btn-confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition-fast);
 }
 
 .btn-cancel {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-confirm {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
+  background: var(--color-border);
+  color: var(--color-text);
 }
 
 .btn-cancel:hover {
-  background-color: #5a6268;
+  background: var(--color-hover);
+}
+
+.btn-confirm {
+  background: var(--color-error);
+  color: white;
 }
 
 .btn-confirm:hover {
-  background-color: #c82333;
+  background: #c82333;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .pairing-card,
+  .info-tip,
+  .chat-section,
+  .message-bubble,
+  .typing-bubble,
+  .confirmation-modal {
+    background: var(--background);
+    color: var(--color-text);
+  }
+
+  .message-input,
+  .time-select {
+    background: var(--background-secondary);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sync-wrapper {
+    padding: 1rem;
+  }
+
+  .pairing-header h2 {
+    font-size: 2rem;
+  }
+
+  .pairing-card {
+    padding: 1.5rem;
+  }
+
+  .study-image {
+    max-width: 100%;
+  }
+
+  .chat-section {
+    height: 70vh;
+  }
+
+  .session-info {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .chat-header {
+    padding: 1rem;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-confirm {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+
+  .pairing-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
 }
 </style>
