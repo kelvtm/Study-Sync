@@ -4,7 +4,7 @@
     <div v-if="!activeSession" class="pairing-section">
       <div class="pairing-header">
         <div class="header-icon">
-          <i class="fas fa-users"></i>
+          <i class="fa-solid fa-lightbulb"></i>
         </div>
         <h2>Start Your Study Session</h2>
         <p class="subtitle">
