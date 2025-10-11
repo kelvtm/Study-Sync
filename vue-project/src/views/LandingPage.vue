@@ -1,6 +1,6 @@
 <template>
   <div class="landing-page">
-    <!-- Hero Section -->
+    <!-- Hero Section. -->
     <section class="hero-section">
       <div class="hero-content">
         <!-- Main Heading -->
