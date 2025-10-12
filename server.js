@@ -24,16 +24,20 @@ const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
-const VUE_DEV_ORIGIN = "http://localhost:5173";
 
 // --- Middleware ---
 app.use(express.json());
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || origin === VUE_DEV_ORIGIN) return callback(null, true);
-      if (process.env.ALLOWED_ORIGIN && origin === process.env.ALLOWED_ORIGIN)
+      const allowedOrigins = [
+        "http://localhost:5173",
+        "https://jettoner.xyz",
+        "http://jettoner.xyz",
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
+      }
       return callback(null, false);
     },
     credentials: true,
@@ -229,8 +233,13 @@ app.use((err, req, res, next) => {
 // --- Socket.IO setup with Room Management ---
 const io = new Server(httpServer, {
   cors: {
-    origin: VUE_DEV_ORIGIN,
+    origin: [
+      "http://localhost:5173",
+      "https://jettoner.xyz",
+      "http://jettoner.xyz",
+    ],
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
