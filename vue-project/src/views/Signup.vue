@@ -195,6 +195,7 @@
 <script setup>
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import { API_BASE_URL } from "@/config";
 
 // Form data
 const email = ref("");
@@ -409,7 +410,7 @@ const signup = async () => {
   isLoading.value = true;
 
   try {
-    const res = await fetch("http://localhost:3000/signup", {
+    const res = await fetch(`${API_BASE_URL}/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

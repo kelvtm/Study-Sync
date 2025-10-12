@@ -191,6 +191,8 @@
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { SOCKET_URL } from "@/config";
+import { API_BASE_URL } from "@/config";
 
 // Reactive data
 const sessionTime = ref("25");
@@ -218,7 +220,7 @@ let typingTimer = null;
 
 // Initialize socket connection
 const initSocket = () => {
-  socket = io("http://localhost:3000");
+  socket = io(SOCKET_URL);
 
   socket.on("connect", () => {
     console.log("Connected to server");
@@ -303,7 +305,7 @@ const findPartner = async () => {
   statusMessage.value = "Looking for a motivated study partner...";
 
   try {
-    const res = await axios.post("http://localhost:3000/api/sessions/pair", {
+    const res = await axios.post(`${API_BASE_URL}/api/sessions/pair`, {
       userId,
       sessionTimeMinutes: parseInt(sessionTime.value),
     });
@@ -327,7 +329,7 @@ const findPartner = async () => {
 const startChatSession = async (sessionId, partnerId) => {
   try {
     const sessionRes = await axios.get(
-      `http://localhost:3000/api/sessions/${sessionId}`
+      `${API_BASE_URL}/api/sessions/${sessionId}`
     );
     const session = sessionRes.data.session;
 
@@ -410,7 +412,7 @@ const confirmEndSession = async () => {
 
   try {
     await axios.put(
-      `http://localhost:3000/api/sessions/${activeSession.value.id}/end`,
+      `${API_BASE_URL}/api/sessions/${activeSession.value.id}/end`,
       {
         userId,
       }

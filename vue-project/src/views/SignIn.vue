@@ -106,6 +106,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { API_BASE_URL } from "@/config";
 
 const email = ref("");
 const password = ref("");
@@ -167,7 +168,7 @@ const login = async () => {
   isLoading.value = true;
 
   try {
-    const res = await fetch("http://localhost:3000/login", {
+    const res = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

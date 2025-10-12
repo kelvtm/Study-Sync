@@ -250,6 +250,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import { API_BASE_URL } from "@/config";
 
 // Reactive data
 const userStats = ref(null);
@@ -348,7 +349,7 @@ const fetchUserStats = async () => {
   try {
     console.log("Fetching stats for user:", userId);
     const response = await axios.get(
-      `http://localhost:3000/api/users/${userId}/stats`
+      `${API_BASE_URL}/api/users/${userId}/stats`
     );
     console.log("Received user stats:", response.data);
     userStats.value = response.data;

@@ -236,6 +236,7 @@
 <script setup>
 import { ref, onMounted, computed, nextTick } from "vue";
 import axios from "axios";
+import { API_BASE_URL } from "@/config";
 
 // Reactive data
 const courses = ref([]);
@@ -291,7 +292,7 @@ const fetchCourses = async () => {
   try {
     console.log("Fetching courses for user:", userId);
     const response = await axios.get(
-      `http://localhost:3000/api/courses?userId=${userId}`
+      `${API_BASE_URL}/api/courses?userId=${userId}`
     );
 
     courses.value = response.data.courses.map((course) => ({
@@ -326,7 +327,7 @@ const createCourse = async () => {
   try {
     console.log("Creating course:", createForm.value);
 
-    const response = await axios.post("http://localhost:3000/api/courses", {
+    const response = await axios.post("${API_BASE_URL}/api/courses", {
       userId,
       courseName: createForm.value.courseName.trim(),
       submissionDate: createForm.value.submissionDate,
@@ -401,7 +402,7 @@ const confirmDelete = async () => {
 
   try {
     await axios.delete(
-      `http://localhost:3000/api/courses/${deleteCourseId.value}?userId=${userId}`
+      `${API_BASE_URL}/api/courses/${deleteCourseId.value}?userId=${userId}`
     );
 
     console.log("Course deleted successfully");
@@ -433,7 +434,7 @@ const addSubtask = async (stage) => {
   try {
     console.log("Creating subtask:", title);
 
-    const response = await axios.post("http://localhost:3000/api/subtasks", {
+    const response = await axios.post("${API_BASE_URL}/api/subtasks", {
       stageId: stage._id,
       title,
       userId,
@@ -497,7 +498,7 @@ const toggleSubtask = async (subtaskId, isCompleted) => {
     console.log("Toggling subtask:", subtaskId, isCompleted);
 
     const response = await axios.put(
-      `http://localhost:3000/api/subtasks/${subtaskId}`,
+      `${API_BASE_URL}/api/subtasks/${subtaskId}`,
       {
         userId,
         isCompleted,

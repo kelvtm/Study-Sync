@@ -131,6 +131,7 @@
 import { RouterLink, RouterView, useRouter, useRoute } from "vue-router";
 import { ref, computed, onMounted, watch } from "vue";
 import axios from "axios";
+import { API_BASE_URL, SOCKET_URL } from "@/config";
 
 const router = useRouter();
 const route = useRoute();
@@ -169,7 +170,7 @@ const fetchNotifications = async () => {
 
   try {
     const response = await axios.get(
-      `http://localhost:3000/api/notifications?userId=${userId}`
+      `${API_BASE_URL}/api/notifications?userId=${userId}`
     );
     notifications.value = response.data.notifications;
     console.log("Notifications fetched:", notifications.value.length);
@@ -182,7 +183,7 @@ const fetchNotifications = async () => {
 const markAsRead = async (notificationId) => {
   try {
     await axios.put(
-      `http://localhost:3000/api/notifications/${notificationId}/read`,
+      `${API_BASE_URL}/api/notifications/${notificationId}/read`,
       {
         userId,
       }
@@ -231,7 +232,7 @@ const handleNotificationClick = async (notification) => {
 
 const markAllAsRead = async () => {
   try {
-    await axios.put("http://localhost:3000/api/notifications/read-all", {
+    await axios.put(`${API_BASE_URL}/api/notifications/read-all`, {
       userId,
     });
 
@@ -247,7 +248,7 @@ const markAllAsRead = async () => {
 const deleteNotification = async (notificationId) => {
   try {
     await axios.delete(
-      `http://localhost:3000/api/notifications/${notificationId}?userId=${userId}`
+      `${API_BASE_URL}/api/notifications/${notificationId}?userId=${userId}`
     );
 
     const index = notifications.value.findIndex(

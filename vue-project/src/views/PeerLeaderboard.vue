@@ -258,6 +258,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import { API_BASE_URL } from "@/config";
 
 // Reactive data
 const leaderboard = ref([]);
@@ -298,7 +299,7 @@ const fetchLeaderboard = async () => {
 
   try {
     console.log("Fetching leaderboard...");
-    const response = await axios.get("http://localhost:3000/api/leaderboard");
+    const response = await axios.get(`${API_BASE_URL}/api/leaderboard`);
     console.log("Received leaderboard response:", response.data);
 
     if (response.data && response.data.leaderboard) {
