@@ -1,139 +1,162 @@
 <template>
   <div id="app">
-    <!-- Top Header Bar -->
-    <header class="top-header">
-      <div class="header-content">
-        <!-- Hamburger Menu Button -->
-        <button
-          class="hamburger-btn"
-          @click="toggleNav"
-          :class="{ active: navOpen }"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-
-        <!-- App Title -->
-        <div class="app-title">
-          <h1><span style="color: var(--secondary-color)">Study</span>Sync</h1>
-        </div>
-
-        <!-- Notification Icon (bigger) -->
-        <button class="notification-btn" @click="toggleNotifications">
-          <i class="fas fa-bell"></i>
-          <span v-if="unreadCount > 0" class="notification-badge">{{
-            unreadCount
-          }}</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- Notification Dropdown -->
-    <div v-if="notificationsOpen" class="notifications-dropdown">
-      <div class="notifications-header">
-        <h3>Notifications</h3>
-        <button @click="markAllAsRead" class="mark-read-btn">
-          Mark all read
-        </button>
-      </div>
-
-      <div class="notifications-list">
-        <div v-if="notifications.length === 0" class="empty-notifications">
-          <i class="fas fa-bell-slash"></i>
-          <p>No notifications yet</p>
-        </div>
-
-        <div
-          v-for="notification in notifications"
-          :key="notification._id"
-          :class="['notification-item', { unread: !notification.isRead }]"
-          @click="handleNotificationClick(notification)"
-        >
-          <div class="notification-icon">
-            <i :class="getNotificationIcon(notification.type)"></i>
-          </div>
-          <div class="notification-content">
-            <p class="notification-message">{{ notification.message }}</p>
-            <span class="notification-time">{{
-              formatNotificationTime(notification.createdAt)
-            }}</span>
-          </div>
+    <!-- Show header and nav only for authenticated pages -->
+    <template v-if="!isPublicPage">
+      <!-- Top Header Bar -->
+      <header class="top-header">
+        <div class="header-content">
+          <!-- Hamburger Menu Button -->
           <button
-            @click.stop="deleteNotification(notification._id)"
-            class="delete-notification-btn"
+            class="hamburger-btn"
+            @click="toggleNav"
+            :class="{ active: navOpen }"
           >
-            ✕
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <!-- App Title -->
+          <div class="app-title">
+            <h1>
+              <span style="color: var(--secondary-color)">Study</span>Sync
+            </h1>
+          </div>
+
+          <!-- Notification Icon (bigger) -->
+          <button class="notification-btn" @click="toggleNotifications">
+            <i class="fas fa-bell"></i>
+            <span v-if="unreadCount > 0" class="notification-badge">{{
+              unreadCount
+            }}</span>
           </button>
         </div>
-      </div>
-    </div>
+      </header>
 
-    <!-- Overlay for notifications -->
-    <div
-      v-if="notificationsOpen"
-      class="notifications-overlay"
-      @click="closeNotifications"
-    ></div>
-
-    <!-- Slide-out Navigation -->
-    <nav class="slide-nav" :class="{ open: navOpen }">
-      <div class="nav-content">
-        <!-- User Icon and profile grouped together -->
-        <div class="user-profile-section">
-          <i class="fas fa-user-circle user-icon"></i>
-          <RouterLink to="/profile" @click="closeNav">
-            <i class="fas fa-user"></i>
-            Profile
-          </RouterLink>
+      <!-- Notification Dropdown -->
+      <div v-if="notificationsOpen" class="notifications-dropdown">
+        <div class="notifications-header">
+          <h3>Notifications</h3>
+          <button @click="markAllAsRead" class="mark-read-btn">
+            Mark all read
+          </button>
         </div>
 
-        <div class="nav-divider"></div>
+        <div class="notifications-list">
+          <div v-if="notifications.length === 0" class="empty-notifications">
+            <i class="fas fa-bell-slash"></i>
+            <p>No notifications yet</p>
+          </div>
 
-        <!-- Other Navigation Links -->
-        <div class="nav-links">
-          <RouterLink to="/sync" @click="closeNav">
-            <i class="fas fa-home"></i>
-            Home
-          </RouterLink>
-          <RouterLink to="/leaderboard" @click="closeNav">
-            <i class="fa-solid fa-paper-plane"></i>
-            Leaderboard
-          </RouterLink>
-          <RouterLink to="/task" @click="closeNav">
-            <i class="fa-solid fa-square-check"></i>
-            Task Breakdown
-          </RouterLink>
+          <div
+            v-for="notification in notifications"
+            :key="notification._id"
+            :class="['notification-item', { unread: !notification.isRead }]"
+            @click="handleNotificationClick(notification)"
+          >
+            <div class="notification-icon">
+              <i :class="getNotificationIcon(notification.type)"></i>
+            </div>
+            <div class="notification-content">
+              <p class="notification-message">{{ notification.message }}</p>
+              <span class="notification-time">{{
+                formatNotificationTime(notification.createdAt)
+              }}</span>
+            </div>
+            <button
+              @click.stop="deleteNotification(notification._id)"
+              class="delete-notification-btn"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       </div>
-    </nav>
 
-    <!-- Overlay -->
-    <div
-      class="nav-overlay"
-      :class="{ active: navOpen }"
-      @click="closeNav"
-    ></div>
+      <!-- Overlay for notifications -->
+      <div
+        v-if="notificationsOpen"
+        class="notifications-overlay"
+        @click="closeNotifications"
+      ></div>
+
+      <!-- Slide-out Navigation -->
+      <nav class="slide-nav" :class="{ open: navOpen }">
+        <div class="nav-content">
+          <!-- User Icon and profile grouped together -->
+          <div class="user-profile-section">
+            <i class="fas fa-user-circle user-icon"></i>
+            <RouterLink to="/profile" @click="closeNav">
+              <i class="fas fa-user"></i>
+              Profile
+            </RouterLink>
+          </div>
+
+          <div class="nav-divider"></div>
+
+          <!-- Other Navigation Links -->
+          <div class="nav-links">
+            <RouterLink to="/sync" @click="closeNav">
+              <i class="fas fa-home"></i>
+              Home
+            </RouterLink>
+            <RouterLink to="/leaderboard" @click="closeNav">
+              <i class="fas fa-trophy"></i>
+              Leaderboard
+            </RouterLink>
+            <RouterLink to="/task" @click="closeNav">
+              <i class="fas fa-tasks"></i>
+              Task Breakdown
+            </RouterLink>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Overlay -->
+      <div
+        class="nav-overlay"
+        :class="{ active: navOpen }"
+        @click="closeNav"
+      ></div>
+    </template>
 
     <!-- Main Content Area -->
-    <main class="main-content">
+    <main :class="isPublicPage ? 'public-content' : 'main-content'">
       <RouterView />
     </main>
   </div>
 </template>
 
 <script setup>
-import { RouterLink, RouterView, useRouter } from "vue-router";
-import { ref, computed, onMounted } from "vue";
+import { RouterLink, RouterView, useRouter, useRoute } from "vue-router";
+import { ref, computed, onMounted, watch } from "vue";
 import axios from "axios";
 
 const router = useRouter();
+const route = useRoute();
 const navOpen = ref(false);
 const notificationsOpen = ref(false);
 
 // Real notifications from API
 const notifications = ref([]);
 const userId = localStorage.getItem("userId");
+
+// Define public pages (pages without header/nav)
+const publicPages = ["/", "/signin", "/signup"];
+
+// Computed property to check if current page is public
+const isPublicPage = computed(() => {
+  return publicPages.includes(route.path);
+});
+
+// Watch route changes to close nav/notifications
+watch(
+  () => route.path,
+  () => {
+    closeNav();
+    closeNotifications();
+  }
+);
 
 // Computed property for unread notification count
 const unreadCount = computed(() => {
@@ -165,7 +188,6 @@ const markAsRead = async (notificationId) => {
       }
     );
 
-    // Update local state
     const notification = notifications.value.find(
       (n) => n._id === notificationId
     );
@@ -193,7 +215,6 @@ const toggleNotifications = () => {
   notificationsOpen.value = !notificationsOpen.value;
   if (notificationsOpen.value) {
     navOpen.value = false;
-    // Refresh notifications when opening
     fetchNotifications();
   }
 };
@@ -203,10 +224,7 @@ const closeNotifications = () => {
 };
 
 const handleNotificationClick = async (notification) => {
-  // Mark as read
   await markAsRead(notification._id);
-
-  // Navigate to task breakdown page
   router.push("/task");
   closeNotifications();
 };
@@ -217,7 +235,6 @@ const markAllAsRead = async () => {
       userId,
     });
 
-    // Update local state
     notifications.value.forEach((n) => {
       n.isRead = true;
       n.readAt = new Date().toISOString();
@@ -233,7 +250,6 @@ const deleteNotification = async (notificationId) => {
       `http://localhost:3000/api/notifications/${notificationId}?userId=${userId}`
     );
 
-    // Remove from local state
     const index = notifications.value.findIndex(
       (n) => n._id === notificationId
     );
@@ -272,12 +288,15 @@ const formatNotificationTime = (timestamp) => {
 
 // Fetch notifications on mount and set up auto-refresh
 onMounted(() => {
-  fetchNotifications();
-
-  // Refresh notifications every 30 seconds
-  setInterval(() => {
+  if (!isPublicPage.value) {
     fetchNotifications();
-  }, 30000);
+
+    setInterval(() => {
+      if (!isPublicPage.value) {
+        fetchNotifications();
+      }
+    }, 30000);
+  }
 });
 </script>
 
@@ -571,7 +590,7 @@ onMounted(() => {
   padding: 100px 0 2rem 0;
 }
 
-/* User and Home Section */
+/* User and Profile Section */
 .user-profile-section {
   padding: 0 1.5rem 1rem 1.5rem;
   display: flex;
@@ -602,6 +621,12 @@ onMounted(() => {
 
 .user-profile-section a:hover {
   background-color: var(--color-hover);
+}
+
+.nav-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0 1.5rem 1rem;
 }
 
 /* Navigation Links */
@@ -665,7 +690,16 @@ onMounted(() => {
   visibility: visible;
 }
 
-/* Main Content */
+/* Public Content (for landing, signin, signup) */
+.public-content {
+  flex: 1;
+  min-height: 100vh;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+/* Main Content (for authenticated pages) */
 .main-content {
   flex: 1;
   margin-top: 80px;
@@ -719,6 +753,10 @@ onMounted(() => {
   }
 
   .top-header {
+    background: var(--background);
+  }
+
+  .notifications-dropdown {
     background: var(--background);
   }
 }
