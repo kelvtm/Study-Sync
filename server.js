@@ -217,7 +217,10 @@ const distPath = path.join(__dirname, "dist");
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(distPath));
-  app.get("/*", (req, res) => res.sendFile(path.join(distPath, "index.html")));
+  // Serve index.html for all routes (Vue router handles client-side routing)
+  app.get("*", function (req, res) {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
 } else {
   app.get("/", (req, res) =>
     res.send(`Backend running. Use Vue dev server at ${VUE_DEV_ORIGIN}`)
