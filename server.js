@@ -217,8 +217,8 @@ const distPath = path.join(__dirname, "dist");
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(distPath));
-  // Serve index.html for all routes (Vue router handles client-side routing)
-  app.get("*", function (req, res) {
+  // Serve index.html for all non-API routes
+  app.use((req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
   });
 } else {
