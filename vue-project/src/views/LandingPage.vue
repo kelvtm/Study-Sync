@@ -18,11 +18,11 @@
         <!-- Call-to-Action Buttons -->
         <div class="cta-buttons">
           <button @click="goToUp" class="btn-primary cta-primary">
-            <i class="fas fa-rocket"></i>
+            <i class="fa-regular fa-paper-plane"></i>
             Get Started Free
           </button>
           <button @click="goToIn" class="btn-secondary cta-secondary">
-            <i class="fas fa-sign-in-alt"></i>
+            <i class="fa-regular fa-circle-check"></i>
             Sign In
           </button>
         </div>
@@ -30,15 +30,15 @@
         <!-- Feature Highlights -->
         <div class="feature-highlights">
           <div class="feature-item">
-            <i class="fas fa-users"></i>
+            <i class="fa-regular fa-user"></i>
             <span>Study Groups</span>
           </div>
           <div class="feature-item">
-            <i class="fas fa-target"></i>
+            <i class="fa-regular fa-circle-dot"></i>
             <span>Goal Tracking</span>
           </div>
           <div class="feature-item">
-            <i class="fas fa-trophy"></i>
+            <i class="fa-regular fa-star"></i>
             <span>Leaderboards</span>
           </div>
         </div>
@@ -83,7 +83,7 @@
 
         <div class="benefit-card">
           <div class="benefit-icon">
-            <i class="fas fa-graduation-cap"></i>
+            <i class="fa-regular fa-star"></i>
           </div>
           <h3>Improve Grades</h3>
           <p>

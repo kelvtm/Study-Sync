@@ -36,8 +36,8 @@
           </div>
 
           <button @click="findPartner" :disabled="isSearching" class="find-btn">
-            <i v-if="isSearching" class="fas fa-spinner fa-spin"></i>
-            <i v-else class="fas fa-search"></i>
+            <i v-if="isSearching" class="fa-regular fa-sun"></i>
+            <i v-else class="fa-regular fa-circle-check"></i>
             {{
               isSearching ? "Searching for Partner..." : "Find Study Partner"
             }}

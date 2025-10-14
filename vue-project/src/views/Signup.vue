@@ -52,7 +52,7 @@
         <!-- Password Field -->
         <div class="form-group">
           <label for="password" class="form-label">
-            <i class="fas fa-lock"></i>
+            <i class="fa-regular fa-keyboard"></i>
             Password
           </label>
           <div class="password-input-container">
@@ -162,8 +162,8 @@
           :disabled="isLoading"
           :class="{ loading: isLoading }"
         >
-          <i v-if="isLoading" class="fas fa-spinner fa-spin"></i>
-          <i v-else class="fas fa-user-plus"></i>
+          <i v-if="isLoading" class="fa-regular fa-sun"></i>
+          <i v-else class="fa-solid fa-plus"></i>
           {{ isLoading ? "Creating Account..." : "Create Account" }}
         </button>
 
@@ -184,7 +184,7 @@
       <div class="auth-footer">
         <p>Already have an account?</p>
         <button @click="goToSignin" class="btn-secondary auth-link">
-          <i class="fas fa-sign-in-alt"></i>
+          <i class="fa-regular fa-circle-check"></i>
           Sign In
         </button>
       </div>
