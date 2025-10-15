@@ -223,7 +223,9 @@ if (process.env.NODE_ENV === "production") {
   });
 } else {
   app.get("/", (req, res) =>
-    res.send(`Backend running. Use Vue dev server at ${VUE_DEV_ORIGIN}`)
+    res.send(
+      `Backend running. Use Vue dev server at ${process.env.VUE_DEV_ORIGIN}`
+    )
   );
 }
 
