@@ -32,7 +32,7 @@
               <option value="50">📚 50 minutes - Deep Study</option>
               <option value="90">🎯 90 minutes - Marathon Session</option>
             </select>
-            <i class="fas fa-chevron-down select-arrow"></i>
+            <!-- <i class="fa-regular fa-circle-down"></i> -->
           </div>
 
           <button @click="findPartner" :disabled="isSearching" class="find-btn">
@@ -71,7 +71,7 @@
             <div class="partner-details">
               <h3>{{ partnerUsername }}</h3>
               <span class="session-label">
-                <i class="fas fa-book-open"></i>
+                <i class="fa-solid fa-eye"></i>
                 Study Session
               </span>
             </div>
@@ -157,7 +157,7 @@
     <div v-if="showEndConfirmation" class="modal-overlay">
       <div class="confirmation-modal">
         <div class="modal-icon">
-          <i class="fas fa-exclamation-triangle"></i>
+          <i class="fa-solid fa-flag"></i>
         </div>
         <h3>End Study Session?</h3>
         <p>Are you sure you want to end this session early?</p>

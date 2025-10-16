@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="reset-badge">
-        <i class="fas fa-sync-alt"></i>
+        <!-- <i class="fas fa-sync-alt"></i> -->
         Resets every Sunday
       </div>
     </div>
@@ -41,14 +41,14 @@
       <!-- Top 3 Podium -->
       <div class="podium-section" v-if="topThree.length > 0">
         <h2 class="section-title">
-          <i class="fas fa-medal"></i>
+          <i class="fa-regular fa-building"></i>
           Top Performers
         </h2>
         <div class="podium">
           <!-- Second Place -->
           <div class="podium-place second" v-if="topThree[1]">
             <div class="medal-badge silver">
-              <i class="fas fa-medal"></i>
+              <i class="fa-regular fa-circle"></i>
             </div>
             <div class="podium-card">
               <div class="rank-number">2</div>
@@ -70,7 +70,7 @@
           <!-- First Place -->
           <div class="podium-place first" v-if="topThree[0]">
             <div class="medal-badge gold">
-              <i class="fas fa-crown"></i>
+              <i class="fa-regular fa-circle"></i>
             </div>
             <div class="podium-card winner">
               <div class="rank-number winner">1</div>
@@ -92,7 +92,7 @@
           <!-- Third Place -->
           <div class="podium-place third" v-if="topThree[2]">
             <div class="medal-badge bronze">
-              <i class="fas fa-medal"></i>
+              <i class="fa-regular fa-circle"></i>
             </div>
             <div class="podium-card">
               <div class="rank-number">3</div>
@@ -117,7 +117,7 @@
       <div class="rankings-section">
         <div class="section-header">
           <h2 class="section-title">
-            <i class="fas fa-list-ol"></i>
+            <i class="fa-solid fa-folder"></i>
             Complete Rankings
           </h2>
           <div class="participants-count" v-if="leaderboard.length > 0">

@@ -32,7 +32,7 @@
               <i class="fas fa-user"></i>
             </div>
             <div class="avatar-badge">
-              <i class="fas fa-check"></i>
+              <i class="fa-regular fa-star"></i>
             </div>
           </div>
           <div class="user-details">
@@ -73,7 +73,7 @@
         </div>
         <div class="overview-card">
           <div class="overview-icon fire">
-            <i class="fas fa-fire"></i>
+            <i class="fa-regular fa-star"></i>
           </div>
           <div class="overview-content">
             <h3>{{ userStats.stats?.currentStreak || 0 }}</h3>
@@ -92,7 +92,7 @@
           <div class="stat-card">
             <div class="stat-header">
               <div class="stat-icon primary">
-                <i class="fas fa-stopwatch"></i>
+                <i class="fa-solid fa-calendar"></i>
               </div>
               <span class="stat-badge">Record</span>
             </div>
@@ -105,7 +105,7 @@
           <div class="stat-card">
             <div class="stat-header">
               <div class="stat-icon secondary">
-                <i class="fas fa-calendar-week"></i>
+                <i class="fa-regular fa-calendar-days"></i>
               </div>
               <span class="stat-badge">This Week</span>
             </div>
@@ -151,7 +151,7 @@
       <!-- Progress Section -->
       <div class="section">
         <h2 class="section-title">
-          <i class="fas fa-tasks"></i>
+          <i class="fa-regular fa-square-check"></i>
           Study Progress
         </h2>
 
@@ -209,7 +209,7 @@
       <!-- Achievements Section -->
       <div class="section">
         <h2 class="section-title">
-          <i class="fas fa-trophy"></i>
+          <i class="fa-solid fa-building"></i>
           Achievements
         </h2>
         <div class="achievements-grid">
