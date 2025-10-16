@@ -412,6 +412,14 @@ const handleTyping = () => {
   }, 1000);
 };
 
+// Handle input focus on mobile - scroll into view
+const handleInputFocus = (event) => {
+  // Wait for keyboard to open
+  setTimeout(() => {
+    event.target.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 300);
+};
+
 // End session with confirmation
 const endSession = () => {
   showEndConfirmation.value = true;
@@ -762,8 +770,21 @@ onUnmounted(() => {
 /* Full-screen chat mode */
 .sync-wrapper.fullscreen .chat-section {
   height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile */
   border-radius: 0;
   max-width: 100%;
+}
+
+/* Mobile: Use fixed positioning for better keyboard handling */
+@media (max-width: 768px) {
+  .sync-wrapper.fullscreen .chat-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: auto;
+  }
 }
 
 .chat-header {
@@ -773,6 +794,7 @@ onUnmounted(() => {
   padding: 1.5rem;
   background: var(--background-secondary);
   border-bottom: 2px solid var(--color-border);
+  flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .session-info {
@@ -1032,6 +1054,7 @@ onUnmounted(() => {
   border-top: 1px solid var(--color-border);
   box-sizing: border-box;
   width: 100%;
+  flex-shrink: 0; /* Prevent input from shrinking */
 }
 
 .input-wrapper {
@@ -1222,6 +1245,10 @@ onUnmounted(() => {
     padding: 0.5rem;
   }
 
+  .sync-wrapper.fullscreen {
+    padding: 0;
+  }
+
   .pairing-header h2 {
     font-size: 2rem;
   }
@@ -1242,6 +1269,7 @@ onUnmounted(() => {
   .session-info {
     flex-direction: column;
     gap: 1rem;
+    align-items: flex-start;
   }
 
   .chat-header {
@@ -1249,8 +1277,19 @@ onUnmounted(() => {
     flex-wrap: wrap;
   }
 
+  .chat-messages {
+    padding: 1rem;
+    /* Ensure messages area is scrollable and doesn't push input off screen */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .chat-input {
     padding: 0.75rem;
+    /* Ensure input sticks to bottom on mobile */
+    position: sticky;
+    bottom: 0;
+    background: var(--background-secondary);
   }
 
   .input-wrapper {
@@ -1259,12 +1298,15 @@ onUnmounted(() => {
 
   .message-input {
     padding: 0.75rem 1rem;
-    font-size: 0.95rem;
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px; /* iOS touch target size */
   }
 
   .btn-send {
     padding: 0.75rem 1rem;
     flex-shrink: 0;
+    min-width: 44px; /* iOS touch target size */
+    min-height: 44px;
   }
 
   .modal-buttons {
@@ -1274,6 +1316,20 @@ onUnmounted(() => {
   .btn-cancel,
   .btn-confirm {
     width: 100%;
+  }
+
+  /* Timer adjustments for mobile */
+  .timer-display {
+    font-size: 1.5rem;
+  }
+
+  .partner-details h3 {
+    font-size: 1rem;
+  }
+
+  .btn-end {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
 }
 
