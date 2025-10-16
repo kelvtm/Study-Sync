@@ -4,7 +4,7 @@
     <div v-if="!activeSession" class="pairing-section">
       <div class="pairing-header">
         <div class="header-icon">
-          <i class="fas fa-users"></i>
+          <i class="fa-solid fa-lightbulb"></i>
         </div>
         <h2>Start Your Study Session</h2>
         <p class="subtitle">
@@ -28,16 +28,16 @@
           </label>
           <div class="select-wrapper">
             <select v-model="sessionTime" id="time" class="time-select">
-              <option value="25">🍅 25 minutes - Pomodoro Focus</option>
+              <option value="25">🍅 25 minutes - Quick Focus</option>
               <option value="50">📚 50 minutes - Deep Study</option>
               <option value="90">🎯 90 minutes - Marathon Session</option>
             </select>
-            <i class="fas fa-chevron-down select-arrow"></i>
+            <!-- <i class="fa-regular fa-circle-down"></i> -->
           </div>
 
           <button @click="findPartner" :disabled="isSearching" class="find-btn">
-            <i v-if="isSearching" class="fas fa-spinner fa-spin"></i>
-            <i v-else class="fas fa-search"></i>
+            <i v-if="isSearching" class="fa-regular fa-sun"></i>
+            <i v-else class="fa-regular fa-circle-check"></i>
             {{
               isSearching ? "Searching for Partner..." : "Find Study Partner"
             }}
@@ -71,7 +71,7 @@
             <div class="partner-details">
               <h3>{{ partnerUsername }}</h3>
               <span class="session-label">
-                <i class="fas fa-book-open"></i>
+                <i class="fa-solid fa-eye"></i>
                 Study Session
               </span>
             </div>
@@ -157,7 +157,7 @@
     <div v-if="showEndConfirmation" class="modal-overlay">
       <div class="confirmation-modal">
         <div class="modal-icon">
-          <i class="fas fa-exclamation-triangle"></i>
+          <i class="fa-solid fa-flag"></i>
         </div>
         <h3>End Study Session?</h3>
         <p>Are you sure you want to end this session early?</p>
@@ -191,6 +191,8 @@
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { SOCKET_URL } from "@/config";
+import { API_BASE_URL } from "@/config";
 
 // Reactive data
 const sessionTime = ref("25");
@@ -218,7 +220,7 @@ let typingTimer = null;
 
 // Initialize socket connection
 const initSocket = () => {
-  socket = io("http://localhost:3000");
+  socket = io(SOCKET_URL);
 
   socket.on("connect", () => {
     console.log("Connected to server");
@@ -303,7 +305,7 @@ const findPartner = async () => {
   statusMessage.value = "Looking for a motivated study partner...";
 
   try {
-    const res = await axios.post("http://localhost:3000/api/sessions/pair", {
+    const res = await axios.post(`${API_BASE_URL}/api/sessions/pair`, {
       userId,
       sessionTimeMinutes: parseInt(sessionTime.value),
     });
@@ -327,7 +329,7 @@ const findPartner = async () => {
 const startChatSession = async (sessionId, partnerId) => {
   try {
     const sessionRes = await axios.get(
-      `http://localhost:3000/api/sessions/${sessionId}`
+      `${API_BASE_URL}/api/sessions/${sessionId}`
     );
     const session = sessionRes.data.session;
 
@@ -410,7 +412,7 @@ const confirmEndSession = async () => {
 
   try {
     await axios.put(
-      `http://localhost:3000/api/sessions/${activeSession.value.id}/end`,
+      `${API_BASE_URL}/api/sessions/${activeSession.value.id}/end`,
       {
         userId,
       }
@@ -751,7 +753,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.5rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: var(--color-success);
   font-family: "Courier New", monospace;
