@@ -327,7 +327,7 @@ const createCourse = async () => {
   try {
     console.log("Creating course:", createForm.value);
 
-    const response = await axios.post("${API_BASE_URL}/api/courses", {
+    const response = await axios.post(`${API_BASE_URL}/api/courses`, {
       userId,
       courseName: createForm.value.courseName.trim(),
       submissionDate: createForm.value.submissionDate,
