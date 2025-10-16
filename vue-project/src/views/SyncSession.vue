@@ -1,5 +1,5 @@
 <template>
-  <div class="sync-wrapper">
+  <div class="sync-wrapper" :class="{ fullscreen: activeSession }">
     <!-- Pairing Interface -->
     <div v-if="!activeSession" class="pairing-section">
       <div class="pairing-header">
@@ -32,7 +32,6 @@
               <option value="50">📚 50 minutes - Deep Study</option>
               <option value="90">🎯 90 minutes - Marathon Session</option>
             </select>
-            <!-- <i class="fa-regular fa-circle-down"></i> -->
           </div>
 
           <button @click="findPartner" :disabled="isSearching" class="find-btn">
@@ -193,6 +192,10 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import { SOCKET_URL } from "@/config";
 import { API_BASE_URL } from "@/config";
+import { onBeforeRouteLeave } from "vue-router";
+
+// Emit event to App.vue to hide/show header
+const emit = defineEmits(["session-status-changed"]);
 
 // Reactive data
 const sessionTime = ref("25");
@@ -351,6 +354,13 @@ const startChatSession = async (sessionId, partnerId) => {
     statusMessage.value = "";
 
     socket.emit("join_session", { sessionId, userId });
+
+    // Store session in localStorage for recovery
+    localStorage.setItem("activeSessionId", sessionId);
+    localStorage.setItem("activeSessionStarted", Date.now().toString());
+
+    // Emit to App.vue to hide header/nav
+    emit("session-status-changed", true);
   } catch (error) {
     console.error("Error starting chat session:", error);
     statusMessage.value = "Error starting chat session";
@@ -442,6 +452,13 @@ const resetSession = () => {
   formattedTime.value = "00:00";
   timerWarning.value = "";
   showEndConfirmation.value = false;
+
+  // Clear localStorage
+  localStorage.removeItem("activeSessionId");
+  localStorage.removeItem("activeSessionStarted");
+
+  // Emit to App.vue to show header/nav again
+  emit("session-status-changed", false);
 };
 
 // Scroll to bottom of messages
@@ -470,9 +487,49 @@ const formatMessageTime = (timestamp) => {
   });
 };
 
+// Handle browser close/refresh warning
+const handleBeforeUnload = (e) => {
+  if (activeSession.value) {
+    e.preventDefault();
+    e.returnValue =
+      "Your study session is still active. Leaving now will count as incomplete and notify your partner. Are you sure you want to leave?";
+    return e.returnValue;
+  }
+};
+
+// Prevent navigation away from page during active session
+onBeforeRouteLeave((to, from, next) => {
+  if (activeSession.value) {
+    const confirmLeave = window.confirm(
+      "Your study session is still active. Leaving now will count as incomplete and notify your partner. Are you sure you want to leave?"
+    );
+
+    if (confirmLeave) {
+      // User confirmed, end the session
+      confirmEndSession();
+      next();
+    } else {
+      // User canceled
+      next(false);
+    }
+  } else {
+    next();
+  }
+});
+
 // Lifecycle hooks
 onMounted(() => {
   initSocket();
+
+  // Check for active session on mount
+  const savedSessionId = localStorage.getItem("activeSessionId");
+  if (savedSessionId) {
+    // Try to reconnect to the session
+    startChatSession(savedSessionId);
+  }
+
+  // Add browser warning when trying to close/refresh tab
+  window.addEventListener("beforeunload", handleBeforeUnload);
 });
 
 onUnmounted(() => {
@@ -482,6 +539,7 @@ onUnmounted(() => {
   if (typingTimer) {
     clearTimeout(typingTimer);
   }
+  window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 </script>
 
@@ -491,6 +549,23 @@ onUnmounted(() => {
   margin: 0 auto;
   padding: 1.5rem;
   min-height: calc(100vh - 80px);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Full-screen mode when session is active */
+.sync-wrapper.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+  z-index: 9999;
+  background: var(--background);
 }
 
 /* Pairing Section */
@@ -603,15 +678,6 @@ onUnmounted(() => {
   box-shadow: 0 0 0 3px rgba(52, 220, 59, 0.1);
 }
 
-.select-arrow {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-secondary);
-  pointer-events: none;
-}
-
 .find-btn {
   display: flex;
   align-items: center;
@@ -689,6 +755,15 @@ onUnmounted(() => {
   border-radius: var(--border-radius-large);
   box-shadow: var(--box-shadow);
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Full-screen chat mode */
+.sync-wrapper.fullscreen .chat-section {
+  height: 100vh;
+  border-radius: 0;
+  max-width: 100%;
 }
 
 .chat-header {
@@ -955,11 +1030,15 @@ onUnmounted(() => {
   padding: 1.5rem;
   background: var(--background-secondary);
   border-top: 1px solid var(--color-border);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .input-wrapper {
   display: flex;
   gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .message-input {
@@ -1140,7 +1219,7 @@ onUnmounted(() => {
 /* Responsive Design */
 @media (max-width: 768px) {
   .sync-wrapper {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 
   .pairing-header h2 {
@@ -1157,6 +1236,7 @@ onUnmounted(() => {
 
   .chat-section {
     height: 70vh;
+    border-radius: var(--border-radius);
   }
 
   .session-info {
@@ -1166,6 +1246,25 @@ onUnmounted(() => {
 
   .chat-header {
     padding: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .chat-input {
+    padding: 0.75rem;
+  }
+
+  .input-wrapper {
+    gap: 0.5rem;
+  }
+
+  .message-input {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-send {
+    padding: 0.75rem 1rem;
+    flex-shrink: 0;
   }
 
   .modal-buttons {

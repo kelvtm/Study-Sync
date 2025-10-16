@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <!-- Show header and nav only for authenticated pages -->
-    <template v-if="!isPublicPage">
+    <!-- Show header and nav only for authenticated pages AND when no active session -->
+    <template v-if="!isPublicPage && !hasActiveSession">
       <!-- Top Header Bar -->
       <header class="top-header">
         <div class="header-content">
@@ -120,9 +120,18 @@
       ></div>
     </template>
 
+    <!-- Active Session Badge (shows when user has an active session) -->
+    <div v-if="hasActiveSession && !isOnSyncPage" class="session-active-badge">
+      <i class="fas fa-clock"></i>
+      <span>Study Session Active</span>
+      <button @click="returnToSession" class="return-session-btn">
+        Return to Session
+      </button>
+    </div>
+
     <!-- Main Content Area -->
-    <main :class="isPublicPage ? 'public-content' : 'main-content'">
-      <RouterView />
+    <main :class="getMainContentClass">
+      <RouterView @session-status-changed="handleSessionStatusChange" />
     </main>
   </div>
 </template>
@@ -137,6 +146,7 @@ const router = useRouter();
 const route = useRoute();
 const navOpen = ref(false);
 const notificationsOpen = ref(false);
+const hasActiveSession = ref(false);
 
 // Real notifications from API
 const notifications = ref([]);
@@ -150,6 +160,18 @@ const isPublicPage = computed(() => {
   return publicPages.includes(route.path);
 });
 
+// Check if user is on sync page
+const isOnSyncPage = computed(() => {
+  return route.path === "/sync";
+});
+
+// Computed class for main content
+const getMainContentClass = computed(() => {
+  if (isPublicPage.value) return "public-content";
+  if (hasActiveSession.value) return "fullscreen-content";
+  return "main-content";
+});
+
 // Watch route changes to close nav/notifications
 watch(
   () => route.path,
@@ -158,6 +180,28 @@ watch(
     closeNotifications();
   }
 );
+
+// Check for active session in localStorage on mount
+onMounted(() => {
+  checkForActiveSession();
+});
+
+const checkForActiveSession = () => {
+  const activeSessionId = localStorage.getItem("activeSessionId");
+  if (activeSessionId) {
+    hasActiveSession.value = true;
+  }
+};
+
+// Handle session status change from Sync component
+const handleSessionStatusChange = (isActive) => {
+  hasActiveSession.value = isActive;
+};
+
+// Return to active session
+const returnToSession = () => {
+  router.push("/sync");
+};
 
 // Computed property for unread notification count
 const unreadCount = computed(() => {
@@ -306,6 +350,75 @@ onMounted(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Active Session Badge */
+.session-active-badge {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    135deg,
+    var(--secondary-color),
+    var(--secondary-variant)
+  );
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--box-shadow);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 9998;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.session-active-badge i {
+  font-size: 1.2rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.session-active-badge span {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.return-session-btn {
+  background: white;
+  color: var(--secondary-color);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.return-session-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Top Header Bar */
@@ -711,6 +824,16 @@ onMounted(() => {
   width: 100%;
 }
 
+/* Fullscreen Content (during active session) */
+.fullscreen-content {
+  flex: 1;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-content {
@@ -734,6 +857,21 @@ onMounted(() => {
     right: 10px;
     width: calc(100vw - 20px);
     max-width: 400px;
+  }
+
+  .session-active-badge {
+    top: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .session-active-badge span {
+    display: none;
+  }
+
+  .return-session-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
   }
 }
 
