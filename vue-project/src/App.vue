@@ -25,7 +25,7 @@
 
           <!-- Notification Icon (bigger) -->
           <button class="notification-btn" @click="toggleNotifications">
-            <i class="fas fa-bell"></i>
+            <Bell :size="24" />
             <span v-if="unreadCount > 0" class="notification-badge">{{
               unreadCount
             }}</span>
@@ -44,7 +44,7 @@
 
         <div class="notifications-list">
           <div v-if="notifications.length === 0" class="empty-notifications">
-            <i class="fas fa-bell-slash"></i>
+            <BellOff :size="48" />
             <p>No notifications yet</p>
           </div>
 
@@ -55,7 +55,10 @@
             @click="handleNotificationClick(notification)"
           >
             <div class="notification-icon">
-              <i :class="getNotificationIcon(notification.type)"></i>
+              <component
+                :is="getNotificationIcon(notification.type)"
+                :size="20"
+              />
             </div>
             <div class="notification-content">
               <p class="notification-message">{{ notification.message }}</p>
@@ -67,7 +70,7 @@
               @click.stop="deleteNotification(notification._id)"
               class="delete-notification-btn"
             >
-              ✕
+              <X :size="16" />
             </button>
           </div>
         </div>
@@ -85,9 +88,9 @@
         <div class="nav-content">
           <!-- User Icon and profile grouped together -->
           <div class="user-profile-section">
-            <i class="fas fa-user-circle user-icon"></i>
+            <UserCircle2 :size="40" class="user-icon" />
             <RouterLink to="/profile" @click="closeNav">
-              <i class="fas fa-user"></i>
+              <User :size="20" />
               Profile
             </RouterLink>
           </div>
@@ -97,15 +100,15 @@
           <!-- Other Navigation Links -->
           <div class="nav-links">
             <RouterLink to="/sync" @click="closeNav">
-              <i class="fas fa-home"></i>
+              <Home :size="20" />
               Home
             </RouterLink>
             <RouterLink to="/leaderboard" @click="closeNav">
-              <i class="fas fa-trophy"></i>
+              <Trophy :size="20" />
               Leaderboard
             </RouterLink>
             <RouterLink to="/task" @click="closeNav">
-              <i class="fas fa-tasks"></i>
+              <ListChecks :size="20" />
               Task Breakdown
             </RouterLink>
           </div>
@@ -122,7 +125,7 @@
 
     <!-- Active Session Badge (shows when user has an active session) -->
     <div v-if="hasActiveSession && !isOnSyncPage" class="session-active-badge">
-      <i class="fas fa-clock"></i>
+      <Clock :size="20" class="pulsing-icon" />
       <span>Study Session Active</span>
       <button @click="returnToSession" class="return-session-btn">
         Return to Session
@@ -141,6 +144,20 @@ import { RouterLink, RouterView, useRouter, useRoute } from "vue-router";
 import { ref, computed, onMounted, watch } from "vue";
 import axios from "axios";
 import { API_BASE_URL, SOCKET_URL } from "@/config";
+import {
+  Bell,
+  BellOff,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  Info,
+  User,
+  UserCircle2,
+  Home,
+  Trophy,
+  ListChecks,
+  X,
+} from "lucide-vue-next";
 
 const router = useRouter();
 const route = useRoute();
@@ -306,14 +323,15 @@ const deleteNotification = async (notificationId) => {
   }
 };
 
+// Get notification icon component based on type
 const getNotificationIcon = (type) => {
-  const icons = {
-    deadline: "fas fa-clock",
-    success: "fas fa-check-circle",
-    warning: "fas fa-exclamation-triangle",
-    info: "fas fa-info-circle",
+  const iconMap = {
+    deadline: Clock,
+    success: CheckCircle,
+    warning: AlertTriangle,
+    info: Info,
   };
-  return icons[type] || "fas fa-bell";
+  return iconMap[type] || Bell;
 };
 
 const formatNotificationTime = (timestamp) => {
@@ -385,8 +403,7 @@ onMounted(() => {
   }
 }
 
-.session-active-badge i {
-  font-size: 1.2rem;
+.pulsing-icon {
   animation: pulse 2s infinite;
 }
 
@@ -496,7 +513,6 @@ onMounted(() => {
   color: var(--color-text);
   cursor: pointer;
   padding: 12px;
-  font-size: 1.5rem;
   transition: var(--transition-fast);
   min-width: 50px;
   height: 50px;
@@ -585,8 +601,7 @@ onMounted(() => {
   color: var(--color-text-secondary);
 }
 
-.empty-notifications i {
-  font-size: 3rem;
+.empty-notifications svg {
   margin-bottom: 10px;
   opacity: 0.5;
 }
@@ -630,7 +645,6 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   color: var(--secondary-color);
-  font-size: 1rem;
 }
 
 .notification-content {
@@ -657,9 +671,11 @@ onMounted(() => {
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 0.9rem;
   opacity: 0;
   transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .notification-item:hover .delete-notification-btn {
@@ -715,7 +731,6 @@ onMounted(() => {
 }
 
 .user-icon {
-  font-size: 2.5rem;
   color: var(--primary-variant);
 }
 
@@ -778,11 +793,6 @@ onMounted(() => {
 .nav-links a.router-link-exact-active:hover {
   background-color: var(--primary-color);
   transform: translateX(4px);
-}
-
-.nav-links a i {
-  width: 20px;
-  text-align: center;
 }
 
 /* Navigation Overlay */
