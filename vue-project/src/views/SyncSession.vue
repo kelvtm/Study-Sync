@@ -1,5 +1,5 @@
 <template>
-  <div class="sync-wrapper" :class="{ fullscreen: activeSession }">
+  <div class="sync-wrapper">
     <!-- Pairing Interface -->
     <div v-if="!activeSession" class="pairing-section">
       <div class="pairing-header">
@@ -194,7 +194,7 @@ import { SOCKET_URL } from "@/config";
 import { API_BASE_URL } from "@/config";
 import { onBeforeRouteLeave } from "vue-router";
 
-// Emit event to App.vue to hide/show header
+// Emit event to App.vue for session badge
 const emit = defineEmits(["session-status-changed"]);
 
 // Reactive data
@@ -359,7 +359,7 @@ const startChatSession = async (sessionId, partnerId) => {
     localStorage.setItem("activeSessionId", sessionId);
     localStorage.setItem("activeSessionStarted", Date.now().toString());
 
-    // Emit to App.vue to hide header/nav
+    // Emit to App.vue to show session badge
     emit("session-status-changed", true);
   } catch (error) {
     console.error("Error starting chat session:", error);
@@ -412,14 +412,6 @@ const handleTyping = () => {
   }, 1000);
 };
 
-// Handle input focus on mobile - scroll into view
-const handleInputFocus = (event) => {
-  // Wait for keyboard to open
-  setTimeout(() => {
-    event.target.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 300);
-};
-
 // End session with confirmation
 const endSession = () => {
   showEndConfirmation.value = true;
@@ -465,7 +457,7 @@ const resetSession = () => {
   localStorage.removeItem("activeSessionId");
   localStorage.removeItem("activeSessionStarted");
 
-  // Emit to App.vue to show header/nav again
+  // Emit to App.vue to hide session badge
   emit("session-status-changed", false);
 };
 
@@ -505,16 +497,15 @@ const handleBeforeUnload = (e) => {
   }
 };
 
-// Prevent navigation away from page during active session
+// Prevent navigation away from page during active session with quick confirmation
 onBeforeRouteLeave((to, from, next) => {
   if (activeSession.value) {
     const confirmLeave = window.confirm(
-      "Your study session is still active. Leaving now will count as incomplete and notify your partner. Are you sure you want to leave?"
+      "You have an active study session running in the background. Do you want to continue navigating? (You can return anytime using the session badge)"
     );
 
     if (confirmLeave) {
-      // User confirmed, end the session
-      confirmEndSession();
+      // User confirmed - let them navigate, session continues in background
       next();
     } else {
       // User canceled
@@ -529,7 +520,7 @@ onBeforeRouteLeave((to, from, next) => {
 onMounted(() => {
   initSocket();
 
-  // Check for active session on mount
+  // Check for active session on mount (session recovery)
   const savedSessionId = localStorage.getItem("activeSessionId");
   if (savedSessionId) {
     // Try to reconnect to the session
@@ -557,23 +548,6 @@ onUnmounted(() => {
   margin: 0 auto;
   padding: 1.5rem;
   min-height: calc(100vh - 80px);
-  box-sizing: border-box;
-  width: 100%;
-}
-
-/* Full-screen mode when session is active */
-.sync-wrapper.fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-width: 100%;
-  padding: 0;
-  margin: 0;
-  min-height: 100vh;
-  z-index: 9999;
-  background: var(--background);
 }
 
 /* Pairing Section */
@@ -759,32 +733,13 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   height: 75vh;
+  max-height: 800px;
   background: white;
   border-radius: var(--border-radius-large);
   box-shadow: var(--box-shadow);
   overflow: hidden;
   width: 100%;
   box-sizing: border-box;
-}
-
-/* Full-screen chat mode */
-.sync-wrapper.fullscreen .chat-section {
-  height: 100vh;
-  height: 100dvh; /* Dynamic viewport height for mobile */
-  border-radius: 0;
-  max-width: 100%;
-}
-
-/* Mobile: Use fixed positioning for better keyboard handling */
-@media (max-width: 768px) {
-  .sync-wrapper.fullscreen .chat-section {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: auto;
-  }
 }
 
 .chat-header {
@@ -794,7 +749,7 @@ onUnmounted(() => {
   padding: 1.5rem;
   background: var(--background-secondary);
   border-bottom: 2px solid var(--color-border);
-  flex-shrink: 0; /* Prevent header from shrinking */
+  flex-shrink: 0;
 }
 
 .session-info {
@@ -1052,9 +1007,8 @@ onUnmounted(() => {
   padding: 1.5rem;
   background: var(--background-secondary);
   border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
   box-sizing: border-box;
-  width: 100%;
-  flex-shrink: 0; /* Prevent input from shrinking */
 }
 
 .input-wrapper {
@@ -1074,6 +1028,7 @@ onUnmounted(() => {
   background: white;
   color: var(--color-text);
   transition: var(--transition-fast);
+  box-sizing: border-box;
 }
 
 .message-input:focus {
@@ -1092,6 +1047,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .btn-send:hover:not(:disabled) {
@@ -1242,11 +1199,7 @@ onUnmounted(() => {
 /* Responsive Design */
 @media (max-width: 768px) {
   .sync-wrapper {
-    padding: 0.5rem;
-  }
-
-  .sync-wrapper.fullscreen {
-    padding: 0;
+    padding: 1rem;
   }
 
   .pairing-header h2 {
@@ -1263,7 +1216,7 @@ onUnmounted(() => {
 
   .chat-section {
     height: 70vh;
-    border-radius: var(--border-radius);
+    max-height: 600px;
   }
 
   .session-info {
@@ -1274,22 +1227,10 @@ onUnmounted(() => {
 
   .chat-header {
     padding: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .chat-messages {
-    padding: 1rem;
-    /* Ensure messages area is scrollable and doesn't push input off screen */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
   }
 
   .chat-input {
-    padding: 0.75rem;
-    /* Ensure input sticks to bottom on mobile */
-    position: sticky;
-    bottom: 0;
-    background: var(--background-secondary);
+    padding: 1rem;
   }
 
   .input-wrapper {
@@ -1298,15 +1239,10 @@ onUnmounted(() => {
 
   .message-input {
     padding: 0.75rem 1rem;
-    font-size: 16px; /* Prevents zoom on iOS */
-    min-height: 44px; /* iOS touch target size */
   }
 
   .btn-send {
     padding: 0.75rem 1rem;
-    flex-shrink: 0;
-    min-width: 44px; /* iOS touch target size */
-    min-height: 44px;
   }
 
   .modal-buttons {
@@ -1318,18 +1254,8 @@ onUnmounted(() => {
     width: 100%;
   }
 
-  /* Timer adjustments for mobile */
   .timer-display {
     font-size: 1.5rem;
-  }
-
-  .partner-details h3 {
-    font-size: 1rem;
-  }
-
-  .btn-end {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
   }
 }
 
@@ -1346,6 +1272,28 @@ onUnmounted(() => {
 
   .subtitle {
     font-size: 1rem;
+  }
+
+  .sync-wrapper {
+    padding: 0.75rem;
+  }
+
+  .chat-input {
+    padding: 0.75rem;
+  }
+}
+
+/* Additional fixes for better responsiveness */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .chat-section {
+    height: 65vh;
+    max-height: 700px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .chat-section {
+    max-height: 850px;
   }
 }
 </style>
