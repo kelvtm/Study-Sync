@@ -4,7 +4,7 @@
     <div v-if="!activeSession" class="pairing-section">
       <div class="pairing-header">
         <div class="header-icon">
-          <i class="fa-solid fa-lightbulb"></i>
+          <Lightbulb :size="32" :stroke-width="2" />
         </div>
         <h2>Start Your Study Session</h2>
         <p class="subtitle">
@@ -23,7 +23,7 @@
 
         <div class="session-setup">
           <label for="time" class="setup-label">
-            <i class="fas fa-clock"></i>
+            <Clock :size="20" />
             Select Session Length
           </label>
           <div class="select-wrapper">
@@ -35,23 +35,23 @@
           </div>
 
           <button @click="findPartner" :disabled="isSearching" class="find-btn">
-            <i v-if="isSearching" class="fa-regular fa-sun"></i>
-            <i v-else class="fa-regular fa-circle-check"></i>
+            <Loader2 v-if="isSearching" :size="20" class="spinning" />
+            <CheckCircle v-else :size="20" />
             {{
               isSearching ? "Searching for Partner..." : "Find Study Partner"
             }}
           </button>
 
           <div v-if="statusMessage" class="status-message">
-            <i v-if="isSearching" class="fas fa-circle-notch fa-spin"></i>
-            <i v-else class="fas fa-info-circle"></i>
+            <Loader2 v-if="isSearching" :size="18" class="spinning" />
+            <Info v-else :size="18" />
             {{ statusMessage }}
           </div>
         </div>
       </div>
 
       <div class="info-tip">
-        <i class="fas fa-lightbulb"></i>
+        <Lightbulb :size="24" />
         <p>
           <strong>Pro Tip:</strong> Stay on this page during your session for
           the best experience!
@@ -65,12 +65,12 @@
         <div class="session-info">
           <div class="partner-info">
             <div class="partner-avatar">
-              <i class="fas fa-user"></i>
+              <User :size="24" />
             </div>
             <div class="partner-details">
               <h3>{{ partnerUsername }}</h3>
               <span class="session-label">
-                <i class="fa-solid fa-eye"></i>
+                <Eye :size="16" />
                 Study Session
               </span>
             </div>
@@ -80,17 +80,17 @@
               class="timer-display"
               :class="{ warning: remainingTime <= 300 }"
             >
-              <i class="fas fa-clock"></i>
+              <Clock :size="28" />
               {{ formattedTime }}
             </div>
             <div v-if="timerWarning" class="timer-warning">
-              <i class="fas fa-exclamation-triangle"></i>
+              <AlertTriangle :size="14" />
               {{ timerWarning }}
             </div>
           </div>
         </div>
         <button @click="endSession" class="btn-end">
-          <i class="fas fa-stop"></i>
+          <StopCircle :size="18" />
           End Session
         </button>
       </div>
@@ -102,7 +102,7 @@
           :class="['message', { 'own-message': message.userId === userId }]"
         >
           <div class="message-avatar">
-            <i class="fas fa-user"></i>
+            <User :size="18" />
           </div>
           <div class="message-bubble">
             <div class="message-info">
@@ -119,7 +119,7 @@
 
         <div v-if="partnerTyping" class="typing-indicator">
           <div class="typing-avatar">
-            <i class="fas fa-user"></i>
+            <User :size="18" />
           </div>
           <div class="typing-bubble">
             <div class="typing-animation">
@@ -146,7 +146,7 @@
             :disabled="!newMessage.trim()"
             class="btn-send"
           >
-            <i class="fas fa-paper-plane"></i>
+            <Send :size="18" />
           </button>
         </div>
       </div>
@@ -156,12 +156,12 @@
     <div v-if="showEndConfirmation" class="modal-overlay">
       <div class="confirmation-modal">
         <div class="modal-icon">
-          <i class="fa-solid fa-flag"></i>
+          <Flag :size="28" />
         </div>
         <h3>End Study Session?</h3>
         <p>Are you sure you want to end this session early?</p>
         <div class="warning-box">
-          <i class="fas fa-info-circle"></i>
+          <Info :size="20" />
           <div class="warning-content">
             <p><strong>This will:</strong></p>
             <ul>
@@ -173,11 +173,11 @@
         </div>
         <div class="modal-buttons">
           <button @click="cancelEndSession" class="btn-cancel">
-            <i class="fas fa-arrow-left"></i>
+            <ArrowLeft :size="18" />
             Continue Session
           </button>
           <button @click="confirmEndSession" class="btn-confirm">
-            <i class="fas fa-stop"></i>
+            <StopCircle :size="18" />
             End Session
           </button>
         </div>
@@ -193,6 +193,20 @@ import { io } from "socket.io-client";
 import { SOCKET_URL } from "@/config";
 import { API_BASE_URL } from "@/config";
 import { onBeforeRouteLeave } from "vue-router";
+import {
+  Lightbulb,
+  Clock,
+  CheckCircle,
+  Loader2,
+  Info,
+  User,
+  Eye,
+  AlertTriangle,
+  StopCircle,
+  Send,
+  Flag,
+  ArrowLeft,
+} from "lucide-vue-next";
 
 // Emit event to App.vue for session badge
 const emit = defineEmits(["session-status-changed"]);
@@ -720,6 +734,20 @@ onUnmounted(() => {
 .info-tip i {
   color: var(--secondary-color);
   font-size: 1.5rem;
+}
+
+/* Lucide icon spinning animation */
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .info-tip p {
