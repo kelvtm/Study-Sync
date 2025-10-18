@@ -3,9 +3,6 @@
     <!-- Pairing Interface -->
     <div v-if="!activeSession" class="pairing-section">
       <div class="pairing-header">
-        <div class="header-icon">
-          <Lightbulb :size="32" :stroke-width="2" />
-        </div>
         <h2>Start Your Study Session</h2>
         <p class="subtitle">
           Connect with a study partner and boost your productivity together
@@ -574,24 +571,6 @@ onUnmounted(() => {
 .pairing-header {
   text-align: center;
   margin-bottom: 1rem;
-}
-
-.header-icon {
-  width: 70px;
-  height: 70px;
-  background: linear-gradient(
-    135deg,
-    var(--secondary-color),
-    var(--secondary-variant)
-  );
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  color: white;
-  font-size: 2rem;
-  box-shadow: var(--box-shadow-light);
 }
 
 .pairing-header h2 {

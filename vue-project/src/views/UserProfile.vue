@@ -2,19 +2,19 @@
   <div class="profile-container">
     <!-- Loading State -->
     <div class="loading" v-if="loading">
-      <div class="spinner"></div>
+      <Loader2 :size="50" class="spinning" />
       <p>Loading your profile...</p>
     </div>
 
     <!-- Error State -->
     <div class="error-state" v-if="error && !loading">
       <div class="error-icon">
-        <i class="fas fa-exclamation-triangle"></i>
+        <AlertTriangle :size="32" />
       </div>
       <h3>Failed to load profile</h3>
       <p>{{ error }}</p>
       <button @click="fetchUserStats" class="retry-btn">
-        <i class="fas fa-redo"></i>
+        <RefreshCw :size="18" />
         Try Again
       </button>
     </div>
@@ -29,10 +29,10 @@
         <div class="profile-info">
           <div class="avatar-container">
             <div class="avatar">
-              <i class="fas fa-user"></i>
+              <User :size="48" />
             </div>
             <div class="avatar-badge">
-              <i class="fa-regular fa-star"></i>
+              <Zap :size="14" :fill="'currentColor'" />
             </div>
           </div>
           <div class="user-details">
@@ -40,11 +40,11 @@
               {{ userStats.user?.username || "Unknown User" }}
             </h1>
             <p class="email">
-              <i class="fas fa-envelope"></i>
+              <Mail :size="16" />
               {{ userStats.user?.email || "" }}
             </p>
             <p class="member-since">
-              <i class="fas fa-calendar"></i>
+              <Calendar :size="16" />
               Member since {{ formatDate(userStats.user?.createdAt) }}
             </p>
           </div>
@@ -55,7 +55,7 @@
       <div class="stats-overview">
         <div class="overview-card">
           <div class="overview-icon">
-            <i class="fas fa-clock"></i>
+            <Clock :size="28" />
           </div>
           <div class="overview-content">
             <h3>{{ formatHours(userStats.stats?.totalStudyMinutes || 0) }}</h3>
@@ -64,7 +64,7 @@
         </div>
         <div class="overview-card">
           <div class="overview-icon success">
-            <i class="fas fa-check-circle"></i>
+            <CheckCircle2 :size="28" />
           </div>
           <div class="overview-content">
             <h3>{{ userStats.stats?.completedSessions || 0 }}</h3>
@@ -73,7 +73,7 @@
         </div>
         <div class="overview-card">
           <div class="overview-icon fire">
-            <i class="fa-regular fa-star"></i>
+            <Flame :size="28" />
           </div>
           <div class="overview-content">
             <h3>{{ userStats.stats?.currentStreak || 0 }}</h3>
@@ -85,14 +85,14 @@
       <!-- Detailed Stats Grid -->
       <div class="section">
         <h2 class="section-title">
-          <i class="fas fa-chart-bar"></i>
+          <BarChart3 :size="24" />
           Detailed Statistics
         </h2>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-header">
               <div class="stat-icon primary">
-                <i class="fa-solid fa-calendar"></i>
+                <Timer :size="24" />
               </div>
               <span class="stat-badge">Record</span>
             </div>
@@ -105,7 +105,7 @@
           <div class="stat-card">
             <div class="stat-header">
               <div class="stat-icon secondary">
-                <i class="fa-regular fa-calendar-days"></i>
+                <CalendarDays :size="24" />
               </div>
               <span class="stat-badge">This Week</span>
             </div>
@@ -120,7 +120,7 @@
           <div class="stat-card">
             <div class="stat-header">
               <div class="stat-icon success">
-                <i class="fas fa-percentage"></i>
+                <Percent :size="24" />
               </div>
               <span class="stat-badge">Rate</span>
             </div>
@@ -136,7 +136,7 @@
           >
             <div class="stat-header">
               <div class="stat-icon warning">
-                <i class="fas fa-exclamation-circle"></i>
+                <AlertCircle :size="24" />
               </div>
               <span class="stat-badge">Needs Work</span>
             </div>
@@ -151,7 +151,7 @@
       <!-- Progress Section -->
       <div class="section">
         <h2 class="section-title">
-          <i class="fa-regular fa-square-check"></i>
+          <TrendingUp :size="24" />
           Study Progress
         </h2>
 
@@ -209,7 +209,7 @@
       <!-- Achievements Section -->
       <div class="section">
         <h2 class="section-title">
-          <i class="fa-solid fa-building"></i>
+          <Award :size="24" />
           Achievements
         </h2>
         <div class="achievements-grid">
@@ -223,11 +223,11 @@
               <h4>{{ achievement.title }}</h4>
               <p>{{ achievement.description }}</p>
               <div v-if="achievement.unlocked" class="unlocked-badge">
-                <i class="fas fa-check"></i>
+                <Check :size="14" />
                 Unlocked
               </div>
               <div v-else class="locked-badge">
-                <i class="fas fa-lock"></i>
+                <Lock :size="14" />
                 Locked
               </div>
             </div>
@@ -239,7 +239,7 @@
     <!-- Empty State -->
     <div v-if="!loading && !error && !userStats" class="empty-state">
       <div class="empty-icon">
-        <i class="fas fa-user-slash"></i>
+        <UserX :size="32" />
       </div>
       <h3>Profile not found</h3>
       <p>Unable to load your profile data.</p>
@@ -251,6 +251,28 @@
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { API_BASE_URL } from "@/config";
+import {
+  Loader2,
+  AlertTriangle,
+  RefreshCw,
+  User,
+  Zap,
+  Mail,
+  Calendar,
+  Clock,
+  CheckCircle2,
+  Flame,
+  BarChart3,
+  Timer,
+  CalendarDays,
+  Percent,
+  AlertCircle,
+  TrendingUp,
+  Award,
+  Check,
+  Lock,
+  UserX,
+} from "lucide-vue-next";
 
 // Reactive data
 const userStats = ref(null);
@@ -426,14 +448,10 @@ onMounted(() => {
   color: var(--color-text);
 }
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid var(--color-border);
-  border-top: 4px solid var(--secondary-color);
-  border-radius: 50%;
+.spinning {
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
+  color: var(--secondary-color);
 }
 
 @keyframes spin {
@@ -464,7 +482,6 @@ onMounted(() => {
   justify-content: center;
   margin: 0 auto 1.5rem;
   color: var(--color-error);
-  font-size: 2rem;
 }
 
 .error-state h3 {
@@ -551,7 +568,6 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 2.5rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   border: 4px solid white;
 }
@@ -568,7 +584,6 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 0.8rem;
   border: 3px solid white;
 }
 
@@ -593,8 +608,8 @@ onMounted(() => {
   font-size: 0.95rem;
 }
 
-.email i,
-.member-since i {
+.email svg,
+.member-since svg {
   color: var(--primary-variant);
 }
 
@@ -636,7 +651,6 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   color: var(--on-primary);
-  font-size: 1.5rem;
 }
 
 .overview-icon.success {
@@ -675,7 +689,7 @@ onMounted(() => {
   margin-bottom: 1.5rem;
 }
 
-.section-title i {
+.section-title svg {
   color: var(--primary-variant);
 }
 
@@ -713,7 +727,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
   color: white;
 }
 
@@ -948,7 +961,6 @@ onMounted(() => {
   justify-content: center;
   margin: 0 auto 1.5rem;
   color: var(--color-text-secondary);
-  font-size: 2rem;
 }
 
 .empty-state h3 {

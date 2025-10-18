@@ -12,7 +12,7 @@
         <!-- Email Field -->
         <div class="form-group">
           <label for="email" class="form-label">
-            <i class="fas fa-envelope"></i>
+            <Mail :size="16" />
             Email Address
           </label>
           <input
@@ -30,7 +30,7 @@
         <!-- Password Field -->
         <div class="form-group">
           <label for="password" class="form-label">
-            <i class="fa-regular fa-keyboard"></i>
+            <Lock :size="16" />
             Password
           </label>
           <div class="password-input-container">
@@ -48,7 +48,8 @@
               @click="togglePassword"
               class="password-toggle"
             >
-              <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              <EyeOff v-if="showPassword" :size="18" />
+              <Eye v-else :size="18" />
             </button>
           </div>
           <span v-if="passwordError" class="error-message">{{
@@ -73,20 +74,15 @@
           :disabled="isLoading"
           :class="{ loading: isLoading }"
         >
-          <i v-if="isLoading" class="fa-regular fa-sun"></i>
-          <i v-else class="fa-regular fa-circle-check"></i>
+          <Loader2 v-if="isLoading" :size="20" class="spinning" />
+          <LogIn v-else :size="20" />
           {{ isLoading ? "Signing In..." : "Sign In" }}
         </button>
 
         <!-- Error/Success Message -->
         <div v-if="message" class="message" :class="messageType">
-          <i
-            :class="
-              messageType === 'success'
-                ? 'fas fa-check-circle'
-                : 'fas fa-exclamation-circle'
-            "
-          ></i>
+          <CheckCircle2 v-if="messageType === 'success'" :size="18" />
+          <AlertCircle v-else :size="18" />
           {{ message }}
         </div>
       </form>
@@ -95,7 +91,7 @@
       <div class="auth-footer">
         <p>Don't have an account?</p>
         <button @click="goToSignup" class="btn-secondary auth-link">
-          <i class="fa-solid fa-plus"></i>
+          <UserPlus :size="18" />
           Create Account
         </button>
       </div>
@@ -107,6 +103,17 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { API_BASE_URL } from "@/config";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  LogIn,
+  UserPlus,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-vue-next";
 
 const email = ref("");
 const password = ref("");
@@ -290,9 +297,8 @@ password.addEventListener?.("blur", validatePassword);
   font-size: 0.9rem;
 }
 
-.form-label i {
+.form-label svg {
   color: var(--primary-variant);
-  width: 16px;
 }
 
 .input-field {
@@ -331,6 +337,9 @@ password.addEventListener?.("blur", validatePassword);
   padding: 0.25rem;
   border-radius: 4px;
   transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .password-toggle:hover {
@@ -425,6 +434,19 @@ password.addEventListener?.("blur", validatePassword);
 
 .auth-button.loading {
   pointer-events: none;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .message {

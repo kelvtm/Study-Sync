@@ -18,11 +18,11 @@
         <!-- Call-to-Action Buttons -->
         <div class="cta-buttons">
           <button @click="goToUp" class="btn-primary cta-primary">
-            <i class="fa-regular fa-paper-plane"></i>
+            <Rocket :size="20" />
             Get Started Free
           </button>
           <button @click="goToIn" class="btn-secondary cta-secondary">
-            <i class="fa-regular fa-circle-check"></i>
+            <LogIn :size="20" />
             Sign In
           </button>
         </div>
@@ -30,15 +30,15 @@
         <!-- Feature Highlights -->
         <div class="feature-highlights">
           <div class="feature-item">
-            <i class="fa-regular fa-user"></i>
+            <Users :size="20" />
             <span>Study Groups</span>
           </div>
           <div class="feature-item">
-            <i class="fa-regular fa-circle-dot"></i>
+            <Target :size="20" />
             <span>Goal Tracking</span>
           </div>
           <div class="feature-item">
-            <i class="fa-regular fa-star"></i>
+            <Trophy :size="20" />
             <span>Leaderboards</span>
           </div>
         </div>
@@ -72,7 +72,7 @@
       <div class="benefits-grid">
         <div class="benefit-card">
           <div class="benefit-icon">
-            <i class="fas fa-clock"></i>
+            <Zap :size="28" />
           </div>
           <h3>Beat Procrastination</h3>
           <p>
@@ -83,7 +83,7 @@
 
         <div class="benefit-card">
           <div class="benefit-icon">
-            <i class="fa-regular fa-star"></i>
+            <TrendingUp :size="28" />
           </div>
           <h3>Improve Grades</h3>
           <p>
@@ -94,7 +94,7 @@
 
         <div class="benefit-card">
           <div class="benefit-icon">
-            <i class="fas fa-handshake"></i>
+            <Users2 :size="28" />
           </div>
           <h3>Build Connections</h3>
           <p>
@@ -109,6 +109,16 @@
 
 <script setup>
 import { useRouter } from "vue-router";
+import {
+  Rocket,
+  LogIn,
+  Users,
+  Target,
+  Trophy,
+  Zap,
+  TrendingUp,
+  Users2,
+} from "lucide-vue-next";
 
 const router = useRouter();
 
@@ -256,9 +266,8 @@ const goToUp = () => {
   box-shadow: var(--box-shadow-light);
 }
 
-.feature-item i {
+.feature-item svg {
   color: var(--primary-variant);
-  font-size: 1.1rem;
 }
 
 /* Hero Image */
@@ -372,10 +381,6 @@ const goToUp = () => {
   align-items: center;
   justify-content: center;
   margin: 0 auto 1.5rem;
-}
-
-.benefit-icon i {
-  font-size: 1.5rem;
   color: var(--on-primary);
 }
 

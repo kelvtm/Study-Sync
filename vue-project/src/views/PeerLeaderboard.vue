@@ -4,7 +4,7 @@
     <div class="leaderboard-header">
       <div class="header-content">
         <div class="header-icon">
-          <i class="fa-regular fa-font-awesome"></i>
+          <Trophy :size="36" />
         </div>
         <div class="header-text">
           <h1>Weekly Leaderboard</h1>
@@ -12,26 +12,26 @@
         </div>
       </div>
       <div class="reset-badge">
-        <!-- <i class="fas fa-sync-alt"></i> -->
+        <RotateCcw :size="16" />
         Resets every Sunday
       </div>
     </div>
 
     <!-- Loading State -->
     <div class="loading-state" v-if="loading">
-      <div class="spinner"></div>
+      <Loader2 :size="50" class="spinning" />
       <p>Loading leaderboard...</p>
     </div>
 
     <!-- Error State -->
     <div class="error-state" v-if="error && !loading">
       <div class="error-icon">
-        <i class="fas fa-exclamation-triangle"></i>
+        <AlertTriangle :size="32" />
       </div>
       <h3>Failed to load leaderboard</h3>
       <p>{{ error }}</p>
       <button @click="fetchLeaderboard" class="retry-btn">
-        <i class="fas fa-redo"></i>
+        <RefreshCw :size="18" />
         Try Again
       </button>
     </div>
@@ -41,14 +41,14 @@
       <!-- Top 3 Podium -->
       <div class="podium-section" v-if="topThree.length > 0">
         <h2 class="section-title">
-          <i class="fa-regular fa-building"></i>
+          <Award :size="24" />
           Top Performers
         </h2>
         <div class="podium">
           <!-- Second Place -->
           <div class="podium-place second" v-if="topThree[1]">
             <div class="medal-badge silver">
-              <i class="fa-regular fa-circle"></i>
+              <Medal :size="24" />
             </div>
             <div class="podium-card">
               <div class="rank-number">2</div>
@@ -60,7 +60,7 @@
                 {{ formatHours(topThree[1].weeklyStudyMinutes) }}
               </div>
               <div class="sessions-count">
-                <i class="fas fa-check-circle"></i>
+                <CheckCircle :size="16" />
                 {{ topThree[1].weeklyCompletedSessions }} sessions
               </div>
             </div>
@@ -70,7 +70,7 @@
           <!-- First Place -->
           <div class="podium-place first" v-if="topThree[0]">
             <div class="medal-badge gold">
-              <i class="fa-regular fa-circle"></i>
+              <Crown :size="28" />
             </div>
             <div class="podium-card winner">
               <div class="rank-number winner">1</div>
@@ -82,7 +82,7 @@
                 {{ formatHours(topThree[0].weeklyStudyMinutes) }}
               </div>
               <div class="sessions-count">
-                <i class="fas fa-check-circle"></i>
+                <CheckCircle :size="16" />
                 {{ topThree[0].weeklyCompletedSessions }} sessions
               </div>
             </div>
@@ -92,7 +92,7 @@
           <!-- Third Place -->
           <div class="podium-place third" v-if="topThree[2]">
             <div class="medal-badge bronze">
-              <i class="fa-regular fa-circle"></i>
+              <Award :size="22" />
             </div>
             <div class="podium-card">
               <div class="rank-number">3</div>
@@ -104,7 +104,7 @@
                 {{ formatHours(topThree[2].weeklyStudyMinutes) }}
               </div>
               <div class="sessions-count">
-                <i class="fas fa-check-circle"></i>
+                <CheckCircle :size="16" />
                 {{ topThree[2].weeklyCompletedSessions }} sessions
               </div>
             </div>
@@ -117,11 +117,11 @@
       <div class="rankings-section">
         <div class="section-header">
           <h2 class="section-title">
-            <i class="fa-solid fa-folder"></i>
+            <List :size="24" />
             Complete Rankings
           </h2>
           <div class="participants-count" v-if="leaderboard.length > 0">
-            <i class="fas fa-users"></i>
+            <Users :size="18" />
             {{ leaderboard.length }} active studiers
           </div>
         </div>
@@ -146,10 +146,11 @@
           >
             <div class="col-rank">
               <div class="rank-badge" :class="getRankClass(user.rank)">
-                <span v-if="user.rank <= 3">
-                  <i v-if="user.rank === 1" class="fas fa-crown"></i>
-                  <i v-else class="fas fa-medal"></i>
-                </span>
+                <Crown v-if="user.rank === 1" :size="18" />
+                <Medal
+                  v-else-if="user.rank === 2 || user.rank === 3"
+                  :size="16"
+                />
                 <span v-else>{{ user.rank }}</span>
               </div>
             </div>
@@ -157,12 +158,12 @@
             <div class="col-user">
               <div class="user-info">
                 <div class="user-avatar">
-                  <i class="fas fa-user"></i>
+                  <User :size="20" />
                 </div>
                 <div class="user-details">
                   <span class="username">{{ user.username }}</span>
                   <span class="you-badge" v-if="isCurrentUser(user.username)">
-                    <i class="fas fa-star"></i>
+                    <Star :size="12" :fill="'currentColor'" />
                     You
                   </span>
                 </div>
@@ -171,14 +172,14 @@
 
             <div class="col-time">
               <div class="time-display">
-                <i class="fas fa-clock"></i>
+                <Clock :size="16" />
                 {{ formatHours(user.weeklyStudyMinutes) }}
               </div>
             </div>
 
             <div class="col-sessions">
               <div class="sessions-display">
-                <i class="fas fa-check"></i>
+                <CheckCircle2 :size="16" />
                 {{ user.weeklyCompletedSessions }}
               </div>
             </div>
@@ -194,7 +195,7 @@
         <!-- Empty State -->
         <div class="empty-state" v-if="leaderboard.length === 0">
           <div class="empty-icon">
-            <i class="fas fa-users-slash"></i>
+            <UserX :size="32" />
           </div>
           <h3>No studiers yet this week</h3>
           <p>
@@ -206,13 +207,13 @@
       <!-- Weekly Stats -->
       <div class="stats-section" v-if="leaderboard.length > 0">
         <h2 class="section-title">
-          <i class="fas fa-chart-line"></i>
+          <TrendingUp :size="24" />
           This Week's Statistics
         </h2>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon primary">
-              <i class="fas fa-users"></i>
+              <Users :size="28" />
             </div>
             <div class="stat-content">
               <h3>{{ leaderboard.length }}</h3>
@@ -222,7 +223,7 @@
 
           <div class="stat-card">
             <div class="stat-icon secondary">
-              <i class="fas fa-clock"></i>
+              <Clock :size="28" />
             </div>
             <div class="stat-content">
               <h3>{{ formatHours(totalWeeklyMinutes) }}</h3>
@@ -232,7 +233,7 @@
 
           <div class="stat-card">
             <div class="stat-icon success">
-              <i class="fas fa-book"></i>
+              <BookOpen :size="28" />
             </div>
             <div class="stat-content">
               <h3>{{ totalWeeklySessions }}</h3>
@@ -242,7 +243,7 @@
 
           <div class="stat-card">
             <div class="stat-icon info">
-              <i class="fas fa-chart-bar"></i>
+              <BarChart3 :size="28" />
             </div>
             <div class="stat-content">
               <h3>{{ averageSessionTime }}m</h3>
@@ -259,6 +260,27 @@
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { API_BASE_URL } from "@/config";
+import {
+  Trophy,
+  Crown,
+  Medal,
+  Award,
+  RotateCcw,
+  Loader2,
+  AlertTriangle,
+  RefreshCw,
+  CheckCircle,
+  CheckCircle2,
+  List,
+  Users,
+  User,
+  Star,
+  Clock,
+  UserX,
+  TrendingUp,
+  BookOpen,
+  BarChart3,
+} from "lucide-vue-next";
 
 // Reactive data
 const leaderboard = ref([]);
@@ -393,7 +415,6 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 2rem;
   box-shadow: var(--box-shadow);
 }
 
@@ -434,14 +455,10 @@ onMounted(() => {
   color: var(--color-text);
 }
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid var(--color-border);
-  border-top: 4px solid var(--secondary-color);
-  border-radius: 50%;
+.spinning {
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
+  color: var(--secondary-color);
 }
 
 @keyframes spin {
@@ -469,7 +486,6 @@ onMounted(() => {
   justify-content: center;
   margin-bottom: 1.5rem;
   color: var(--color-error);
-  font-size: 2rem;
 }
 
 .error-state h3 {
@@ -518,7 +534,7 @@ onMounted(() => {
   margin-bottom: 1.5rem;
 }
 
-.section-title i {
+.section-title svg {
   color: var(--primary-variant);
 }
 
@@ -552,19 +568,20 @@ onMounted(() => {
   top: -15px;
   left: 50%;
   transform: translateX(-50%);
-  width: 45px;
-  height: 45px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
   z-index: 10;
   box-shadow: var(--box-shadow);
+  color: white;
 }
 
 .medal-badge.gold {
   background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #333;
 }
 
 .medal-badge.silver {
@@ -675,7 +692,7 @@ onMounted(() => {
   font-size: 0.9rem;
 }
 
-.sessions-count i {
+.sessions-count svg {
   color: var(--color-success);
 }
 
@@ -745,7 +762,7 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.participants-count i {
+.participants-count svg {
   color: var(--primary-variant);
 }
 
@@ -861,7 +878,6 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   color: var(--on-primary);
-  font-size: 1rem;
   margin: 0;
 }
 
@@ -908,7 +924,7 @@ onMounted(() => {
   color: var(--secondary-color);
 }
 
-.time-display i {
+.time-display svg {
   color: var(--primary-variant);
 }
 
@@ -936,7 +952,6 @@ onMounted(() => {
   justify-content: center;
   margin: 0 auto 1.5rem;
   color: var(--color-text-secondary);
-  font-size: 2rem;
 }
 
 .empty-state h3 {
@@ -985,7 +1000,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
   color: white;
   flex-shrink: 0;
 }
@@ -1140,7 +1154,6 @@ onMounted(() => {
   .header-icon {
     width: 60px;
     height: 60px;
-    font-size: 1.5rem;
   }
 
   .header-text h1 {

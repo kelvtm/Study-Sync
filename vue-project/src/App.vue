@@ -95,8 +95,6 @@
             </RouterLink>
           </div>
 
-          <div class="nav-divider"></div>
-
           <!-- Other Navigation Links -->
           <div class="nav-links">
             <RouterLink to="/sync" @click="closeNav">
@@ -750,12 +748,6 @@ onMounted(() => {
 
 .user-profile-section a:hover {
   background-color: var(--color-hover);
-}
-
-.nav-divider {
-  height: 1px;
-  background: var(--color-border);
-  margin: 0 1.5rem 1rem;
 }
 
 /* Navigation Links */

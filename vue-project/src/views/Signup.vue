@@ -14,7 +14,7 @@
         <!-- Email Field -->
         <div class="form-group">
           <label for="email" class="form-label">
-            <i class="fas fa-envelope"></i>
+            <Mail :size="16" />
             Email Address
           </label>
           <input
@@ -32,7 +32,7 @@
         <!-- Username Field -->
         <div class="form-group">
           <label for="username" class="form-label">
-            <i class="fas fa-user"></i>
+            <User :size="16" />
             Username
           </label>
           <input
@@ -52,7 +52,7 @@
         <!-- Password Field -->
         <div class="form-group">
           <label for="password" class="form-label">
-            <i class="fa-regular fa-keyboard"></i>
+            <Lock :size="16" />
             Password
           </label>
           <div class="password-input-container">
@@ -70,7 +70,8 @@
               @click="togglePassword"
               class="password-toggle"
             >
-              <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              <EyeOff v-if="showPassword" :size="18" />
+              <Eye v-else :size="18" />
             </button>
           </div>
 
@@ -101,7 +102,7 @@
         <!-- Confirm Password Field -->
         <div class="form-group">
           <label for="confirmPassword" class="form-label">
-            <i class="fas fa-check-circle"></i>
+            <ShieldCheck :size="16" />
             Confirm Password
           </label>
           <div class="password-input-container">
@@ -125,9 +126,8 @@
               @click="toggleConfirmPassword"
               class="password-toggle"
             >
-              <i
-                :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
-              ></i>
+              <EyeOff v-if="showConfirmPassword" :size="18" />
+              <Eye v-else :size="18" />
             </button>
           </div>
           <span v-if="confirmPasswordError" class="error-message">{{
@@ -137,7 +137,7 @@
             v-else-if="confirmPassword && confirmPassword === password"
             class="success-message"
           >
-            <i class="fas fa-check"></i>
+            <Check :size="14" />
             Passwords match
           </span>
         </div>
@@ -162,20 +162,15 @@
           :disabled="isLoading"
           :class="{ loading: isLoading }"
         >
-          <i v-if="isLoading" class="fa-regular fa-sun"></i>
-          <i v-else class="fa-solid fa-plus"></i>
+          <Loader2 v-if="isLoading" :size="20" class="spinning" />
+          <UserPlus v-else :size="20" />
           {{ isLoading ? "Creating Account..." : "Create Account" }}
         </button>
 
         <!-- Error/Success Message -->
         <div v-if="message" class="message" :class="messageType">
-          <i
-            :class="
-              messageType === 'success'
-                ? 'fas fa-check-circle'
-                : 'fas fa-exclamation-circle'
-            "
-          ></i>
+          <CheckCircle2 v-if="messageType === 'success'" :size="18" />
+          <AlertCircle v-else :size="18" />
           {{ message }}
         </div>
       </form>
@@ -184,7 +179,7 @@
       <div class="auth-footer">
         <p>Already have an account?</p>
         <button @click="goToSignin" class="btn-secondary auth-link">
-          <i class="fa-regular fa-circle-check"></i>
+          <LogIn :size="18" />
           Sign In
         </button>
       </div>
@@ -196,6 +191,20 @@
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { API_BASE_URL } from "@/config";
+import {
+  Mail,
+  User,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Check,
+  UserPlus,
+  LogIn,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-vue-next";
 
 // Form data
 const email = ref("");
@@ -541,9 +550,8 @@ const goToSignin = () => {
   font-size: 0.9rem;
 }
 
-.form-label i {
+.form-label svg {
   color: var(--primary-variant);
-  width: 16px;
 }
 
 .input-field {
@@ -586,6 +594,9 @@ const goToSignin = () => {
   padding: 0.25rem;
   border-radius: 4px;
   transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .password-toggle:hover {
@@ -752,6 +763,19 @@ const goToSignin = () => {
 
 .auth-button.loading {
   pointer-events: none;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Messages */
