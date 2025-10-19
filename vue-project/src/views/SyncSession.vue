@@ -588,7 +588,7 @@ onUnmounted(() => {
   max-width: 900px;
   margin: 0 auto;
   padding: 1.5rem;
-  min-height: calc(100vh - 80px);
+  min-height: calc(100vh);
 }
 
 /* Pairing Section */
@@ -787,7 +787,7 @@ onUnmounted(() => {
 .chat-section {
   display: flex;
   flex-direction: column;
-  height: 75vh;
+  height: 100vh;
   max-height: 800px;
   background: white;
   border-radius: var(--border-radius-large);
@@ -1270,7 +1270,7 @@ onUnmounted(() => {
   }
 
   .chat-section {
-    height: 70vh;
+    height: 100vh;
     max-height: 600px;
   }
 
@@ -1335,14 +1335,6 @@ onUnmounted(() => {
 
   .chat-input {
     padding: 0.75rem;
-  }
-}
-
-/* Additional fixes for better responsiveness */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .chat-section {
-    height: 65vh;
-    max-height: 700px;
   }
 }
 
