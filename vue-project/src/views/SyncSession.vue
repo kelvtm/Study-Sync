@@ -241,6 +241,18 @@ const initSocket = () => {
     socket.emit("join_user", userId);
   });
 
+  // Remove any existing listeners before adding new ones to prevent duplicates
+  socket.off("partner_found");
+  socket.off("timer_update");
+  socket.off("timer_warning");
+  socket.off("session_completed");
+  socket.off("joined_session");
+  socket.off("receive_message");
+  socket.off("user_typing");
+  socket.off("session_ended");
+  socket.off("user_joined");
+  socket.off("error");
+
   socket.on("partner_found", (data) => {
     if (data.targetUserId === userId) {
       statusMessage.value = "Partner found! Starting session...";
@@ -251,15 +263,31 @@ const initSocket = () => {
   });
 
   socket.on("timer_update", (data) => {
-    remainingTime.value = data.remainingTime;
-    formattedTime.value = data.formattedTime;
+    console.log("⏱️ Timer update received:", {
+      sessionId: data.sessionId,
+      activeSessionId: activeSession.value?.id,
+      remainingTime: data.remainingTime,
+      hasActiveSession: !!activeSession.value,
+    });
+
+    // Only update if we have an active session AND it matches
+    if (activeSession.value && activeSession.value.id === data.sessionId) {
+      remainingTime.value = data.remainingTime;
+      formattedTime.value = data.formattedTime;
+    } else {
+      console.warn(
+        "⚠️ Ignoring timer update - session mismatch or no active session"
+      );
+    }
   });
 
   socket.on("timer_warning", (data) => {
-    timerWarning.value = data.message;
-    setTimeout(() => {
-      timerWarning.value = "";
-    }, 5000);
+    if (activeSession.value) {
+      timerWarning.value = data.message;
+      setTimeout(() => {
+        timerWarning.value = "";
+      }, 5000);
+    }
   });
 
   socket.on("session_completed", (data) => {
@@ -272,12 +300,14 @@ const initSocket = () => {
   });
 
   socket.on("receive_message", (messageData) => {
-    messages.value.push(messageData);
-    scrollToBottom();
+    if (activeSession.value) {
+      messages.value.push(messageData);
+      scrollToBottom();
+    }
   });
 
   socket.on("user_typing", (data) => {
-    if (data.userId !== userId) {
+    if (data.userId !== userId && activeSession.value) {
       partnerTyping.value = data.isTyping;
       if (data.isTyping) {
         setTimeout(() => {
@@ -571,6 +601,24 @@ onUnmounted(() => {
 .pairing-header {
   text-align: center;
   margin-bottom: 1rem;
+}
+
+.header-icon {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(
+    135deg,
+    var(--secondary-color),
+    var(--secondary-variant)
+  );
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: white;
+  font-size: 2rem;
+  box-shadow: var(--box-shadow-light);
 }
 
 .pairing-header h2 {

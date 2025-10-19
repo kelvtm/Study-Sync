@@ -123,8 +123,9 @@ router.put("/:sessionId/end", async (req, res) => {
     session.participantsAtEnd = session.participants.map((p) => p._id);
     await session.save();
 
-    // Clear timer
+    // Clear timer FIRST before emitting
     if (activeTimers.has(sessionId)) {
+      console.log(`⏹️  Clearing timer for session: ${sessionId}`);
       clearInterval(activeTimers.get(sessionId));
       activeTimers.delete(sessionId);
     }
@@ -154,13 +155,24 @@ router.put("/:sessionId/end", async (req, res) => {
 
 // Helper function to start session timer
 function startSessionTimer(sessionId, durationSeconds, io) {
+  // Clear any existing timer for this session first
+  if (activeTimers.has(sessionId)) {
+    console.log(`⚠️  Clearing existing timer for session: ${sessionId}`);
+    clearInterval(activeTimers.get(sessionId));
+    activeTimers.delete(sessionId);
+  }
+
   let remainingTime = durationSeconds;
+  console.log(
+    `⏱️  Starting timer for session ${sessionId}: ${durationSeconds}s`
+  );
 
   const timer = setInterval(async () => {
     remainingTime--;
 
-    // Broadcast time update to session room
+    // CRITICAL: Include sessionId in timer updates so clients can verify
     io.to(`session_${sessionId}`).emit("timer_update", {
+      sessionId: sessionId.toString(), // ⭐ FIX: Include session ID!
       remainingTime,
       formattedTime: formatTime(remainingTime),
     });
@@ -168,6 +180,7 @@ function startSessionTimer(sessionId, durationSeconds, io) {
     // Warning at 5 minutes (300 seconds)
     if (remainingTime === 300) {
       io.to(`session_${sessionId}`).emit("timer_warning", {
+        sessionId: sessionId.toString(),
         message: "5 minutes remaining!",
         remainingTime,
       });
@@ -175,6 +188,7 @@ function startSessionTimer(sessionId, durationSeconds, io) {
 
     // Session completed when timer reaches 0
     if (remainingTime <= 0) {
+      console.log(`✅ Timer completed for session: ${sessionId}`);
       clearInterval(timer);
       activeTimers.delete(sessionId);
 
@@ -215,12 +229,18 @@ async function completeSession(sessionId, io) {
     session.participantsAtEnd = session.participants.map((p) => p._id);
     await session.save();
 
+    // Clear timer
+    if (activeTimers.has(sessionId)) {
+      clearInterval(activeTimers.get(sessionId));
+      activeTimers.delete(sessionId);
+    }
+
     // Update user stats
     await updateUserStats(session, io);
 
     // Notify participants
     io.to(`session_${sessionId}`).emit("session_completed", {
-      sessionId,
+      sessionId: sessionId.toString(),
       message: "Study session completed! Great work! 🎉",
       actualDuration: actualDurationMinutes,
     });

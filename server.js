@@ -295,6 +295,28 @@ io.on("connection", (socket) => {
     }
   });
 
+  // ⭐ NEW: User leaves a session room
+  socket.on("leave_session", async (data) => {
+    const { sessionId, userId } = data;
+
+    console.log(`👋 User ${userId} leaving session: ${sessionId}`);
+
+    try {
+      // Leave the socket room
+      socket.leave(`session_${sessionId}`);
+
+      // Notify remaining participants
+      socket.to(`session_${sessionId}`).emit("partner_left", {
+        userId,
+        message: "Your study partner has left the session",
+      });
+
+      console.log(`✅ User ${userId} left session room: session_${sessionId}`);
+    } catch (error) {
+      console.error("Error leaving session:", error);
+    }
+  });
+
   // Handle chat messages
   socket.on("send_message", async (data) => {
     const { sessionId, userId, message, timestamp } = data;
@@ -334,14 +356,44 @@ io.on("connection", (socket) => {
     socket.to(`session_${sessionId}`).emit("user_typing", { userId, isTyping });
   });
 
-  // Handle disconnection
-  socket.on("disconnect", () => {
+  // ⭐ ENHANCED: Handle disconnection
+  socket.on("disconnect", async () => {
     console.log(`❌ User disconnected: ${socket.id}`);
-    // Remove from userSockets map
+
+    // Find which user this socket belongs to
+    let disconnectedUserId = null;
     for (const [userId, socketId] of userSockets.entries()) {
       if (socketId === socket.id) {
+        disconnectedUserId = userId;
         userSockets.delete(userId);
         break;
+      }
+    }
+
+    // If user was in an active session, notify their partner
+    if (disconnectedUserId) {
+      try {
+        const activeSession = await Session.findOne({
+          participants: disconnectedUserId,
+          status: "active",
+        });
+
+        if (activeSession) {
+          console.log(
+            `⚠️  User ${disconnectedUserId} disconnected from active session ${activeSession._id}`
+          );
+
+          // Notify partner
+          socket
+            .to(`session_${activeSession._id}`)
+            .emit("partner_disconnected", {
+              userId: disconnectedUserId,
+              message:
+                "Your study partner disconnected. Session will continue...",
+            });
+        }
+      } catch (error) {
+        console.error("Error handling disconnect:", error);
       }
     }
   });
