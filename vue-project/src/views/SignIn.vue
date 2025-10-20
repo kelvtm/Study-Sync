@@ -4,22 +4,22 @@
       <!-- Header -->
       <div class="auth-header">
         <h1 class="auth-title">Welcome Back</h1>
-        <p class="auth-subtitle">Sign in to your StudySync account</p>
+        <p class="auth-subtitle">Sign in with your email or username</p>
       </div>
 
       <!-- Login Form -->
       <form @submit.prevent="login" class="auth-form">
-        <!-- Email Field -->
+        <!-- Email/Username Field -->
         <div class="form-group">
           <label for="email" class="form-label">
             <Mail :size="16" />
-            Email Address
+            Email or Username
           </label>
           <input
             id="email"
-            type="email"
+            type="text"
             v-model="email"
-            placeholder="Enter your email"
+            placeholder="Enter your email or username"
             class="input-field"
             :class="{ 'input-error': emailError }"
             required
@@ -128,12 +128,8 @@ const passwordError = ref("");
 const router = useRouter();
 
 const validateEmail = () => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email.value) {
-    emailError.value = "Email is required";
-    return false;
-  } else if (!emailRegex.test(email.value)) {
-    emailError.value = "Please enter a valid email address";
+    emailError.value = "Email or username is required";
     return false;
   } else {
     emailError.value = "";
@@ -214,10 +210,6 @@ const login = async () => {
 const goToSignup = () => {
   router.push("/signup");
 };
-
-// Real-time validation
-email.addEventListener?.("blur", validateEmail);
-password.addEventListener?.("blur", validatePassword);
 </script>
 
 <style scoped>

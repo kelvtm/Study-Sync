@@ -68,22 +68,28 @@ app.use("/api/notifications", notificationRoutes);
 // --- Routes ---
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
-// ⭐ UPDATED Login route with bcrypt
+// ⭐ UPDATED Login route with bcrypt - supports email OR username
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Find user by email
-    const user = await User.findOne({ email });
+    // Find user by email OR username
+    const user = await User.findOne({
+      $or: [
+        { email: email },
+        { username: email }, // 'email' field can contain username too
+      ],
+    });
+
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     // Compare password with hashed password
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     // Success
