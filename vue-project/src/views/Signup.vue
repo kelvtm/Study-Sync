@@ -461,7 +461,6 @@ const signup = async () => {
   } catch (err) {
     messageType.value = "error";
     message.value = "Network error. Please try again.";
-    console.error("Signup error:", err);
   } finally {
     isLoading.value = false;
   }

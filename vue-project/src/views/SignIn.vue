@@ -201,7 +201,7 @@ const login = async () => {
   } catch (err) {
     messageType.value = "error";
     message.value = "Network error. Please try again.";
-    console.error("Login error:", err);
+   
   } finally {
     isLoading.value = false;
   }

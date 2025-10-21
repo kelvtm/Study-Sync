@@ -237,7 +237,6 @@ const initSocket = () => {
   socket = io(SOCKET_URL);
 
   socket.on("connect", () => {
-    console.log("Connected to server");
     socket.emit("join_user", userId);
   });
 
@@ -263,21 +262,10 @@ const initSocket = () => {
   });
 
   socket.on("timer_update", (data) => {
-    console.log("⏱️ Timer update received:", {
-      sessionId: data.sessionId,
-      activeSessionId: activeSession.value?.id,
-      remainingTime: data.remainingTime,
-      hasActiveSession: !!activeSession.value,
-    });
-
     // Only update if we have an active session AND it matches
     if (activeSession.value && activeSession.value.id === data.sessionId) {
       remainingTime.value = data.remainingTime;
       formattedTime.value = data.formattedTime;
-    } else {
-      console.warn(
-        "⚠️ Ignoring timer update - session mismatch or no active session"
-      );
     }
   });
 
@@ -293,10 +281,6 @@ const initSocket = () => {
   socket.on("session_completed", (data) => {
     alert("🎉 " + data.message);
     resetSession();
-  });
-
-  socket.on("joined_session", (data) => {
-    console.log("Successfully joined session:", data);
   });
 
   socket.on("receive_message", (messageData) => {
@@ -330,11 +314,6 @@ const initSocket = () => {
 
   socket.on("user_joined", (data) => {
     statusMessage.value = data.message;
-  });
-
-  socket.on("error", (error) => {
-    console.error("Socket error:", error);
-    statusMessage.value = `Error: ${error}`;
   });
 };
 

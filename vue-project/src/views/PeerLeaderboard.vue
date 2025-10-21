@@ -320,9 +320,7 @@ const fetchLeaderboard = async () => {
   error.value = "";
 
   try {
-    console.log("Fetching leaderboard...");
     const response = await axios.get(`${API_BASE_URL}/api/leaderboard`);
-    console.log("Received leaderboard response:", response.data);
 
     if (response.data && response.data.leaderboard) {
       leaderboard.value = response.data.leaderboard;
@@ -330,7 +328,6 @@ const fetchLeaderboard = async () => {
       leaderboard.value = [];
     }
   } catch (err) {
-    console.error("Error fetching leaderboard:", err);
     if (err.response?.status === 500) {
       error.value = "Server error. Please try again later.";
     } else if (err.response?.data?.message) {
@@ -368,8 +365,6 @@ const isCurrentUser = (username) => {
 
 // Lifecycle
 onMounted(() => {
-  console.log("Leaderboard component mounted");
-  console.log("Current username:", currentUsername);
   fetchLeaderboard();
 });
 </script>

@@ -325,15 +325,11 @@ const createCourse = async () => {
   creating.value = true;
 
   try {
-    console.log("Creating course:", createForm.value);
-
     const response = await axios.post(`${API_BASE_URL}/api/courses`, {
       userId,
       courseName: createForm.value.courseName.trim(),
       submissionDate: createForm.value.submissionDate,
     });
-
-    console.log("Course created:", response.data);
 
     // Refresh courses list
     await fetchCourses();
@@ -341,8 +337,6 @@ const createCourse = async () => {
     // Close modal and reset form
     closeCreateModal();
   } catch (err) {
-    console.error("Error creating course:", err);
-
     if (err.response?.status === 400) {
       const message = err.response.data?.error || "";
       if (message.includes("future")) {
@@ -405,15 +399,12 @@ const confirmDelete = async () => {
       `${API_BASE_URL}/api/courses/${deleteCourseId.value}?userId=${userId}`
     );
 
-    console.log("Course deleted successfully");
-
     // Refresh courses list
     await fetchCourses();
 
     // Close modal
     cancelDelete();
   } catch (err) {
-    console.error("Error deleting course:", err);
     error.value = "Failed to delete course. Please try again.";
   } finally {
     deleting.value = false;
@@ -432,8 +423,6 @@ const addSubtask = async (stage) => {
   if (!title) return;
 
   try {
-    console.log("Creating subtask:", title);
-
     const response = await axios.post(`${API_BASE_URL}/api/subtasks`, {
       stageId: stage._id,
       title,
@@ -444,11 +433,7 @@ const addSubtask = async (stage) => {
     stage.subtasks.push(response.data.subtask);
     stage.newSubtaskTitle = "";
     stage.showAddInput = false;
-
-    console.log("Subtask created successfully:", response.data.subtask);
   } catch (err) {
-    console.error("Error creating subtask:", err);
-
     // Show error feedback to user
     if (err.response?.status === 400) {
       alert(err.response.data.error);
@@ -495,8 +480,6 @@ const addSubtask = async (stage) => {
 
 const toggleSubtask = async (subtaskId, isCompleted) => {
   try {
-    console.log("Toggling subtask:", subtaskId, isCompleted);
-
     const response = await axios.put(
       `${API_BASE_URL}/api/subtasks/${subtaskId}`,
       {
@@ -515,11 +498,7 @@ const toggleSubtask = async (subtaskId, isCompleted) => {
         }
       });
     });
-
-    console.log("Subtask toggled successfully:", response.data.subtask);
   } catch (err) {
-    console.error("Error toggling subtask:", err);
-
     // Revert the change on error and show feedback
     courses.value.forEach((course) => {
       course.stages.forEach((stage) => {
