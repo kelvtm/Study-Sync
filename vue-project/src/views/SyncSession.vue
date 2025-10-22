@@ -740,7 +740,8 @@ onUnmounted(() => {
 .chat-section {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 800px;
   background: white;
   border-radius: var(--border-radius-large);
   box-shadow: var(--box-shadow);
