@@ -545,8 +545,8 @@ onMounted(() => {
     startChatSession(savedSessionId);
   }
 
-  // Add browser warning when trying to close/refresh tab
-  window.addEventListener("beforeunload", handleBeforeUnload);
+  // // Add browser warning when trying to close/refresh tab
+  // window.addEventListener("beforeunload", handleBeforeUnload);
 });
 
 onUnmounted(() => {
