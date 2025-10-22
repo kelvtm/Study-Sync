@@ -230,6 +230,12 @@ const initSocket = () => {
 
   socket.on("connect", () => {
     socket.emit("join_user", userId);
+    if (savedSessionId) {
+      console.log("Socket reconnected, re-syncing active session...");
+      // Re-run your session recovery logic to get the latest server state
+      // This will re-fetch the correct time and re-join the socket room
+      startChatSession(savedSessionId);
+    }
   });
 
   // Remove any existing listeners before adding new ones to prevent duplicates
