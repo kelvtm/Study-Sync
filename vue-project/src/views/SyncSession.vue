@@ -46,14 +46,6 @@
           </div>
         </div>
       </div>
-
-      <div class="info-tip">
-        <Lightbulb :size="24" />
-        <p>
-          <strong>Pro Tip:</strong> Stay on this page during your session for
-          the best experience!
-        </p>
-      </div>
     </div>
 
     <!-- Chat Interface -->
@@ -574,7 +566,6 @@ onUnmounted(() => {
 .pairing-section {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
 }
 
 .pairing-header {
@@ -604,7 +595,6 @@ onUnmounted(() => {
   font-size: 2.5rem;
   font-weight: 700;
   color: var(--color-heading);
-  margin-bottom: 1rem;
 }
 
 .subtitle {
@@ -726,22 +716,6 @@ onUnmounted(() => {
   border: 1px solid var(--color-border);
 }
 
-.info-tip {
-  background: white;
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--box-shadow-light);
-}
-
-.info-tip i {
-  color: var(--secondary-color);
-  font-size: 1.5rem;
-}
-
 /* Lucide icon spinning animation */
 .spinning {
   animation: spin 1s linear infinite;
@@ -766,8 +740,7 @@ onUnmounted(() => {
 .chat-section {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  max-height: 800px;
+  min-height: 100vh;
   background: white;
   border-radius: var(--border-radius-large);
   box-shadow: var(--box-shadow);
