@@ -7,6 +7,10 @@ import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import bcrypt from "bcryptjs"; // Uses pure JS implementation
+// Import models and routes
+import sessionRoutes from "./routes/sessionRoutes.js";
+import User from "./db-models/user.js";
+import Session from "./db-models/sessions.js";
 
 // Import course routes
 import courseRoutes from "./routes/courseRoutes.js";
@@ -47,18 +51,19 @@ app.use(
 async function connectDB() {
   try {
     await mongoose.connect(MONGO_URI);
-    console.log("✅ Connected to MongoDB");
+    const dbName = mongoose.connection.name;
+    console.log(`✅ Connected to MongoDB`);
+    console.log(`   Environment: ${process.env.NODE_ENV || "development"}`);
+    console.log(`   Database: ${dbName}`);
+    console.log(
+      `   URI: ${MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, "//***:***@")}`
+    ); // Hide credentials
   } catch (err) {
     console.error("❌ MongoDB connection error:", err);
     process.exit(1);
   }
 }
 connectDB();
-
-// Import models and routes
-import sessionRoutes from "./routes/sessionRoutes.js";
-import User from "./db-models/user.js";
-import Session from "./db-models/sessions.js";
 
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/courses", courseRoutes);
