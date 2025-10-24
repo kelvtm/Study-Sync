@@ -1,5 +1,7 @@
 # Study Sync Project
 
+https://jettoner.xyz/
+
 This is a Node.js backend project using Express and MongoDB.
 
 ## How to run
@@ -28,4 +30,5 @@ This is a Node.js backend project using Express and MongoDB.
 ## Author
 
 Tochi
-# CI/CD Pipeline Active íº€
+
+# CI/CD Pipeline Active ï¿½ï¿½ï¿½
