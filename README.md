@@ -1,6 +1,6 @@
 # Study Sync Project
 
-https://jettoner.xyz/
+website link: https://jettoner.xyz/
 
 This is a Node.js backend project using Express and MongoDB.
 
