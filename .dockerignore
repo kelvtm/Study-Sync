@@ -1,0 +1,19 @@
+# .dockerignore
+node_modules
+npm-debug.log
+.env
+.env.test
+.git
+.gitignore
+README.md
+.vscode
+.idea
+dist
+vue-project
+coverage
+*.log
+.DS_Store
+Thumbs.db
+backup-*.tar.gz
+test-server.log
+test-server.pid
