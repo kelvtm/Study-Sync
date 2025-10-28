@@ -1,5 +1,5 @@
 # Use official Node.js 24.3.0 image (Alpine = lightweight Linux but slim is more campatible for production server)
-FROM node:24.3.0-slim AS builder
+FROM node:24.3.0-alpine3.22 AS builder
 
 # Set working directory inside container
 WORKDIR /app
