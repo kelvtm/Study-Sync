@@ -1,0 +1,18 @@
+FROM node:24.3.0-slim
+
+# Set working directory inside the container
+WORKDIR /app
+
+COPY package*.json ./
+
+# Install dependencies (ci ensures a clean install based on the lock file)
+RUN npm install
+
+# Copy source
+COPY . .
+
+# Expose the default Vite development port
+EXPOSE 5173
+
+# Command to run the development server with HMR
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  # 1. Backend Service (Node.js API)
+  backend:
+    # Build context points to your backend directory, using the multi-stage Dockerfile you provided
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+
+    container_name: studysync-backend-dev
+    restart: unless-stopped
+
+    # Map the internal container port 3000 to the host port 3000
+    ports:
+      - "3000:3000"
+
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      MONGO_URI: ${MONGO_URI}
+      VUE_DEV_ORIGIN: http://localhost:5173
+
+    volumes:
+      # Mount source for hot reload (nodemon)
+      - ./server.js:/app/server.js
+      - ./routes:/app/routes
+      - ./db-models:/app/db-models
+      - ./package.json:/app/package.json
+      # Don't override node_modules
+      - /app/node_modules
+    networks:
+      - studysync-dev-network
+
+  # 2. Frontend Service (Vue/Vite Development)
+  # Frontend (Vite dev server)
+  frontend:
+    build:
+      context: ./vue-project
+      dockerfile: dockerfile.dev
+    container_name: studysync-frontend-dev
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: http://localhost:3000
+      VITE_SOCKET_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      # Mount source for hot reload (Vite HMR)
+      - ./vue-project/src:/app/src
+      - ./vue-project/public:/app/public
+      - ./vue-project/index.html:/app/index.html
+      - ./vue-project/vite.config.js:/app/vite.config.js
+      - ./vue-project/package.json:/app/package.json
+      # Don't override node_modules
+      - /app/node_modules
+    networks:
+      - studysync-dev-network
+
+networks:
+  studysync-dev-network:
+    driver: bridge
