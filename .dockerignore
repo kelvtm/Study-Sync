@@ -17,3 +17,4 @@ Thumbs.db
 backup-*.tar.gz
 test-server.log
 test-server.pid
+.env.production
