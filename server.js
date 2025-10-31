@@ -35,6 +35,8 @@ app.use(
     origin: (origin, callback) => {
       const allowedOrigins = [
         "http://localhost:5173",
+        "http://localhost", // Dev: Nginx proxy
+        "http://localhost:80", // Dev: Nginx proxy
         "https://jettoner.xyz",
         "http://jettoner.xyz",
       ];
@@ -74,7 +76,7 @@ app.use("/api/notifications", notificationRoutes);
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
 // ⭐ UPDATED Login route with bcrypt - supports email OR username
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -113,7 +115,7 @@ app.post("/login", async (req, res) => {
 });
 
 // ⭐ UPDATED Signup route with bcrypt
-app.post("/signup", async (req, res) => {
+app.post("/api/signup", async (req, res) => {
   const { email, password, username } = req.body;
 
   try {
@@ -241,22 +243,30 @@ app.get("/api/leaderboard", async (req, res) => {
   }
 });
 
-// --- Serve Vue in production ---
+// Update static serving logic for microservices
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const distPath = path.join(__dirname, "dist");
 
-if (process.env.NODE_ENV === "production") {
+// In microservices, backend NEVER serves frontend
+// Frontend is served by separate Nginx container
+if (
+  process.env.NODE_ENV !== "production" ||
+  process.env.MICROSERVICES === "true"
+) {
+  app.get("/", (req, res) =>
+    res.json({
+      message: "StudySync API",
+      version: "2.0.0",
+      architecture: "microservices",
+    })
+  );
+} else {
+  // Fallback for Pattern 1 (monolithic)
+  const distPath = path.join(__dirname, "dist");
   app.use(express.static(distPath));
   app.use((req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
   });
-} else {
-  app.get("/", (req, res) =>
-    res.send(
-      `Backend running. Use Vue dev server at ${process.env.VUE_DEV_ORIGIN}`
-    )
-  );
 }
 
 // --- Error handler ---
@@ -270,6 +280,8 @@ const io = new Server(httpServer, {
   cors: {
     origin: [
       "http://localhost:5173",
+      "http://localhost", // Dev: Nginx proxy
+      "http://localhost:80", // Dev: Nginx proxy
       "https://jettoner.xyz",
       "http://jettoner.xyz",
     ],
