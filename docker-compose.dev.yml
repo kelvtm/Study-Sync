@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: studysync-mongodb-p3
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: dev_password_2025
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_p3_data:/data/db
+    networks:
+      - studysync-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    container_name: studysync-backend-p3
+    depends_on:
+      - mongodb
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server.js:/app/server.js
+      - ./routes:/app/routes
+      - ./db-models:/app/db-models
+      - /app/node_modules
+    networks:
+      - studysync-network
+
+  frontend:
+    build:
+      context: ./vue-project
+      dockerfile: ../docker/Dockerfile.frontend.dev
+    container_name: studysync-frontend-p3
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: http://localhost:3000
+      VITE_SOCKET_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./vue-project/src:/app/src
+      - ./vue-project/public:/app/public
+      - /app/node_modules
+    networks:
+      - studysync-network
+
+networks:
+  studysync-network:
+    driver: bridge
+
+volumes:
+  mongodb_p3_data:
