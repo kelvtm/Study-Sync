@@ -4,6 +4,8 @@ npm-debug.log
 .env
 .env.test
 .git
+.env.example
+.env.production
 .gitignore
 README.md
 .vscode
@@ -18,3 +20,42 @@ backup-*.tar.gz
 test-server.log
 test-server.pid
 .env.production
+note.md
+server.test.js
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+scripts/
+
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Frontend specific (for backend builds)
+vue-project/node_modules/
+vue-project/dist/
+vue-project/.vite/
+vue-project/src/
+
+# PM2
+.pm2/
+pids/
+*.pid
