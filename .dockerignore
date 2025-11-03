@@ -1,3 +1,6 @@
+🔧 Step 1: Create .dockerignore (Performance Boost)
+This reduces Docker build context by ~90% and speeds up builds significantly.
+
 # .dockerignore
 node_modules
 npm-debug.log
