@@ -112,3 +112,31 @@ User → Port 80/443 → Backend serves everything
 User → Nginx (80/443) → Backend (3000)
 ↓
 Static files served directly
+
+<!--
+# VPC (Virtual Private Cloud)
+resource "aws_vpc" "main" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_hostnames = var.enable_dns_hostnames
+  enable_dns_support   = var.enable_dns_support
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-vpc"
+  }
+}
+
+Resource Declaration:
+resource is a Terraform keyword that defines an infrastructure component
+"aws_vpc" is the resource type for an AWS Virtual Private Cloud
+"main" is a logical name used to refer to this VPC within your Terraform code
+VPC Configuration:
+cidr_block: Defines the IP address range for the VPC using CIDR notation
+enable_dns_hostnames: Boolean flag to enable/disable DNS hostnames in the VPC
+enable_dns_support: Boolean flag to enable/disable DNS support in the VPC
+Tags:
+Creates an AWS tag for the VPC
+Uses string interpolation (${}) to combine variables into a name
+The format will be: [project_name]-[environment]-vpc
+Variables:
+The code references several variables (var.vpc_cidr, var.enable_dns_hostnames, etc.) which should be defined elsewhere in your Terraform configuration, typically in a variables.tf file.
+This code specifically creates a Virtual Private Cloud (VPC) in AWS, which is a logically isolated section of the AWS cloud where you can launch AWS resources in a virtual network that you define. -->
