@@ -1,6 +1,5 @@
 bash# === DEVELOPMENT ===
 docker-compose -f docker-compose.pattern3.dev.yml up --build
-mu note
 
 # Access:
 
