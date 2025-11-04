@@ -1,0 +1,70 @@
+# ===== STAGE 1: Dependencies =====
+FROM node:24.3.0-alpine AS dependencies
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install production dependencies only
+RUN npm ci --production --silent && \
+    npm cache clean --force
+
+# ===== STAGE 2: Build (if needed for any build steps) =====
+FROM node:24.3.0-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev for building)
+RUN npm ci --silent
+
+# Copy source
+COPY . .
+
+# Remove unnecessary files
+RUN rm -rf vue-project dist backup-*.tar.gz .git
+
+# ===== STAGE 3: Production Runtime =====
+FROM node:24.3.0-alpine AS production
+
+# Add metadata
+LABEL maintainer="kelvtmoni@gmail.com"
+LABEL version="3.0"
+LABEL description="StudySync Backend - Pattern 3 Production"
+
+# Install curl for health checks and tini for proper signal handling
+RUN apk add --no-cache curl tini
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+WORKDIR /app
+
+# Copy production dependencies from stage 1
+COPY --from=dependencies --chown=nodejs:nodejs /app/node_modules ./node_modules
+
+# Copy built application from stage 2
+COPY --from=builder --chown=nodejs:nodejs /app .
+
+# Create necessary directories
+RUN mkdir -p logs && chown nodejs:nodejs logs
+
+# Switch to non-root user
+USER nodejs
+
+# Expose port
+EXPOSE 3000
+
+# Health check with proper curl flags
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Use tini as entrypoint for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Start application
+CMD ["node", "server.js"]

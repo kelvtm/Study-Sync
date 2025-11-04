@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.prod
+      args:
+        BUILD_DATE: ${BUILD_DATE:-2025-01-01}
+        VCS_REF: ${VCS_REF:-dev}
+    image: studysync-backend:${VERSION:-latest}
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - "3000"
+    networks:
+      - studysync-prod-network
+    deploy:
+      replicas: 3 # Run 3 backend instances
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+  frontend:
+    build:
+      context: ./vue-project
+      dockerfile: ../docker/dockerfile.frontend.prod
+    image: studysync-frontend:${VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - studysync-prod-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+
+networks:
+  studysync-prod-network:
+    driver: bridge
+
+volumes:
+  redis_prod_data:
