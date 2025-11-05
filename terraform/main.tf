@@ -176,6 +176,8 @@ resource "aws_instance" "studysync" {
     Name        = "${var.project_name}-${var.environment}-server-${count.index + 1}"
     Environment = var.environment
     Backup      = "true"
+     UpdatedBy   = "Terraform"           # ✅ ADD THIS
+    Lesson      = "Terraform-Basics"    # ✅ ADD THIS
   }
 
   lifecycle {
