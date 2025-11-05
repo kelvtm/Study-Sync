@@ -39,27 +39,36 @@ output "public_subnet_ids" {
 }
 
 # ============================================
-# EC2 Outputs
+# Load Balancer Outputs
 # ============================================
 
-output "ec2_instance_ids" {
-  description = "IDs of EC2 instances"
-  value       = aws_instance.studysync[*].id
+output "alb_dns_name" {
+  description = "DNS name of the Application Load Balancer"
+  value       = aws_lb.main.dns_name
 }
 
-output "ec2_public_ips" {
-  description = "Public IP addresses of EC2 instances"
-  value       = aws_instance.studysync[*].public_ip
+output "alb_zone_id" {
+  description = "Zone ID of the Application Load Balancer"
+  value       = aws_lb.main.zone_id
 }
 
-output "ec2_private_ips" {
-  description = "Private IP addresses of EC2 instances"
-  value       = aws_instance.studysync[*].private_ip
+output "alb_arn" {
+  description = "ARN of the Application Load Balancer"
+  value       = aws_lb.main.arn
 }
 
-output "elastic_ips" {
-  description = "Elastic IP addresses"
-  value       = aws_eip.studysync[*].public_ip
+# ============================================
+# Auto Scaling Outputs
+# ============================================
+
+output "autoscaling_group_name" {
+  description = "Name of the Auto Scaling Group"
+  value       = aws_autoscaling_group.studysync.name
+}
+
+output "autoscaling_group_arn" {
+  description = "ARN of the Auto Scaling Group"
+  value       = aws_autoscaling_group.studysync.arn
 }
 
 # ============================================
