@@ -43,6 +43,9 @@ resource "aws_launch_template" "studysync" {
     alb_dns_name    = aws_lb.main.dns_name
     backend_port    = var.backend_port
     frontend_port   = var.frontend_port  // Add this line
+   env_content    = templatefile("${path.module}/templates/env.tpl", {
+      mongodb_uri  = var.mongodb_uri
+    })
     docker_username = "kelvtmoni"
     docker_backend  = "kelvtmoni/studysync-backend"
     docker_frontend = "kelvtmoni/studysync-frontend"

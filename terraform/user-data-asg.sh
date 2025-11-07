@@ -133,11 +133,17 @@ echo "✅ Docker images pulled"
 echo ""
 echo "🚀 Starting backend container..."
 
+# Create .env file
+echo "Creating .env file..."
+cat > /home/ubuntu/studysync.env << 'EOF'
+${env_content}
+EOF
+
 docker run -d \
   --name studysync-backend \
   --restart unless-stopped \
   -p ${backend_port}:3000 \
-  -e NODE_ENV=${environment} \
+  --env-file /home/ubuntu/studysync.env \
   -e PORT=3000 \
   ${docker_backend}:latest
 
