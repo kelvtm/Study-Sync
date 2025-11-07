@@ -146,6 +146,12 @@ variable "alarm_email" {
   default     = ""
 }
 
+variable "mongodb_uri" {
+  description = "MongoDB connection string"
+  type        = string
+  sensitive   = true
+}
+
 # ============================================
 # Tags
 # ============================================
