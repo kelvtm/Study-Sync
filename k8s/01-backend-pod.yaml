@@ -1,0 +1,127 @@
+# ============================================
+# StudySync Backend Pod
+# ============================================
+# Learning: This is a single Pod (smallest unit)
+#
+# CONCEPT: A Pod is like a Docker container on steroids
+# - Can contain multiple containers
+# - Has its own IP address
+# - Ephemeral (temporary) - can be killed anytime
+#
+# DON'T USE PODS DIRECTLY IN PRODUCTION!
+# Use Deployments instead (we'll learn next)
+# ============================================
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: studysync-backend-pod
+  labels:
+    app: backend
+    version: v1
+    environment: learning
+  annotations:
+    description: "Single backend Pod for learning Kubernetes basics"
+spec:
+  containers:
+    - name: backend
+      image: kelvtmoni/studysync-backend:latest
+
+      # Container port (matches your Docker EXPOSE)
+      ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+
+      # Environment variables (insecure - just for learning)
+      # In production, use ConfigMaps and Secrets
+      env:
+        - name: NODE_ENV
+          value: "development"
+        - name: PORT
+          value: "3000"
+        - name: MONGO_URI
+          value: "mongodb+srv://kelvtmoni_db_user:lEmsYDisgx2CJqM0@studysync.lvfs0b3.mongodb.net/studysync?retryWrites=true&w=majority" # Replace with yours
+
+      # Resource requests and limits
+      # CONCEPT: Tell Kubernetes how much CPU/memory this needs
+      resources:
+        requests:
+          memory: "256Mi" # Minimum required
+          cpu: "250m" # 0.25 CPU cores
+        limits:
+          memory: "512Mi" # Maximum allowed
+          cpu: "500m" # 0.5 CPU cores
+
+      # Health checks (IMPORTANT CONCEPT)
+      # CONCEPT: Kubernetes uses these to know if container is healthy
+
+      # Liveness Probe: Is the app alive?
+      # If this fails, Kubernetes RESTARTS the container
+      livenessProbe:
+        httpGet:
+          path: /api/health
+          port: 3000
+        initialDelaySeconds: 30 # Wait 30s before first check
+        periodSeconds: 10 # Check every 10s
+        timeoutSeconds: 5
+        failureThreshold: 3 # Fail 3 times before restart
+
+      # Readiness Probe: Is the app ready to receive traffic?
+      # If this fails, Kubernetes STOPS sending traffic (but doesn't restart)
+      readinessProbe:
+        httpGet:
+          path: /api/health
+          port: 3000
+        initialDelaySeconds: 10
+        periodSeconds: 5
+        timeoutSeconds: 3
+        failureThreshold: 3
+# ============================================
+# LEARNING NOTES:
+# ============================================
+#
+# To deploy this Pod:
+#   kubectl apply -f 01-backend-pod.yaml
+#
+# To see Pod status:
+#   kubectl get pods
+#   kubectl describe pod studysync-backend-pod
+#
+# To see Pod logs:
+#   kubectl logs studysync-backend-pod
+#   kubectl logs -f studysync-backend-pod  # Follow logs
+#
+# To get Pod IP:
+#   kubectl get pod studysync-backend-pod -o wide
+#
+# To execute command inside Pod:
+#   kubectl exec -it studysync-backend-pod -- //bin/sh
+#
+# To port-forward and test locally:
+#   kubectl port-forward pod/studysync-backend-pod 3000:3000
+#   # Now access: http://localhost:3000/api/health
+#
+# To delete Pod when any changes is made to the yaml file:
+#   kubectl delete pod studysync-backend-pod
+#   # OR
+#   kubectl delete -f 01-backend-pod.yaml
+# Then apply again
+# ============================================
+# WHY THIS IS BAD FOR PRODUCTION:
+# ============================================
+#
+# 1. Single point of failure
+#    - Pod dies → App is down
+#
+# 2. No auto-restart on node failure
+#    - Node dies → Pod gone forever
+#
+# 3. No scaling
+#    - Can't easily run multiple copies
+#
+# 4. Manual updates
+#    - Have to delete and recreate for updates
+#
+# SOLUTION: Use Deployments! (Next file)
+# ============================================
