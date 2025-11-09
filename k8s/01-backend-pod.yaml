@@ -41,7 +41,7 @@ spec:
         - name: PORT
           value: "3000"
         - name: MONGO_URI
-          value: "mongodb+srv://kelvtmoni_db_user:lEmsYDisgx2CJqM0@studysync.lvfs0b3.mongodb.net/studysync?retryWrites=true&w=majority" # Replace with yours
+          value: "mongodb uri here" # Replace with your real mongodb uri
 
       # Resource requests and limits
       # CONCEPT: Tell Kubernetes how much CPU/memory this needs
