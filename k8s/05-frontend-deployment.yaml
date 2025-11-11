@@ -1,0 +1,102 @@
+# ============================================
+# Frontend Deployment (Nginx + Vue.js)
+# ============================================
+#
+# CONCEPT: Similar to backend, but serves static files
+# Uses Nginx to serve built Vue.js application
+# ============================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: studysync-frontend
+  namespace: studysync-dev
+  labels:
+    app: studysync
+    component: frontend
+    version: v1.0.0
+spec:
+  replicas: 2 # Run 2 frontend instances (less than backend)
+
+  selector:
+    matchLabels:
+      app: studysync
+      component: frontend
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0 # Keep all Pods running during update
+
+  template:
+    metadata:
+      labels:
+        app: studysync
+        component: frontend
+        version: v1.0.0
+
+    spec:
+      containers:
+        - name: frontend
+          image: kelvtmoni/studysync-frontend:latest
+          imagePullPolicy: Always
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+
+          # Frontend usually needs less resources than backend
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+
+          # Health checks for Nginx
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          # Environment variables (if Vue.js needs them at runtime)
+          # Note: Most Vue.js env vars are baked into build
+          envFrom:
+            - configMapRef:
+                name: studysync-frontend-config
+
+          # Optional: Custom Nginx config
+          # volumeMounts:
+          # - name: nginx-config
+          #   mountPath: /etc/nginx/conf.d
+          #   readOnly: true
+
+      # volumes:
+      # - name: nginx-config
+      #   configMap:
+      #     name: studysync-nginx-config
+
+      restartPolicy: Always
+# ---
+# ============================================
+# Alternative: Frontend with Sidecar Pattern
+# ============================================
+# CONCEPT: Run Nginx + separate init container for static files
+# More advanced pattern - skipping for now
+# ============================================
