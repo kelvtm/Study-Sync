@@ -1,0 +1,313 @@
+# ============================================
+# Default Values for StudySync Helm Chart
+# ============================================
+#
+# CONCEPT: All configurable parameters
+# Can be overridden with:
+# - Custom values file: -f values-dev.yaml
+# - Command line: --set backend.replicaCount=5
+# ============================================
+
+# ============================================
+# Global Settings
+# ============================================
+global:
+  environment: development
+  domain: studysync.local
+
+# ============================================
+# Namespace
+# ============================================
+namespace:
+  create: true
+  name: studysync-dev
+
+# ============================================
+# Backend Configuration
+# ============================================
+backend:
+  enabled: true
+
+  # Number of backend Pods
+  replicaCount: 3
+
+  # Docker image
+  image:
+    repository: kelvtmoni/studysync-backend
+    tag: latest
+    pullPolicy: Always
+
+  # Image pull secrets (if using private registry)
+  imagePullSecrets: []
+  # - name: dockerhub-secret
+
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+
+  # Resource limits
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  # Health checks
+  livenessProbe:
+    enabled: true
+    path: /api/health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    enabled: true
+    path: /api/health
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  # Auto-scaling (HPA)
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  # Environment variables (non-sensitive)
+  env:
+    NODE_ENV: development
+    PORT: "3000"
+    LOG_LEVEL: debug
+
+  # Secrets (will be created or referenced)
+  secrets:
+    # Set to empty to create from values below
+    # Set to secret name to use existing secret
+    existingSecret: ""
+
+    # Only used if existingSecret is empty
+    mongoUri: "" # REPLACE: mongodb+srv://...
+    jwtSecret: "" # REPLACE: or use --set
+    sessionSecret: "" # REPLACE: or use --set
+
+# ============================================
+# Frontend Configuration
+# ============================================
+frontend:
+  enabled: true
+
+  # Number of frontend Pods
+  replicaCount: 2
+
+  # Docker image
+  image:
+    repository: kelvtmoni/studysync-frontend
+    tag: latest
+    pullPolicy: Always
+
+  imagePullSecrets: []
+
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+    sessionAffinity: ClientIP
+
+  # Resource limits (frontend needs less than backend)
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+  # Health checks
+  livenessProbe:
+    enabled: true
+    path: /
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    enabled: true
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  # Auto-scaling
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 75
+
+# ============================================
+# Ingress Configuration
+# ============================================
+ingress:
+  enabled: true
+  className: nginx
+
+  # Annotations for Ingress controller
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/websocket-services: "studysync-backend"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+
+  # Hosts and paths
+  hosts:
+    - host: studysync.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend: backend
+        - path: /socket.io
+          pathType: Prefix
+          backend: backend
+        - path: /
+          pathType: Prefix
+          backend: frontend
+
+  # TLS/SSL configuration
+  tls:
+    enabled: false
+    secretName: studysync-tls-cert
+    hosts:
+      - studysync.local
+
+# ============================================
+# ConfigMap Data
+# ============================================
+configMap:
+  # Backend config
+  backend:
+    ALLOWED_ORIGINS: "http://localhost:8080,http://studysync-frontend:80"
+    API_TIMEOUT: "30000"
+    MAX_REQUEST_SIZE: "10mb"
+    ENABLE_REDIS: "false"
+    ENABLE_METRICS: "true"
+
+  # Frontend config
+  frontend:
+    VITE_API_URL: "http://studysync-backend:3000"
+    VITE_SOCKET_URL: "http://studysync-backend:3000"
+    VITE_APP_TITLE: "StudySync - Dev"
+
+# ============================================
+# Resource Quotas (Optional)
+# ============================================
+resourceQuota:
+  enabled: false
+  hard:
+    pods: "10"
+    requests.cpu: "4"
+    requests.memory: "8Gi"
+    limits.cpu: "8"
+    limits.memory: "16Gi"
+
+# ============================================
+# MongoDB (If deploying in cluster)
+# ============================================
+mongodb:
+  enabled: false # Set to true to deploy MongoDB in cluster
+  # If false, use external MongoDB Atlas
+
+  # Bitnami MongoDB chart values
+  auth:
+    enabled: true
+    rootPassword: "" # REPLACE
+    username: studysync
+    password: "" # REPLACE
+    database: studysync
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+# ============================================
+# Redis (Optional - For caching/sessions)
+# ============================================
+redis:
+  enabled: false
+
+  # Bitnami Redis chart values
+  auth:
+    enabled: true
+    password: "" # REPLACE
+
+  master:
+    persistence:
+      enabled: false
+
+# ============================================
+# Service Account
+# ============================================
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# ============================================
+# Pod Security Context
+# ============================================
+podSecurityContext:
+  fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# ============================================
+# Node Selector / Affinity / Tolerations
+# ============================================
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+# ============================================
+# USAGE EXAMPLES:
+# ============================================
+#
+# Install with defaults:
+#   helm install studysync ./studysync-chart
+#
+# Install with custom values:
+#   helm install studysync ./studysync-chart -f values-dev.yaml
+#
+# Override specific value:
+#   helm install studysync ./studysync-chart \
+#     --set backend.replicaCount=5 \
+#     --set backend.image.tag=v1.0.1
+#
+# Install with secrets from command line (SECURE):
+#   helm install studysync ./studysync-chart \
+#     --set backend.secrets.mongoUri="mongodb+srv://..." \
+#     --set backend.secrets.jwtSecret="$(openssl rand -base64 64)"
+#
+# Upgrade release:
+#   helm upgrade studysync ./studysync-chart -f values-prod.yaml
+#
+# Rollback release:
+#   helm rollback studysync 1
+# ============================================

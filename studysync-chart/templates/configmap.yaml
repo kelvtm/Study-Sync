@@ -1,0 +1,23 @@
+{{- if .Values.backend.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "studysync.fullname" . }}-backend-config
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "studysync.backend.labels" . | nindent 4 }}
+data:
+  {{- toYaml .Values.configMap.backend | nindent 2 }}
+{{- end }}
+---
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "studysync.fullname" . }}-frontend-config
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "studysync.frontend.labels" . | nindent 4 }}
+data:
+  {{- toYaml .Values.configMap.frontend | nindent 2 }}
+{{- end }}
