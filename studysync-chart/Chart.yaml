@@ -1,0 +1,82 @@
+# ============================================
+# Helm Chart Metadata
+# ============================================
+#
+# CONCEPT: This file defines chart properties
+# Like package.json for npm or pom.xml for Maven
+# ============================================
+
+apiVersion: v2
+name: studysync
+description: A Helm chart for StudySync - Collaborative Study Platform
+type: application
+
+# Chart version (bump this when chart itself changes)
+# Follow semantic versioning: MAJOR.MINOR.PATCH
+# - MAJOR: Breaking changes to chart structure
+# - MINOR: New features (backward compatible)
+# - PATCH: Bug fixes
+version: 1.0.0
+
+# Application version (your app's version)
+# This is the Docker image tag by default
+appVersion: "1.0.0"
+
+# Keywords for discovery (if publishing to chart repository)
+keywords:
+  - education
+  - study
+  - collaboration
+  - nodejs
+  - vue
+
+# Home URL
+home: https://jettoner.xyz
+
+# Source code URLs
+sources:
+  - https://github.com/kelvtm/Study-Sync
+
+# Maintainers
+maintainers:
+  - name: DevOps Team
+    email: devops@jettoner.xyz
+# Chart icon (optional - for Helm UI tools)
+# icon: https://jettoner.xyz/icon.png
+
+# ============================================
+# Dependencies (Optional)
+# ============================================
+# Uncomment if you want to include sub-charts
+# dependencies:
+# - name: mongodb
+#   version: "13.0.0"
+#   repository: "https://charts.bitnami.com/bitnami"
+#   condition: mongodb.enabled
+#   tags:
+#     - database
+#
+# - name: redis
+#   version: "17.0.0"
+#   repository: "https://charts.bitnami.com/bitnami"
+#   condition: redis.enabled
+#   tags:
+#     - cache
+
+# ============================================
+# LEARNING NOTES:
+# ============================================
+#
+# Version vs AppVersion:
+# - version: Chart structure version (for Helm)
+# - appVersion: Your application version (for users)
+#
+# Example lifecycle:
+# 1. Release v1.0.0 of app → appVersion: "1.0.0", version: 1.0.0
+# 2. Fix bug in chart → appVersion: "1.0.0", version: 1.0.1
+# 3. Release v1.1.0 of app → appVersion: "1.1.0", version: 1.1.0
+#
+# Commands:
+# - View chart info: helm show chart ./studysync-chart
+# - View all info: helm show all ./studysync-chart
+# ============================================

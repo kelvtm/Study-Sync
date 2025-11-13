@@ -1,0 +1,51 @@
+🎉 StudySync has been deployed!
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Values.namespace.name }}
+Version: {{ .Chart.Version }}
+
+📊 Deployment Status:
+  Backend:  {{ if .Values.backend.enabled }}✅ Enabled{{ else }}❌ Disabled{{ end }}
+  Frontend: {{ if .Values.frontend.enabled }}✅ Enabled{{ else }}❌ Disabled{{ end }}
+  Ingress:  {{ if .Values.ingress.enabled }}✅ Enabled{{ else }}❌ Disabled{{ end }}
+
+🔗 Access your application:
+
+{{- if .Values.ingress.enabled }}
+  {{- range .Values.ingress.hosts }}
+  External URL: http://{{ .host }}
+  {{- end }}
+  
+  Add to your hosts file:
+    $(minikube ip) {{ (index .Values.ingress.hosts 0).host }}
+  
+  Then visit: http://{{ (index .Values.ingress.hosts 0).host }}
+{{- else }}
+  Port-forward to access locally:
+    kubectl port-forward -n {{ .Values.namespace.name }} svc/{{ include "studysync.fullname" . }}-backend {{ .Values.backend.service.port }}:{{ .Values.backend.service.port }}
+    kubectl port-forward -n {{ .Values.namespace.name }} svc/{{ include "studysync.fullname" . }}-frontend {{ .Values.frontend.service.port }}:{{ .Values.frontend.service.port }}
+{{- end }}
+
+📋 Useful Commands:
+
+  View all resources:
+    kubectl get all -n {{ .Values.namespace.name }}
+
+  View logs:
+    kubectl logs -f -l app.kubernetes.io/component=backend -n {{ .Values.namespace.name }}
+
+  Scale backend:
+    kubectl scale deployment {{ include "studysync.fullname" . }}-backend --replicas=5 -n {{ .Values.namespace.name }}
+
+  Update release:
+    helm upgrade {{ .Release.Name }} ./studysync-chart
+
+  Rollback release:
+    helm rollback {{ .Release.Name }}
+
+  Uninstall release:
+    helm uninstall {{ .Release.Name }} -n {{ .Values.namespace.name }}
+
+📚 Documentation: https://github.com/kelvtm/Study-Sync
+
+Happy Studying! 🚀

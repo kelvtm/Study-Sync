@@ -1,0 +1,138 @@
+{{- if .Values.backend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "studysync.fullname" . }}-backend
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "studysync.backend.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.backend.autoscaling.enabled }}
+  replicas: {{ .Values.backend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "studysync.backend.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        {{- include "studysync.backend.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+    spec:
+      {{- with .Values.backend.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "studysync.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: backend
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.backend.service.targetPort }}
+          protocol: TCP
+        env:
+        {{- range $key, $value := .Values.backend.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        envFrom:
+        - configMapRef:
+            name: {{ include "studysync.fullname" . }}-backend-config
+        - secretRef:
+            name: {{ include "studysync.backend.secretName" . }}
+        {{- if .Values.backend.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.backend.livenessProbe.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.backend.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.backend.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.backend.livenessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.backend.livenessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.backend.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.backend.readinessProbe.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.backend.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.backend.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.backend.readinessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.backend.readinessProbe.failureThreshold }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.backend.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+
+{{/*
+LEARNING NOTES:
+===============
+
+Template Features Used:
+
+1. Conditional Rendering:
+   {{- if .Values.backend.enabled }}
+   Only create this resource if backend.enabled is true
+
+2. Template Inclusion:
+   {{ include "studysync.fullname" . }}
+   Calls helper template for consistent naming
+
+3. Indentation:
+   | nindent 4
+   Adds proper YAML indentation (4 spaces)
+
+4. Range Loop:
+   {{- range $key, $value := .Values.backend.env }}
+   Loops through env variables
+
+5. Default Values:
+   {{ .Values.backend.image.tag | default .Chart.AppVersion }}
+   Uses appVersion if tag not specified
+
+6. YAML Functions:
+   toYaml .Values.backend.resources
+   Converts Go structure to YAML
+
+7. Checksums (Smart Updates):
+   checksum/config: {{ include ... | sha256sum }}
+   Pods restart when ConfigMap/Secret changes
+
+How to use:
+- helm template studysync ./studysync-chart
+- helm install studysync ./studysync-chart
+- helm upgrade studysync ./studysync-chart
+*/}}
