@@ -262,30 +262,38 @@ serviceAccount:
   create: true
   annotations: {}
   name: ""
-
 # ============================================
 # Pod Security Context
 # ============================================
-podSecurityContext:
-  fsGroup: 2000
+# podSecurityContext:
+#   fsGroup: 2000
 
-securityContext:
-  capabilities:
-    drop:
-      - ALL
-  readOnlyRootFilesystem: false
-  runAsNonRoot: true
-  runAsUser: 1000
+# securityContext:
+#   capabilities:
+#     drop:
+#       - ALL
+#   readOnlyRootFilesystem: false
+#   runAsNonRoot: true
+#   runAsUser: 1000
+
+# # Frontend-specific security context (Nginx needs different permissions)
+# frontendSecurityContext:
+#   capabilities:
+#     drop:
+#       - ALL
+#   readOnlyRootFilesystem: false
+#   runAsNonRoot: false # Nginx needs root for binding to port 80
+#   # runAsUser: 101  # nginx user (optional)
 
 # ============================================
 # Node Selector / Affinity / Tolerations
-# ============================================
-nodeSelector: {}
+# # ============================================
+# nodeSelector: {}
 
-tolerations: []
+# tolerations: []
 
-affinity: {}
-# ============================================
+# affinity: {}
+# # ============================================
 # USAGE EXAMPLES:
 # ============================================
 #
