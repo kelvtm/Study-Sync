@@ -29,7 +29,7 @@ backend:
   enabled: true
 
   # Number of backend Pods
-  replicaCount: 3
+  replicaCount: 2
 
   # Docker image
   image:
@@ -172,7 +172,8 @@ ingress:
 
   # Hosts and paths
   hosts:
-    - host: studysync.local
+    # - host: studysync.local # for local minikube use this
+    - host: ""
       paths:
         - path: /api
           pathType: Prefix
