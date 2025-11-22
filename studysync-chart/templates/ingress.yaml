@@ -1,3 +1,49 @@
+# {{- if .Values.ingress.enabled }}
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: {{ include "studysync.fullname" . }}
+#   namespace: {{ .Values.namespace.name }}
+#   labels:
+#     {{- include "studysync.labels" . | nindent 4 }}
+#   {{- with .Values.ingress.annotations }}
+#   annotations:
+#     {{- toYaml . | nindent 4 }}
+#   {{- end }}
+# spec:
+#   {{- if .Values.ingress.className }}
+#   ingressClassName: {{ .Values.ingress.className }}
+#   {{- end }}
+#   {{- if .Values.ingress.tls.enabled }}
+#   tls:
+#   - hosts:
+#     {{- range .Values.ingress.tls.hosts }}
+#     - {{ . | quote }}
+#     {{- end }}
+#     secretName: {{ .Values.ingress.tls.secretName }}
+#   {{- end }}
+#   rules:
+#   {{- range .Values.ingress.hosts }}
+#   - host: {{ .host | quote }}
+#     http:
+#       paths:
+#       {{- range .paths }}
+#       - path: {{ .path }}
+#         pathType: {{ .pathType }}
+#         backend:
+#           service:
+#             name: {{ include "studysync.fullname" $ }}-{{ .backend }}
+#             port:
+#               {{- if eq .backend "backend" }}
+#               number: {{ $.Values.backend.service.port }}
+#               {{- else if eq .backend "frontend" }}
+#               number: {{ $.Values.frontend.service.port }}
+#               {{- end }}
+#       {{- end }}
+#   {{- end }}
+# {{- end }}
+
+
 {{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -14,31 +60,28 @@ spec:
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}
   {{- end }}
-  {{- if .Values.ingress.tls.enabled }}
-  tls:
-  - hosts:
-    {{- range .Values.ingress.tls.hosts }}
-    - {{ . | quote }}
-    {{- end }}
-    secretName: {{ .Values.ingress.tls.secretName }}
-  {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-  - host: {{ .host | quote }}
-    http:
+  - http:
       paths:
-      {{- range .paths }}
-      - path: {{ .path }}
-        pathType: {{ .pathType }}
+      - path: /api
+        pathType: Prefix
         backend:
           service:
-            name: {{ include "studysync.fullname" $ }}-{{ .backend }}
+            name: {{ include "studysync.fullname" . }}-backend
             port:
-              {{- if eq .backend "backend" }}
-              number: {{ $.Values.backend.service.port }}
-              {{- else if eq .backend "frontend" }}
-              number: {{ $.Values.frontend.service.port }}
-              {{- end }}
-      {{- end }}
-  {{- end }}
+              number: {{ .Values.backend.service.port }}
+      - path: /socket.io
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "studysync.fullname" . }}-backend
+            port:
+              number: {{ .Values.backend.service.port }}
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "studysync.fullname" . }}-frontend
+            port:
+              number: {{ .Values.frontend.service.port }}
 {{- end }}
