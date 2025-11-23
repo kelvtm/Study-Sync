@@ -175,7 +175,13 @@ ingress:
     # AWS Load Balancer Controller annotations
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+
+    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+
+    # HTTPS Configuration
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443" # Redirect HTTP → HTTPS
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:118162274891:certificate/82435f6c-d2a1-4be4-abbf-5e6dca8e6e43"
     alb.ingress.kubernetes.io/healthcheck-path: /
     alb.ingress.kubernetes.io/healthcheck-interval-seconds: "15"
     alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
