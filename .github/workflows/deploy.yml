@@ -36,7 +36,8 @@ jobs:
       - name: Build and push backend
         uses: docker/build-push-action@v6
         with:
-          context: docker/Dockerfile.prod
+          file: docker/Dockerfile.prod
+          context: .
           push: true
           # tags: user/app:latest
           tags: |
@@ -45,7 +46,8 @@ jobs:
       - name: Build and push frontend
         uses: docker/build-push-action@v6
         with:
-          context: docker/dockerfile.frontend.prod
+          file: docker/Dockerfile.frontend.prod
+          context: ./vue-project
           push: true
           # tags: user/app:latest
           tags: |
