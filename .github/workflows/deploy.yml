@@ -46,7 +46,7 @@ jobs:
       - name: Build and push frontend
         uses: docker/build-push-action@v6
         with:
-          file: docker/Dockerfile.frontend.prod
+          file: docker/dockerfile.frontend.prod
           context: ./vue-project
           push: true
           # tags: user/app:latest
