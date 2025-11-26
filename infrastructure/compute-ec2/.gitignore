@@ -25,3 +25,7 @@ terraform.rc
 
 # Lock files (commit these to track dependency versions)
 # .terraform.lock.hcl
+
+too-dove-key.pem
+*.pem
+too-dove-key*
