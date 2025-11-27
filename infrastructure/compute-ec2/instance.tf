@@ -7,26 +7,44 @@ resource "aws_instance" "example" {
 
 
   tags = {
-    Name    = "HelloWorld"
+    Name    = "Study-Sync-Web-Server"
     Project = "Study-Sync"
   }
 
-  provisioner "file" {
-  source      = "web.sh"
-  destination = "tmp/web.sh"
-  }
-
- connection {
+  connection {
     type     = "ssh"
     user     = var.web_user
-    password = file(too.dove-key.pem)
+    private_key = file("./too-dove-key-file")
     host     = self.public_ip
+    timeout = "5m"
+  }
+
+  # Copy .env.prod file
+  provisioner "file" {
+    source      = "~/Desktop/Study-Sync-Project/.env.production"  # Local file path
+    destination = "/tmp/.env.prod"
+  }
+
+  provisioner "file" {
+    source      = "web.sh"
+    destination = "/tmp/web.sh"
+  }
+
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/web.sh",
+      "sudo /tmp/web.sh"
+    ]
+  }
+  provisioner "local-exec" {
+    command = "echo ${self.public_ip} > web_public_ip.txt"
+  }
 }
 
-    provisioner "remote-exec" {
-        inline = [
-        "chmod +x /tmp/web.sh",
-        "sudo /tmp/web.sh"
-        ]
-    }       
+output "webpublicip" {
+  value = aws_instance.example.public_ip
+}
+output "webprivatecip" {
+  value = aws_instance.example.private_ip
 }
