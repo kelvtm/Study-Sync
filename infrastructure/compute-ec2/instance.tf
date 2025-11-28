@@ -1,7 +1,7 @@
 resource "aws_instance" "example" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
-  key_name               = "too-dove-key"
+  key_name               = "too-dove-key-file"
   vpc_security_group_ids = [aws_security_group.too_sg.id]
   availability_zone      = var.zone
 

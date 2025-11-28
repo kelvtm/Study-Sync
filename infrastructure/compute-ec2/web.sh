@@ -1,8 +1,13 @@
+#!/bin/bash
+set -e  # Exit on error
+
 sudo apt-get update
 sudo apt-get install -y docker.io
 sudo systemctl enable docker
 sudo systemctl start docker
 sudo usermod -aG docker ubuntu
+
+cd /home/ubuntu/Study-Sync
 
 # Create directory and move .env file
 mkdir -p /home/ubuntu/Study-Sync
@@ -29,4 +34,4 @@ docker run -d \
   -p 8080:80 \
   kelvtmoni/studysync-frontend:latest
 
-echo "Deployment complete! Backend: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4):3000"
+echo "Deployment complete! "
