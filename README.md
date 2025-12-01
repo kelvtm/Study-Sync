@@ -22,7 +22,7 @@ StudySync is a **real-time collaborative study platform** built with a focus on 
 - ✅ GitOps workflow with ArgoCD
 - ✅ Comprehensive monitoring with Prometheus & Grafana
 - ✅ Infrastructure as Code with Terraform & Helm
-- ✅ Container orchestration on Kubernetes (EKS & KOPS)
+- ✅ Container orchestration on Kubernetes (EKS)
 
 ---
 
