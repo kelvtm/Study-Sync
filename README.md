@@ -10,7 +10,7 @@
 
 ## 🎯 Overview
 
-StudySync is a **real-time collaborative study platform** built with a focus on **DevOps excellence, cloud-native architecture, and production-grade reliability**. This project demonstrates end-to-end implementation of modern DevOps practices, from infrastructure provisioning to automated deployments and comprehensive monitoring.
+StudySync is a part of my Masters Dissertation of a **real-time collaborative study platform** built with a focus on **DevOps excellence, cloud-native architecture, and production-grade reliability**. This project demonstrates end-to-end implementation of modern DevOps practices, from infrastructure provisioning to automated deployments and comprehensive monitoring.
 
 ### Key Features
 
@@ -32,7 +32,7 @@ StudySync is a **real-time collaborative study platform** built with a focus on 
 
 ![High-Level Architecture](vue-project/public/image.png)
 
-🛠️ Tech Stack
+🛠️ **Tech Stack**
 
 **Infrastructure & Cloud**:
 AWS (EKS, EC2, VPC, ALB, CloudWatch, Secrets Manager), Kubernetes 1.28+, Terraform, Helm, ArgoCD
