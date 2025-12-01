@@ -10,7 +10,7 @@
 
 ## 🎯 Overview
 
-StudySync is a part of my Masters Dissertation of a **real-time collaborative study platform** built with a focus on **DevOps excellence, cloud-native architecture, and production-grade reliability**. This project demonstrates end-to-end implementation of modern DevOps practices, from infrastructure provisioning to automated deployments and comprehensive monitoring.
+StudySync is part of my Masters Dissertation of a **real-time collaborative study platform** built with a focus on **DevOps excellence, cloud-native architecture, and production-grade reliability**. This project demonstrates end-to-end implementation of modern DevOps practices, from infrastructure provisioning to automated deployments and comprehensive monitoring.
 
 ### Key Features
 
