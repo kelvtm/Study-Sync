@@ -34,19 +34,19 @@ StudySync is a **real-time collaborative study platform** built with a focus on 
 
 🛠️ Tech Stack
 
-Infrastructure & Cloud:
+**Infrastructure & Cloud**:
 AWS (EKS, EC2, VPC, ALB, CloudWatch, Secrets Manager), Kubernetes 1.28+, Terraform, Helm, ArgoCD
 
-DevOps & Automation:
+**DevOps & Automation**:
 GitHub Actions, Docker Hub, GitOps with ArgoCD, Autoscaling (HPA & Cluster Autoscaler), AWS VPC CNI, CoreDNS
 
-Security & Scanning:
+**Security & Scanning**:
 Trivy, Snyk
 
-Monitoring & Observability:
+**Monitoring & Observability**:
 Prometheus, Grafana, CloudWatch Logs & Container Insights, Fluent Bit, AWS X-Ray, Alertmanager (Slack Webhooks)
 
-Application Stack:
+**Application Stack**:
 Node.js (Express.js, Socket.io), Vue.js 3 (Vite, TailwindCSS), MongoDB Atlas, Nginx Ingress Controller
 
 ---
@@ -64,7 +64,9 @@ Node.js (Express.js, Socket.io), Vue.js 3 (Vite, TailwindCSS), MongoDB Atlas, Ng
 - **Cluster Overview**: Node health, pod status, resource utilization
 - **Application Performance**: Request throughput, response times, error rates
 - **Database Metrics**: Query performance, connection pools
-- **Cost Tracking**: Resource usage by namespace/team
+- **Cost Tracking**: Resource usage by namespace/
+
+---
 
 ## 🔐 Security
 
