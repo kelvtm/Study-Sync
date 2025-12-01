@@ -1,4 +1,4 @@
-resource "aws_instance" "example" {
+resource "aws_instance" "study_sync1" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
   key_name               = "too-dove-key"
@@ -43,8 +43,8 @@ resource "aws_instance" "example" {
 }
 
 output "webpublicip" {
-  value = aws_instance.example.public_ip
+  value = aws_instance.study_sync1.public_ip
 }
 output "webprivatecip" {
-  value = aws_instance.example.private_ip
+  value = aws_instance.study_sync1.private_ip
 }

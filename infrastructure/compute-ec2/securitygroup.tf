@@ -1,5 +1,5 @@
 resource "aws_security_group" "too_sg" {
-  name        = "too_sg"
+  name        = "too_sg2"
   description = "Allow TLS inbound traffic and all outbound traffic"
   tags = {
     Name = "allow_tls"

@@ -7,7 +7,6 @@ sudo systemctl enable docker
 sudo systemctl start docker
 sudo usermod -aG docker ubuntu
 
-cd /home/ubuntu/Study-Sync
 
 # Create directory and move .env file
 mkdir -p /home/ubuntu/Study-Sync

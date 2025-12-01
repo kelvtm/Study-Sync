@@ -67,7 +67,7 @@ variable "instance_type" {
 variable "key_pair_name" {
   description = "Name of existing EC2 key pair for SSH access"
   type        = string
-  default     = ""
+  default     = "studysync-dev-key.pem"
 }
 
 variable "enable_public_ip" {
@@ -111,13 +111,13 @@ variable "min_size" {
 variable "max_size" {
   description = "Maximum number of instances in auto scaling group"
   type        = number
-  default     = 3
+  default     = 1
 }
 
 variable "desired_capacity" {
   description = "Desired number of instances in auto scaling group"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 # ============================================
@@ -143,7 +143,7 @@ variable "enable_cloudwatch_alarms" {
 variable "alarm_email" {
   description = "Email address for CloudWatch alarms"
   type        = string
-  default     = ""
+  default     = "kelvtmoni@gmail.com"
 }
 
 variable "mongodb_uri" {

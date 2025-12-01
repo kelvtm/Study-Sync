@@ -1,4 +1,4 @@
 resource "aws_key_pair" "too-dove" {
-  key_name   = "too-dove-key"
+  key_name   = "too-dove-key2"
   public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMGlH1uZce3/Vzb5nAH4Ef4mFBjIy0Tscwq1OyU5Zrg7 Admin@DESKTOP-0H9LP9J"
 }

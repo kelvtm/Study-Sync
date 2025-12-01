@@ -57,14 +57,14 @@ case $ACTION in
         
         # Restore original capacity
         if [ "$ENVIRONMENT" == "dev" ]; then
+            MIN=0
+            DESIRED=0
+        elif [ "$ENVIRONMENT" == "staging" ]; then
+            MIN=0
+            DESIRED=0
+        else
             MIN=1
             DESIRED=1
-        elif [ "$ENVIRONMENT" == "staging" ]; then
-            MIN=2
-            DESIRED=2
-        else
-            MIN=2
-            DESIRED=3
         fi
         
         aws autoscaling update-auto-scaling-group \
