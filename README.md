@@ -6,7 +6,7 @@
 
 > A production-grade, cloud-native study collaboration platform demonstrating enterprise DevOps practices, microservices architecture, and modern infrastructure automation.
 
-![alt text](image.png)
+![High-Level Architecture](image.png)
 
 ## 🎯 Overview
 
@@ -32,47 +32,22 @@ StudySync is a **real-time collaborative study platform** built with a focus on 
 
 ![High-Level Architecture](vue-project/public/image.png)
 
-## 🛠️ Tech Stack
+🛠️ Tech Stack
 
-### Infrastructure & Platform
+Infrastructure & Cloud:
+AWS (EKS, EC2, VPC, ALB, CloudWatch, Secrets Manager), Kubernetes 1.28+, Terraform, Helm, ArgoCD
 
-| Category                    | Technologies                                          |
-| --------------------------- | ----------------------------------------------------- |
-| **Cloud Provider**          | AWS (EKS, EC2, VPC, ALB, CloudWatch, Secrets Manager) |
-| **Container Orchestration** | Kubernetes 1.28+, Amazon EKS,                         |
-| **Infrastructure as Code**  | Terraform, Helm Charts                                |
-| **Service Discovery**       | AWS VPC CNI, CoreDNS                                  |
-| **Load Balancing**          | AWS Application Load Balancer (ALB)                   |
-| **Autoscaling**             | Horizontal Pod Autoscaler (HPA), Cluster Autoscaler   |
+DevOps & Automation:
+GitHub Actions, Docker Hub, GitOps with ArgoCD, Autoscaling (HPA & Cluster Autoscaler), AWS VPC CNI, CoreDNS
 
-### DevOps & Automation
+Security & Scanning:
+Trivy, Snyk
 
-| Category                     | Technologies    |
-| ---------------------------- | --------------- |
-| **CI/CD**                    | GitHub Actions, |
-| **GitOps**                   | ArgoCD          |
-| **Container Registry**       | Docker Hub      |
-| **Configuration Management** | Helm            |
-| **Security Scanning**        | Trivy, Snyk     |
+Monitoring & Observability:
+Prometheus, Grafana, CloudWatch Logs & Container Insights, Fluent Bit, AWS X-Ray, Alertmanager (Slack Webhooks)
 
-### Monitoring & Observability
-
-| Category          | Technologies                              |
-| ----------------- | ----------------------------------------- |
-| **Metrics**       | Prometheus, CloudWatch Container Insights |
-| **Visualization** | Grafana Dashboards                        |
-| **Logging**       | Fluent Bit, CloudWatch Logs               |
-| **Tracing**       | AWS X-Ray                                 |
-| **Alerting**      | Prometheus Alertmanager, Slack Webhooks   |
-
-### Application Stack
-
-| Component       | Technology                     |
-| --------------- | ------------------------------ |
-| **Backend**     | Node.js, Express.js, Socket.io |
-| **Frontend**    | Vue.js 3, Vite, TailwindCSS    |
-| **Database**    | MongoDB Atlas                  |
-| **API Gateway** | Nginx Ingress Controller       |
+Application Stack:
+Node.js (Express.js, Socket.io), Vue.js 3 (Vite, TailwindCSS), MongoDB Atlas, Nginx Ingress Controller
 
 ---
 
