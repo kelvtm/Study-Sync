@@ -51,23 +51,6 @@ Node.js (Express.js, Socket.io), Vue.js 3 (Vite, TailwindCSS), MongoDB Atlas, Ng
 
 ---
 
-### Network Architecture
-
-```
-VPC (10.0.0.0/16)
-├── Public Subnets (us-east-1a, us-east-1b)
-│   ├── NAT Gateways
-│   ├── Application Load Balancer
-│   └── Bastion Host
-├── Private Subnets (us-east-1a, us-east-1b)
-│   ├── EKS Worker Nodes
-│   └── ElastiCache (future)
-└── Security Groups
-    ├── ALB (80, 443)
-    ├── Worker Nodes (All from ALB)
-    └── Control Plane (443 from workers)
-```
-
 ## 📊 Monitoring & Observability
 
 ### Prometheus Metrics
@@ -85,41 +68,17 @@ VPC (10.0.0.0/16)
 
 ## 🔐 Security
 
-### Security Measures Implemented
+Network Security:
+VPC isolation (public/private subnets), least-privilege security groups, pod-to-pod network policies.
 
-✅ **Network Security**
+Container Security:
+Trivy scans in CI, non-root containers, read-only filesystems, enforced resource limits.
 
-- VPC isolation with public/private subnets
-- Security groups with least-privilege rules
-- Network policies for pod-to-pod communication
-- WAF integration (planned)
+Secrets Management:
+AWS Secrets Manager, Secrets Store CSI Driver, no secrets in Git, automatic rotation.
 
-✅ **Container Security**
+Access Control:
+IAM Roles for Service Accounts (IRSA), RBAC, Pod Security Standards, audit logging.
 
-- Trivy vulnerability scanning in CI pipeline
-- Non-root containers
-- Read-only root filesystem where possible
-- Resource limits enforced
-
-✅ **Secrets Management**
-
-- AWS Secrets Manager for sensitive data
-- Secrets Store CSI Driver for pod injection
-- No secrets in Git (validated by pre-commit hooks)
-- Automatic rotation enabled
-
-✅ **Access Control**
-
-- IAM Roles for Service Accounts (IRSA)
-- RBAC policies for namespace isolation
-- Pod Security Standards enforced
-- Audit logging enabled
-
-✅ **Compliance**
-
-- Container image signing
-- SAST/DAST in pipeline
-- Dependency scanning
-- Security patch automation
-
----
+Compliance & Scanning:
+Image signing, SAST/DAST, dependency scanning, automated security patching.
