@@ -6,7 +6,7 @@
 
 > A production-grade, cloud-native study collaboration platform demonstrating enterprise DevOps practices, microservices architecture, and modern infrastructure automation.
 
-![Architecture Overview](docs/images/architecture-overview.png)
+![alt text](image.png)
 
 ## 🎯 Overview
 
