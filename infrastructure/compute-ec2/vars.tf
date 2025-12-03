@@ -19,3 +19,15 @@ variable "web_user" {
   default = "ubuntu"
 
 }
+
+variable "domain_name" {
+  description = "Domain name for the application"
+  type        = string
+  default     = "jettoner.xyz"
+}
+
+variable "create_api_subdomain" {
+  description = "Whether to create api subdomain"
+  type        = bool
+  default     = false
+}
