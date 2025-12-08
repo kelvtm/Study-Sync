@@ -29,3 +29,8 @@ terraform.rc
 too-dove-key.pem
 *.pem
 too-dove-key*
+keypair.tf
+too-dove-key*
+*.key
+userdata.sh
+web_public_ip.txt
