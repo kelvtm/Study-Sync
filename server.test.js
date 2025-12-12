@@ -2,7 +2,7 @@ import request from "supertest";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
-// Load environment variables
+// Load environment variables (kept simple, relying on server.js to load the right .env file)
 dotenv.config();
 
 // We'll test against your actual server
@@ -42,12 +42,12 @@ describe("StudySync API Tests", () => {
   // ==========================================
   // SIGNUP TESTS
   // ==========================================
-  describe("POST /signup", () => {
+  describe("POST /api/signup", () => {
     it("should create a new user account", async () => {
       const startTime = Date.now();
 
       const response = await request(BASE_URL)
-        .post("/signup")
+        .post("/api/signup") // <-- FIXED ROUTE
         .send(testUser)
         .expect("Content-Type", /json/)
         .expect(201);
@@ -71,7 +71,7 @@ describe("StudySync API Tests", () => {
 
     it("should reject duplicate email", async () => {
       const response = await request(BASE_URL)
-        .post("/signup")
+        .post("/api/signup") // <-- FIXED ROUTE
         .send(testUser)
         .expect("Content-Type", /json/)
         .expect(400);
@@ -81,7 +81,7 @@ describe("StudySync API Tests", () => {
 
     it("should reject invalid username (too short)", async () => {
       const response = await request(BASE_URL)
-        .post("/signup")
+        .post("/api/signup") // <-- FIXED ROUTE
         .send({
           email: "newuser@example.com",
           username: "ab",
@@ -98,7 +98,7 @@ describe("StudySync API Tests", () => {
 
     it("should reject invalid password (too short)", async () => {
       const response = await request(BASE_URL)
-        .post("/signup")
+        .post("/api/signup") // <-- FIXED ROUTE
         .send({
           email: "newuser2@example.com",
           username: "validuser",
@@ -117,12 +117,12 @@ describe("StudySync API Tests", () => {
   // ==========================================
   // LOGIN TESTS
   // ==========================================
-  describe("POST /login", () => {
+  describe("POST /api/login", () => {
     it("should login with email", async () => {
       const startTime = Date.now();
 
       const response = await request(BASE_URL)
-        .post("/login")
+        .post("/api/login") // <-- FIXED ROUTE
         .send({
           email: testUser.email,
           password: testUser.password,
@@ -144,7 +144,7 @@ describe("StudySync API Tests", () => {
       const startTime = Date.now();
 
       const response = await request(BASE_URL)
-        .post("/login")
+        .post("/api/login") // <-- FIXED ROUTE
         .send({
           email: testUser.username, // Using username in email field
           password: testUser.password,
@@ -162,7 +162,7 @@ describe("StudySync API Tests", () => {
 
     it("should reject invalid credentials", async () => {
       const response = await request(BASE_URL)
-        .post("/login")
+        .post("/api/login") // <-- FIXED ROUTE
         .send({
           email: testUser.email,
           password: "WrongPassword123",
@@ -175,7 +175,7 @@ describe("StudySync API Tests", () => {
 
     it("should reject non-existent user", async () => {
       const response = await request(BASE_URL)
-        .post("/login")
+        .post("/api/login") // <-- FIXED ROUTE
         .send({
           email: "nonexistent@example.com",
           password: "Password123",
@@ -193,6 +193,11 @@ describe("StudySync API Tests", () => {
   describe("GET /api/users/:userId/stats", () => {
     it("should get user stats", async () => {
       const startTime = Date.now();
+
+      // This test relies on the successful signup from the previous block
+      if (!userId) {
+        throw new Error("Test setup failed: userId not set after signup.");
+      }
 
       const response = await request(BASE_URL)
         .get(`/api/users/${userId}/stats`)
@@ -249,7 +254,7 @@ describe("StudySync API Tests", () => {
 
       console.log(`✅ Leaderboard response time: ${responseTime}ms`);
       console.log(
-        `   Total users on leaderboard: ${response.body.leaderboard.length}`
+        `   Total users on leaderboard: ${response.body.leaderboard.length}`
       );
     });
   });
@@ -277,7 +282,7 @@ describe("StudySync API Tests", () => {
       console.log(
         `✅ ${numRequests} concurrent requests completed in ${totalTime}ms`
       );
-      console.log(`   Average response time: ${avgTime.toFixed(2)}ms`);
+      console.log(`   Average response time: ${avgTime.toFixed(2)}ms`);
 
       expect(avgTime).toBeLessThan(500); // Average should be under 500ms
     });
@@ -292,8 +297,8 @@ describe("StudySync API Tests", () => {
       // You'll need to expose a direct DB connection or a cleanup endpoint
       try {
         // Replace 'User' with your actual Mongoose model name
-        await mongoose.model("User").findByIdAndDelete(userId);
-        console.log(`🧹 Cleaned up test user with ID: ${userId}`);
+        // This part needs your server to expose the Mongoose connection or a cleanup endpoint
+        // console.log(`🧹 Attempted to clean up test user with ID: ${userId}`);
       } catch (error) {
         // Handle error (e.g., model isn't available in this scope)
         console.error("Cleanup failed:", error.message);
