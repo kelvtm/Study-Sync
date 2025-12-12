@@ -2,10 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
+  namespace: studysync-prod
   labels:
     app: backend
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: backend
@@ -19,11 +20,20 @@ spec:
       labels:
         app: backend
     spec:
+      imagePullSecrets:
+        - name: secret-tiger-docker
       containers:
         - name: backend
           image: kelvtmoni/studysync-backend:latest
           ports:
             - containerPort: 3000
+              name: backend-port
+          env:
+            - name: MONGO_URI # <--- The variable name your application expects
+              valueFrom:
+                secretKeyRef:
+                  name: studysync-secrets # The name of the Secret object
+                  key: DATABASE_URL # The key within the Secret object
 
           resources:
             requests:

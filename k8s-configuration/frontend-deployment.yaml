@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-deployment
+  namespace: studysync-prod
   labels:
     app: frontend
 spec:
@@ -24,6 +25,7 @@ spec:
           image: kelvtmoni/studysync-frontend:latest
           ports:
             - containerPort: 80
+              name: frontend-port
 
           resources:
             requests:

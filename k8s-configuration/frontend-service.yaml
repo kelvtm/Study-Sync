@@ -1,11 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-service
+  name: studysync-frontend
+  namespace: studysync-prod
 spec:
   selector:
-    name: frontend-deployment
+    app: frontend
   ports:
     - protocol: TCP
       port: 80
-      targetPort: frontend
+      targetPort: frontend-port
