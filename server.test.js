@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // We'll test against your actual server
-const BASE_URL = process.env.TEST_API_URL || "http://localhost:3000";
+const BASE_URL = process.env.TEST_API_URL || "http://localhost:3001";
 
 // Test data
 const testUser = {
