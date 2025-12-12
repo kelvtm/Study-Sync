@@ -16,7 +16,7 @@ env:
 
 jobs:
   # ============================================
-  # Job 1: Run Backend Tests
+  # Job 1: Run Backend Tests.
   # ============================================
   backend-tests:
     name: Backend Tests
