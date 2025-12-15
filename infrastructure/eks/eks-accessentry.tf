@@ -1,6 +1,7 @@
 resource "aws_eks_access_entry" "admin" {
   cluster_name      = aws_eks_cluster.studysync_cluster.name
   principal_arn     = "arn:aws:iam::118162274891:user/tochi-admin"
+  
   kubernetes_groups = []
   type              = "STANDARD"
 }
