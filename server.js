@@ -22,6 +22,16 @@ import Course from "./db-models/course.js";
 import Stage from "./db-models/stage.js";
 import Subtask from "./db-models/subtask.js";
 
+// Import metrics utilities
+import metricsRegister, {
+  metricsMiddleware,
+  updateSocketConnections,
+  incrementSocketMessages,
+  updateActiveStudySessions,
+  incrementUserRegistrations,
+  updateMongoStatus,
+} from "./metrics.js";
+
 dotenv.config();
 const app = express();
 const httpServer = createServer(app);
@@ -48,6 +58,8 @@ app.use(
     credentials: true,
   })
 );
+// Metrics endpoint
+app.use(metricsMiddleware);
 
 // --- MongoDB ---
 async function connectDB() {
@@ -60,6 +72,20 @@ async function connectDB() {
     console.log(
       `   URI: ${MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, "//***:***@")}`
     ); // Hide credentials
+
+    // Update MongoDB connection metric
+    updateMongoStatus(true);
+
+    // Monitor connection events
+    mongoose.connection.on("disconnected", () => {
+      console.log("❌ MongoDB disconnected");
+      updateMongoStatus(false);
+    });
+
+    mongoose.connection.on("reconnected", () => {
+      console.log("✅ MongoDB reconnected");
+      updateMongoStatus(true);
+    });
   } catch (err) {
     console.error("❌ MongoDB connection error:", err);
     process.exit(1);
@@ -74,6 +100,18 @@ app.use("/api/notifications", notificationRoutes);
 
 // --- Routes ---
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
+// This exposes the /metrics endpoint that Prometheus will scrape
+
+// --- Metrics endpoint ---
+app.get("/metrics", async (req, res) => {
+  try {
+    res.set("Content-Type", metricsRegister.contentType);
+    const metrics = await metricsRegister.metrics();
+    res.end(metrics);
+  } catch (err) {
+    res.status(500).end(err);
+  }
+});
 
 // ⭐ UPDATED Login route with bcrypt - supports email OR username
 app.post("/api/login", async (req, res) => {
@@ -154,6 +192,7 @@ app.post("/api/signup", async (req, res) => {
     });
 
     await newUser.save();
+    incrementUserRegistrations(); // Track registration
 
     res.status(201).json({
       message: "Account created successfully",
@@ -291,9 +330,14 @@ const io = new Server(httpServer, {
 });
 
 const userSockets = new Map();
+let socketConnectionCount = 0;
 
 io.on("connection", (socket) => {
-  console.log(`🔌 User connected: ${socket.id}`);
+  socketConnectionCount++;
+  updateSocketConnections(socketConnectionCount); // 🆕 Update metric
+  console.log(
+    `🔌 User connected: ${socket.id} (Total: ${socketConnectionCount})`
+  );
 
   socket.on("join_user", (userId) => {
     userSockets.set(userId, socket.id);
@@ -302,6 +346,8 @@ io.on("connection", (socket) => {
 
   socket.on("join_session", async (data) => {
     const { sessionId, userId } = data;
+
+    incrementSocketMessages("join_session"); // 🆕 Track event
 
     try {
       const session = await Session.findById(sessionId);
@@ -314,6 +360,9 @@ io.on("connection", (socket) => {
       console.log(
         `👥 User ${userId} joined session room: session_${sessionId}`
       );
+
+      // 🆕 Update active sessions count
+      await updateActiveStudySessions(Session);
 
       socket.to(`session_${sessionId}`).emit("user_joined", {
         message: "Your study partner has joined!",
@@ -333,10 +382,14 @@ io.on("connection", (socket) => {
   socket.on("leave_session", async (data) => {
     const { sessionId, userId } = data;
 
+    incrementSocketMessages("leave_session"); // 🆕 Track event
     console.log(`👋 User ${userId} leaving session: ${sessionId}`);
 
     try {
       socket.leave(`session_${sessionId}`);
+
+      // 🆕 Update active sessions count
+      await updateActiveStudySessions(Session);
 
       socket.to(`session_${sessionId}`).emit("partner_left", {
         userId,
@@ -351,6 +404,8 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", async (data) => {
     const { sessionId, userId, message, timestamp } = data;
+
+    incrementSocketMessages("send_message"); // 🆕 Track event
 
     try {
       const session = await Session.findById(sessionId);
@@ -380,11 +435,16 @@ io.on("connection", (socket) => {
 
   socket.on("typing", (data) => {
     const { sessionId, userId, isTyping } = data;
+    incrementSocketMessages("typing"); // 🆕 Track event
     socket.to(`session_${sessionId}`).emit("user_typing", { userId, isTyping });
   });
 
   socket.on("disconnect", async () => {
-    console.log(`❌ User disconnected: ${socket.id}`);
+    socketConnectionCount--;
+    updateSocketConnections(socketConnectionCount); // 🆕 Update metric
+    console.log(
+      `❌ User disconnected: ${socket.id} (Total: ${socketConnectionCount})`
+    );
 
     let disconnectedUserId = null;
     for (const [userId, socketId] of userSockets.entries()) {
