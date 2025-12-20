@@ -19,7 +19,7 @@ The platform applies Social Cognitive Theory to academic procrastination through
 ## Core Capabilities
 
 - Real-time peer collaboration using WebSockets
-- Modular backend API and frontend SPA
+- Microservices backend API and frontend SPA
 - Containerised workloads deployed on Kubernetes (EKS)
 - Multi-environment delivery pipeline (development, staging, production)
 - Automated CI/CD with progressive delivery
