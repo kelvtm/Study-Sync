@@ -4,87 +4,120 @@
 [![Docker](https://img.shields.io/badge/Docker-20.10+-blue.svg)](https://www.docker.com/)
 [![AWS EKS](https://img.shields.io/badge/AWS-EKS-orange.svg)](https://aws.amazon.com/eks/)
 
-> A production-grade, cloud-native study collaboration platform demonstrating enterprise DevOps practices, microservices architecture, and modern infrastructure automation.
-
-![High-Level Architecture](image.png)
-
-## 🎯 Overview
-
-StudySync is part of my Masters Dissertation of a **real-time collaborative study platform** built with a focus on **DevOps excellence, cloud-native architecture, and production-grade reliability**. This project demonstrates end-to-end implementation of modern DevOps practices, from infrastructure provisioning to automated deployments and comprehensive monitoring.
-
-### Key Features
-
-- ✅ Real-time collaboration with WebSocket support
-- ✅ Microservices architecture (Backend API + Frontend SPA)
-- ✅ Multi-environment deployments (Dev, Staging, Production)
-- ✅ Zero-downtime deployments with Canary strategy
-- ✅ Automated CI/CD with GitHub Actions
-- ✅ GitOps workflow with ArgoCD
-- ✅ Comprehensive monitoring with Prometheus & Grafana
-- ✅ Infrastructure as Code with Terraform & Helm
-- ✅ Container orchestration on Kubernetes (EKS)
+> A production-grade, cloud-native study collaboration platform demonstrating modern DevOps practices, scalable system design, and full-stack implementation.
 
 ---
 
-## 🏗️ Architecture
+## Overview
 
-### High-Level Architecture
+Study Sync is a real-time collaborative study platform developed as part of my Master’s dissertation, designed and implemented as a **production-oriented cloud-native system**. The project combines a complete full-stack web application with a strong emphasis on **reliability, automation, observability, and infrastructure-as-code**.
+
+The platform applies Social Cognitive Theory to academic procrastination through peer-integrated features, while the technical implementation focuses on building, deploying, and operating a resilient distributed system using contemporary DevOps and platform engineering practices.
+
+---
+
+## Core Capabilities
+
+- Real-time peer collaboration using WebSockets
+- Modular backend API and frontend SPA
+- Containerised workloads deployed on Kubernetes (EKS)
+- Multi-environment delivery pipeline (development, staging, production)
+- Automated CI/CD with progressive delivery
+- GitOps-based deployment management
+- Comprehensive monitoring, logging, and alerting
+- Secure secrets management and least-privilege access control
+
+---
+
+## Architecture
+
+### System Architecture
 
 ![High-Level Architecture](vue-project/public/image.png)
 
-![CI/CD pipeline](vue-project/public/cicd_pipeline.PNG)
+The system is composed of a Vue.js single-page application, a Node.js/Express backend with Socket.io for real-time communication, and a managed MongoDB data store. Services are containerised and deployed to Kubernetes using Helm charts, with traffic managed via an NGINX Ingress Controller and AWS load balancing.
 
-![monitoring and alarting](vue-project/public/graphana_dashboard.PNG)
+### Delivery Pipeline
 
-🛠️ **Tech Stack**
+![CI/CD Pipeline](vue-project/public/cicd_pipeline.PNG)
 
-**Infrastructure & Cloud**:
-AWS (EKS, EC2, VPC, ALB, CloudWatch, Secrets Manager), Kubernetes 1.28+, Terraform, Helm, ArgoCD
+The CI/CD pipeline performs automated testing, security scanning, image builds, and versioned deployments. ArgoCD continuously reconciles cluster state using a GitOps workflow, enabling controlled and repeatable releases.
 
-**DevOps & Automation**:
-GitHub Actions, Docker Hub, GitOps with ArgoCD, Autoscaling (HPA & Cluster Autoscaler), AWS VPC CNI, CoreDNS
+### Observability
 
-**Security & Scanning**:
-Trivy, Snyk
-
-**Monitoring & Observability**:
-Prometheus, Grafana, CloudWatch Logs & Container Insights, Fluent Bit, AWS X-Ray, Alertmanager (Slack Webhooks)
-
-**Application Stack**:
-Node.js (Express.js, Socket.io), Vue.js 3 (Vite, TailwindCSS), MongoDB Atlas, Nginx Ingress Controller
+![Monitoring Dashboard](vue-project/public/graphana_dashboard.PNG)
 
 ---
 
-## 📊 Monitoring & Observability
+## Technology Stack
 
-### Prometheus Metrics
+### Application
 
-- **Application Metrics**: Request rate, latency, error rate (RED method)
-- **Infrastructure Metrics**: CPU, memory, disk, network (USE method)
-- **Custom Business Metrics**: Active users, study sessions, collaboration events
+- **Frontend**: Vue.js 3, Vite, TailwindCSS
+- **Backend**: Node.js, Express.js, Socket.io
+- **Database**: MongoDB Atlas
 
-### Grafana Dashboards
+### Container & Platform
 
-- **Cluster Overview**: Node health, pod status, resource utilization
-- **Application Performance**: Request throughput, response times, error rates
-- **Database Metrics**: Query performance, connection pools
-- **Cost Tracking**: Resource usage by namespace/
+- Docker
+- Kubernetes (EKS)
+- Helm
+- NGINX Ingress Controller
+
+### Infrastructure & Automation
+
+- AWS (EKS, EC2, VPC, ALB, IAM, CloudWatch)
+- Terraform (infrastructure provisioning)
+- ArgoCD (GitOps deployment)
+- GitHub Actions (CI/CD)
+
+### Observability
+
+- Prometheus
+- Grafana
+- Alertmanager
+- Fluent Bit
+- AWS CloudWatch & Container Insights
+
+### Security
+
+- Trivy and Snyk scanning
+- IAM Roles for Service Accounts (IRSA)
+- Kubernetes RBAC and Pod Security Standards
+- Secrets Store CSI Driver with AWS Secrets Manager
 
 ---
 
-## 🔐 Security
+## Monitoring and Observability
 
-Network Security:
-VPC isolation (public/private subnets), least-privilege security groups, pod-to-pod network policies.
+Monitoring is implemented using Prometheus and Grafana, capturing both infrastructure- and application-level metrics.
 
-Container Security:
-Trivy scans in CI, non-root containers, read-only filesystems, enforced resource limits.
+- **Infrastructure metrics**: CPU, memory, network, and pod health
+- **Application metrics**: request throughput, latency, and error rates
+- **Custom metrics**: active users, study sessions, and collaboration events
 
-Secrets Management:
-AWS Secrets Manager, Secrets Store CSI Driver, no secrets in Git, automatic rotation.
+Alerting is configured via Alertmanager with external notifications, enabling rapid detection of system degradation.
 
-Access Control:
-IAM Roles for Service Accounts (IRSA), RBAC, Pod Security Standards, audit logging.
+---
 
-Compliance & Scanning:
-Image signing, SAST/DAST, dependency scanning, automated security patching.
+## Security and Reliability
+
+The platform follows a defence-in-depth approach:
+
+- Network isolation using private VPC subnets and security groups
+- Least-privilege IAM and Kubernetes RBAC
+- Container hardening (non-root images, resource limits, read-only filesystems)
+- Secrets managed externally with no sensitive data committed to source control
+- Continuous vulnerability scanning integrated into the delivery pipeline
+
+---
+
+## Project Context
+
+While developed in an academic setting, the system was intentionally designed, implemented, and operated using industry-aligned practices. Emphasis was placed on reproducibility, automation, and operational visibility, ensuring the platform behaves consistently across environments and under real-world conditions.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
