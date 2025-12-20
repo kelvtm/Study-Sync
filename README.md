@@ -33,6 +33,9 @@ StudySync is part of my Masters Dissertation of a **real-time collaborative stud
 ![High-Level Architecture](vue-project/public/image.png)
 
 ![CI/CD pipeline](vue-project/public/cicd_pipeline.PNG)
+
+![monitoring and alarting](vue-project/public/graphana_dashboard.PNG)
+
 🛠️ **Tech Stack**
 
 **Infrastructure & Cloud**:

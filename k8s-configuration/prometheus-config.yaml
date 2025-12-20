@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: studysync-prod
+data:
+  prometheus.yml: |
+    # Global configuration
+    global:
+      scrape_interval: 15s      # How often to scrape targets
+      evaluation_interval: 15s  # How often to evaluate rules
+      
+    # Scrape configurations
+    scrape_configs:
+      # ===== JOB 1: Scrape Prometheus itself =====
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      
+      # ===== JOB 2: Scrape your backend application =====
+      - job_name: 'studysync-backend'
+        # Use Kubernetes service discovery to find backend pods
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - studysync-prod
+        
+        # Only scrape pods with the label app=backend
+        relabel_configs:
+          # Keep only pods with label app=backend
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: backend
+          
+          # Use pod name as instance label
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: instance
+          
+          # Add pod IP as target
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: pod_ip
+          
+          # Set the scrape path to /metrics
+          - target_label: __metrics_path__
+            replacement: /metrics
+          
+          # Set the scrape port to 3000
+          - source_labels: [__address__]
+            target_label: __address__
+            regex: ([^:]+)(?::\d+)?
+            replacement: $1:3000
+      
+      # ===== JOB 3: Scrape Kubernetes API server metrics =====
+      - job_name: 'kubernetes-apiservers'
+        kubernetes_sd_configs:
+          - role: endpoints
+        
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: default;kubernetes;https
+      
+      # ===== JOB 4: Scrape Kubernetes nodes (kubelet metrics) =====
+      - job_name: 'kubernetes-nodes'
+        kubernetes_sd_configs:
+          - role: node
+        
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+      
+      # ===== JOB 5: Scrape pods with prometheus.io/scrape annotation =====
+      # This is a fallback for any pods you annotate manually
+      - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - studysync-prod
+        
+        relabel_configs:
+          # Only scrape pods with annotation prometheus.io/scrape=true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          
+          # Use custom path if specified
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          
+          # Use custom port if specified
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__

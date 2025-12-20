@@ -24,7 +24,7 @@ spec:
         - name: secret-tiger-docker
       containers:
         - name: backend
-          image: kelvtmoni/studysync-backend:latest
+          image: kelvtmoni/studysync-backend:v1
           ports:
             - containerPort: 3000
               name: backend-port
