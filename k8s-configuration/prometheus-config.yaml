@@ -66,19 +66,33 @@ data:
             action: keep
             regex: default;kubernetes;https
       
-      # ===== JOB 4: Scrape Kubernetes nodes (kubelet metrics) =====
-      - job_name: 'kubernetes-nodes'
+      # ===== JOB 4: Scrape Node Exporter for system metrics =====
+      - job_name: 'node-exporter'
         kubernetes_sd_configs:
-          - role: node
-        
-        scheme: https
-        tls_config:
-          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+          - role: pod
+            namespaces:
+              names:
+                - studysync-prod
         
         relabel_configs:
+          # Only scrape pods with label app=node-exporter
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: node-exporter
+          
+          # Use node name as instance label
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: instance
+          
+          # Add node labels
           - action: labelmap
             regex: __meta_kubernetes_node_label_(.+)
+          
+          # Set the scrape port to 9100
+          - source_labels: [__address__]
+            target_label: __address__
+            regex: ([^:]+)(?::\d+)?
+            replacement: $1:9100
       
       # ===== JOB 5: Scrape pods with prometheus.io/scrape annotation =====
       # This is a fallback for any pods you annotate manually

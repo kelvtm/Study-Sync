@@ -1,0 +1,96 @@
+# Node Exporter DaemonSet - Runs on EVERY node to collect system metrics
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: studysync-prod
+  labels:
+    app: node-exporter
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+      annotations:
+        # Tell Prometheus to scrape this pod
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9100"
+    spec:
+      # Host networking allows access to node-level metrics
+      hostNetwork: true
+      hostPID: true
+
+      # Allow running on all nodes (including control plane if needed)
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+
+      containers:
+        - name: node-exporter
+          image: prom/node-exporter:v1.7.0
+          args:
+            # Collect filesystem metrics
+            - "--path.procfs=/host/proc"
+            - "--path.sysfs=/host/sys"
+            - "--path.rootfs=/host/root"
+            # Collect more detailed metrics
+            - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+            - '--collector.netclass.ignored-devices=^(veth.*|[a-z0-9]+@if\\d+)$$'
+            - '--collector.netdev.device-exclude=^(veth.*|[a-z0-9]+@if\\d+)$$'
+          ports:
+            - containerPort: 9100
+              hostPort: 9100
+              name: metrics
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          volumeMounts:
+            - name: proc
+              mountPath: /host/proc
+              readOnly: true
+            - name: sys
+              mountPath: /host/sys
+              readOnly: true
+            - name: root
+              mountPath: /host/root
+              readOnly: true
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+
+      volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: root
+          hostPath:
+            path: /
+            type: Directory
+---
+# Service to expose node-exporter metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-exporter
+  namespace: studysync-prod
+  labels:
+    app: node-exporter
+spec:
+  type: ClusterIP
+  clusterIP: None # Headless service - connects directly to pods
+  selector:
+    app: node-exporter
+  ports:
+    - name: metrics
+      port: 9100
+      targetPort: 9100
