@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm ci --silent
+RUN npm ci
 
 # Copy source
 COPY . .
@@ -24,7 +24,7 @@ LABEL version="3.0"
 LABEL description="StudySync Frontend - Pattern 3 Production"
 
 # Install curl for health checks
-RUN apk add --no-cache curl
+# RUN apk add --no-cache curl
 
 # Remove default Nginx config and files
 RUN rm -rf /etc/nginx/conf.d/* /usr/share/nginx/html/*

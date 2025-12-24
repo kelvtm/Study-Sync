@@ -7,4 +7,6 @@ dist/
 .env.local
 *.log
 .env.test
+./backend/.env
+./backend/.env.production
 k8s-configuration/secrete.yaml

@@ -1,23 +1,21 @@
-version: "3.8"
-
 services:
   backend:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.prod
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.prod
       args:
         BUILD_DATE: ${BUILD_DATE:-2025-01-01}
         VCS_REF: ${VCS_REF:-dev}
     image: studysync-backend:${VERSION:-latest}
     restart: unless-stopped
     env_file:
-      - .env
+      - ./backend/.env
     expose:
       - "3000"
     networks:
       - studysync-prod-network
     deploy:
-      replicas: 3 # Run 3 backend instances
+      replicas: 1 # Run 3 backend instances
       resources:
         limits:
           cpus: "0.5"
