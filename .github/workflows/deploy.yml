@@ -122,7 +122,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: docker/Dockerfile.prod
-          context: .
+          context: ./backend
           push: false
           load: true
           tags: ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
