@@ -34,7 +34,10 @@ spec:
 
             # Server configuration
             - name: GF_SERVER_ROOT_URL
-              value: "http://localhost:3000"
+              # value: "http://localhost:3000"
+              value: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
+            - name: GF_SERVER_SERVE_FROM_SUB_PATH
+              value: "true"
 
           volumeMounts:
             - name: grafana-storage

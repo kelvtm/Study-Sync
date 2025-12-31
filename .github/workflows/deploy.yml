@@ -25,7 +25,9 @@ jobs:
   backend-tests:
     name: Backend Tests
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -96,8 +98,8 @@ jobs:
         with:
           name: test-results
           path: |
-            test-server.log
-            coverage/
+            backend/test-server.log
+            backend/coverage/
           retention-days: 7
 
   # ============================================
