@@ -340,8 +340,8 @@ jobs:
       - name: Deploy to Kubernetes
         run: |
           # Update your deployment files with new image tags
-           kubectl set image deployment/backend backend=${{ env.BACKEND_IMAGE }}:${{ github.sha }} -n studysync-prod
-           kubectl set image deployment/frontend frontend=${{ env.FRONTEND_IMAGE }}:${{ github.sha }} -n studysync-prod
+           kubectl set image deployment/backend-deployment backend=${{ env.BACKEND_IMAGE }}:${{ github.sha }} -n studysync-prod
+           kubectl set image deployment/frontend-deployment frontend=${{ env.FRONTEND_IMAGE }}:${{ github.sha }} -n studysync-prod
            kubectl rollout status deployment/backend -n studysync-prod
            kubectl rollout status deployment/frontend -n studysync-prod
            echo "Add your deployment commands here"
